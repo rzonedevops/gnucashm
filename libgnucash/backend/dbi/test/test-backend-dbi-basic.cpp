@@ -83,6 +83,17 @@ typedef struct
     GSList* hdlrs;
 } Fixture;
 
+
+static char*
+normalize_path(char* path)
+{
+    g_return_val_if_fail(path, nullptr);
+    auto rv = gnc_uri_normalize_uri (path, FALSE);
+    g_free (path);
+    return rv;
+}
+
+
 static void
 setup (Fixture* fixture, gconstpointer pData)
 {
@@ -94,14 +105,17 @@ setup (Fixture* fixture, gconstpointer pData)
      * prevents creating the lock file. Force the session to get
      * around that.
      */
-    qof_session_begin (fixture->session, DBI_TEST_XML_FILENAME,
+    qof_session_begin (fixture->session,
+                       normalize_path (g_strdup (DBI_TEST_XML_FILENAME)),
                        SESSION_BREAK_LOCK);
     g_assert_cmpint (qof_session_get_error (fixture->session), == ,
                      ERR_BACKEND_NO_ERR);
     qof_session_load (fixture->session, NULL);
 
     if (g_strcmp0 (url, "sqlite3") == 0)
-        fixture->filename = g_strdup_printf ("/tmp/test-sqlite-%d", getpid ());
+        fixture->filename =
+            normalize_path (g_strdup_printf (TEMPDIR "/test-sqlite-%d",
+                                                    getpid ()));
     else
         fixture->filename = NULL;
 }
@@ -158,7 +172,9 @@ setup_memory (Fixture* fixture, gconstpointer pData)
 
     fixture->session = session;
     if (g_strcmp0 (url, "sqlite3") == 0)
-        fixture->filename = g_strdup_printf ("/tmp/test-sqlite-%d", getpid ());
+        fixture->filename =
+            normalize_path (g_strdup_printf (TEMPDIR "/test-sqlite-%d",
+                                                    getpid ()));
     else
         fixture->filename = NULL;
 }
@@ -237,7 +253,9 @@ setup_business (Fixture* fixture, gconstpointer pData)
 
     fixture->session = session;
     if (g_strcmp0 (url, "sqlite3") == 0)
-        fixture->filename = g_strdup_printf ("/tmp/test-sqlite-%d", getpid ());
+        fixture->filename =
+            normalize_path (g_strdup_printf (TEMPDIR "/test-sqlite-%d",
+                                                    getpid ()));
     else
         fixture->filename = NULL;
 }

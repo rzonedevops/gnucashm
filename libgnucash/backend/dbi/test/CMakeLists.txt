@@ -39,9 +39,24 @@ if (WITH_SQL)
   gnc_add_test(test-backend-dbi "${test_dbi_backend_SOURCES}"
     BACKEND_DBI_TEST_INCLUDE_DIRS BACKEND_DBI_TEST_LIBS
   )
+  if (DEFINED ENV{TMPDIR})
+    set(temp_dir "$ENV{TMPDIR}")
+  elseif (DEFINED ENV{TMP})
+    set(temp_dir "$ENV{TMP}")
+  elseif (DEFINED ENV{TEMP})
+    set(temp_dir "$ENV{TEMP}")
+  else()
+    set(temp_dir "${CMAKE_TOP_BUILD_DIR}/tmp")
+    file(MAKE_DIRECTORY ${temp_dir})
+  endif()
+
+  if (MINGW64)
+    string(REGEX REPLACE "\\\\" "/" temp_dir ${temp_dir})
+  endif()
 
   target_compile_definitions(test-backend-dbi PRIVATE
     DBI_TEST_XML_FILENAME=\"${CMAKE_CURRENT_SOURCE_DIR}/test-dbi.xml\"
+    TEMPDIR=\"${temp_dir}\"
     G_LOG_DOMAIN=\"gnc.backend.dbi\"
   )
 endif()
