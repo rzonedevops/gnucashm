@@ -48,7 +48,6 @@ set_autoinc_id (void* object, void* item)
     // Nowhere to put the ID
 }
 
-
 QofAccessFunc
 GncSqlColumnTableEntry::get_getter (QofIdTypeConst obj_name) const noexcept
 {
@@ -255,6 +254,25 @@ GncSqlColumnTableEntryImpl<CT_INT64>::add_to_table(ColVec& vec) const noexcept
 
     GncSqlColumnInfo info{*this, BCT_INT64, 0, FALSE};
     vec.emplace_back(std::move(info));
+}
+
+template<> gint64
+GncSqlColumnTableEntry::get_row_value_from_object<int64_t>(QofIdTypeConst obj_name,
+                                                               const void* pObject) const
+{
+    g_return_val_if_fail(obj_name != nullptr && pObject != nullptr,
+                         INT64_C(0));
+    int64_t result = INT64_C(0);
+    if (m_gobj_param_name != nullptr)
+        g_object_get(const_cast<void*>(pObject), m_gobj_param_name,
+                     &result, nullptr);
+    else
+    {
+        auto getter = (Int64AccessFunc)get_getter(obj_name);
+        if (getter != nullptr)
+            result = (getter)(const_cast<void*>(pObject));
+    }
+    return result;
 }
 
 template<> void
