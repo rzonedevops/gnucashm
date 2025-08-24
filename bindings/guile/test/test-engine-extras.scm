@@ -524,6 +524,7 @@
 
          ;; inv-1 is generated for a customer
          (inv-1 (let ((inv-1 (gncInvoiceCreate (gnc-get-current-book))))
+                  (gncInvoiceSetID inv-1 "0001")
                   (gncInvoiceSetOwner inv-1 owner-1)
                   (gncInvoiceSetNotes inv-1 "inv-1-notes")
                   (gncInvoiceSetBillingID inv-1 "inv-1-billing-id")
@@ -542,6 +543,7 @@
 
          ;; inv-2 is generated from a customer's job
          (inv-2 (let ((inv-2 (gncInvoiceCreate (gnc-get-current-book))))
+                  (gncInvoiceSetID inv-2 "0002")
                   (gncInvoiceSetOwner inv-2 owner-2)
                   (gncInvoiceSetNotes inv-2 "inv-2-notes")
                   (gncInvoiceSetCurrency inv-2 USD)
@@ -561,6 +563,7 @@
 
          ;; inv-3 is generated from a vendor
          (inv-3 (let ((inv-3 (gncInvoiceCreate (gnc-get-current-book))))
+                  (gncInvoiceSetID inv-3 "0003")
                   (gncInvoiceSetOwner inv-3 owner-3)
                   (gncInvoiceSetNotes inv-3 "inv-3-notes")
                   (gncInvoiceSetCurrency inv-3 USD)
@@ -578,6 +581,7 @@
 
          ;; inv-4 is generated for an employee
          (inv-4 (let ((inv-4 (gncInvoiceCreate (gnc-get-current-book))))
+                  (gncInvoiceSetID inv-4 "0004")
                   (gncInvoiceSetOwner inv-4 owner-4)
                   (gncInvoiceSetNotes inv-4 "inv-4-notes")
                   (gncInvoiceSetCurrency inv-4 USD)
@@ -585,23 +589,27 @@
 
          ;; inv-5 cust-credit-note
          (inv-5 (let ((inv-5 (gncInvoiceCopy inv-1)))
+                  (gncInvoiceSetID inv-5 "0005")
                   (gncInvoiceSetIsCreditNote inv-5 #t)
                   (gncInvoiceSetCurrency inv-5 USD)
                   inv-5))
 
          ;; inv-6 vend-credit-note
          (inv-6 (let ((inv-6 (gncInvoiceCopy inv-3)))
+                  (gncInvoiceSetID inv-6 "0006")
                   (gncInvoiceSetIsCreditNote inv-6 #t)
                   (gncInvoiceSetCurrency inv-6 USD)
                   inv-6))
 
          ;; inv-7 emp-credit-note
          (inv-7 (let ((inv-7 (gncInvoiceCopy inv-4)))
+                  (gncInvoiceSetID inv-7 "0007")
                   (gncInvoiceSetIsCreditNote inv-7 #t)
                   (gncInvoiceSetCurrency inv-7 USD)
                   inv-7))
 
          (inv-8 (let ((inv-8 (gncInvoiceCreate (gnc-get-current-book))))
+                  (gncInvoiceSetID inv-8 "0008")
                   (gncInvoiceSetOwner inv-8 owner-1)
                   (gncInvoiceSetCurrency inv-8 USD)
                   inv-8))
