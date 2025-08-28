@@ -438,7 +438,7 @@ test_offset(time64 start_time, int hour, int offset1, int offset2,
 TEST(gnc_datetime_constructors, test_DST_start_transition_time)
 {
 #ifdef __MINGW32__
-    TimeZoneProvider tzp_can{"A.U.S Eastern Standard Time"};
+    TimeZoneProvider tzp_can{"AUS Eastern Standard Time"};
     TimeZoneProvider tzp_la{"Pacific Standard Time"};
 #else
     TimeZoneProvider tzp_can("Australia/Canberra");
@@ -458,7 +458,7 @@ TEST(gnc_datetime_constructors, test_DST_start_transition_time)
 TEST(gnc_datetime_constructors, test_DST_end_transition_time)
 {
 #ifdef __MINGW32__
-    TimeZoneProvider tzp_can{"A.U.S Eastern Standard Time"};
+    TimeZoneProvider tzp_can{"AUS Eastern Standard Time"};
     TimeZoneProvider tzp_la{"Pacific Standard Time"};
 #else
     TimeZoneProvider tzp_can("Australia/Canberra");
