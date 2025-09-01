@@ -5,6 +5,7 @@
 # Joan <calbasi@pangea.org>, 2007.
 # David Planella Molas <david.planella@gmail.com>, 2007.
 # Walter Garcia-Fontes <walter.garcia@upf.edu>, 2015,2021.
+# mid-kid <esteve.varela@gmail.com>, 2025.
 #
 # Vocabulari de comptabilitat: http://www.ub.es/slc/termens/Comptab.pdf
 #
@@ -44,19 +45,20 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuCash 5.12\n"
-"Report-Msgid-Bugs-To: https://bugs.gnucash.org/enter_bug.cgi?"
-"product=GnuCash&component=Translations\n"
+"Report-Msgid-Bugs-To: https://bugs.gnucash.org/"
+"enter_bug.cgi?product=GnuCash&component=Translations\n"
 "POT-Creation-Date: 2025-06-22 12:27-0700\n"
-"PO-Revision-Date: 2021-04-18 17:21+0200\n"
-"Last-Translator: Walter Garcia-Fontes <walter.garcia@upf.edu>\n"
-"Language-Team: Catalan <ca@dodds.net>\n"
+"PO-Revision-Date: 2025-08-17 01:02+0000\n"
+"Last-Translator: mid-kid <esteve.varela@gmail.com>\n"
+"Language-Team: Catalan <https://hosted.weblate.org/projects/gnucash/gnucash/"
+"ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Bugs: Report translation errors to the Language-Team address.\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Poedit 2.4.1\n"
+"X-Generator: Weblate 5.13\n"
+"X-Bugs: Report translation errors to the Language-Team address.\n"
 
 #: bindings/guile/date-utilities.scm:173
 #: gnucash/report/reports/example/daily-reports.scm:260
@@ -747,11 +749,6 @@ msgstr ""
 "vegeu la taula a https://wiki.gnucash.org/wiki/Mailing_Lists"
 
 #: doc/tip_of_the_day.list.c:11
-#, fuzzy
-#| msgid ""
-#| "The GnuCash developers are easy to contact. As well as several mailing "
-#| "lists, you can chat to them live on IRC! Join them on #gnucash at irc."
-#| "gnome.org"
 msgid ""
 "The GnuCash developers are easy to contact. As well as several mailing "
 "lists, you can chat to them live on IRC! Join them on #gnucash at irc.gimp."
@@ -759,7 +756,7 @@ msgid ""
 msgstr ""
 "Els desenvolupadors del GnuCash es poden contactar fàcilment. Així com "
 "diverses llistes de correu electrònic, podeu xerrar amb ells en viu a l'IRC! "
-"Uniu-vos amb ells a #gnucash a irc.gnome.org"
+"Uniu-vos amb ells a #gnucash a irc.gimp.net"
 
 #: doc/tip_of_the_day.list.c:15
 msgid ""
@@ -780,6 +777,10 @@ msgid ""
 "(File[->Most Recently Used-List]).\n"
 "The full path is displayed in the status bar."
 msgstr ""
+"Si voleu saber en quin directori es van guardar els seus fitxers recents de "
+"GnuCash, passa el cursor per sobre les entrades del menú d'historial.\n"
+"(Fitxer[->Llista de recentment utilitzats])\n"
+"El camí complet es mostrarà en la barra d'estat."
 
 #: doc/tip_of_the_day.list.c:24
 msgid ""
@@ -829,14 +830,6 @@ msgstr ""
 "en línia del GnuCash."
 
 #: doc/tip_of_the_day.list.c:44
-#, fuzzy
-#| msgid ""
-#| "Every transaction has a \"Notes\" field where you can put useful "
-#| "information.\n"
-#| "\n"
-#| "To make it visible\n"
-#| "select \"View\" in the menu bar and check \"Double Line\" or\n"
-#| "check \"Double Line Mode\" in Preferences:Register Defaults."
 msgid ""
 "Every transaction has a \"Notes\" field where you can put useful "
 "information.\n"
@@ -845,11 +838,11 @@ msgid ""
 "select \"View\" in the menu bar and check \"Double Line\" or\n"
 "check \"Double Line View\" in Preferences:Register Defaults."
 msgstr ""
-"Cada assentament té un camp «Notes» on podeu posar informació útil.\n"
+"Cada assentament té un camp de «Notes» on podeu afegir informació útil.\n"
 "\n"
 "Per fer-lo visible\n"
-"trieu «Visualitza» a la barra de menú i cliqueu «Línia doble» o marqueu "
-"«Mode de línia doble» a Preferències:Registra els detalls."
+"Trieu «Visualitza» a la barra de menú i cliqueu «Línia doble» o marqueu «"
+"Vista a doble línea» a Preferències:Valors per defecte del registre."
 
 #: doc/tip_of_the_day.list.c:50
 msgid ""
@@ -858,7 +851,7 @@ msgid ""
 "View menu, you can choose the register style Auto-Split Ledger or "
 "Transaction Journal."
 msgstr ""
-"Per entrar assentaments amb desglossaments múlriples com ara una nòmina amb "
+"Per entrar assentaments amb desglossaments múltiples com ara una nòmina amb "
 "deduccions múltiples, cliqueu al botó Desglossament a la barra d'eines. "
 "Alternativament, al menú Visualitza, podeu escollir l'estil de registre "
 "Llibre de Desglossament Automàtic o Diari d'Assentaments."
@@ -1027,19 +1020,14 @@ msgstr ""
 "assentaments nous. No és necessari reiniciar el GnuCash."
 
 #: doc/tip_of_the_day.list.c:121
-#, fuzzy
-#| msgid ""
-#| "To search through all your transactions, start a search (Edit->Find...) "
-#| "from the main accounts hierarchy page. To limit your search to a single "
-#| "account, start the search from that account's register."
 msgid ""
 "To search through all your transactions, start a search (Edit->Find…) from "
 "the main accounts hierarchy page. To limit your search to a single account, "
 "start the search from that account's register."
 msgstr ""
-"Per cercar a través de tots el vostres assentaments inicieu una cerca (Edita "
-"-> Cerca...) des de la pàgina de jerarquia dels comptes principals. Per "
-"limitar la cerca a un compte únic, comenceu la des del registre d'aquest "
+"Per cercar a través de tots els vostres assentaments, inicieu una cerca ("
+"Edita -> Cerca...) des de la pàgina de jerarquia dels comptes principals. "
+"Per limitar la cerca a un compte únic, comenceu-la des del registre d'aquest "
 "compte."
 
 #: doc/tip_of_the_day.list.c:125
@@ -1057,6 +1045,8 @@ msgid ""
 "You can assign or modify keyboard shortcuts for many GnuCash actions. See "
 "https://wiki.gnucash.org/wiki/Keyboard_Shortcuts."
 msgstr ""
+"Podeu assignar i modificar dreceres del teclat per vàries accions de "
+"GnuCash. Veu https://wiki.gnucash.org/wiki/Keyboard_Shortcuts."
 
 #: doc/tip_of_the_day.list.c:132
 msgid ""
@@ -1426,26 +1416,22 @@ msgstr "No teniu cap compte de valors amb saldos!"
 #. Translators: this is a stock transaction describing an
 #. Initial stock long purchase
 #: gnucash/gnome/assistant-stock-transaction.cpp:160
-#, fuzzy
-#| msgid "Open"
 msgid "Open buy"
-msgstr "Obre"
+msgstr "Compra oberta"
 
 #: gnucash/gnome/assistant-stock-transaction.cpp:161
 msgid "Initial stock long purchase."
-msgstr ""
+msgstr "Compra inicial d'accions en llarg."
 
 #. Translators: this is a stock transaction describing an
 #. initial stock short sale
 #: gnucash/gnome/assistant-stock-transaction.cpp:171
-#, fuzzy
-#| msgid "Open _Folder"
 msgid "Open short"
-msgstr "Obre la _carpeta"
+msgstr "Curt obert"
 
 #: gnucash/gnome/assistant-stock-transaction.cpp:172
 msgid "Initial stock short sale."
-msgstr ""
+msgstr "Venda inicial d'accions en curt."
 
 #. Translators: this is a stock transaction describing
 #. new purchase of stock.
@@ -1465,7 +1451,7 @@ msgstr "Compra"
 
 #: gnucash/gnome/assistant-stock-transaction.cpp:187
 msgid "Buying stock long."
-msgstr ""
+msgstr "Comprant accions en llarg."
 
 #. Translators: this is a stock transaction describing new
 #. sale of stock, and recording capital gain/loss
@@ -1490,6 +1476,10 @@ msgid ""
 "If you are unable to calculate capital gains you can enter a placeholder "
 "amount and correct it in the transaction later."
 msgstr ""
+"Venent accions en llarg, i guany/pèrdua de capital rècord.\n"
+"\n"
+"Si no és possible calcular el guany de capital, podeu introduir un import "
+"provisional i corregir-lo posteriorment en l'assentament."
 
 #. Translators: this is a stock transaction describing
 #. dividends issued to holder
