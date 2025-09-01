@@ -3,7 +3,7 @@
 # Chao-Hsiung Liao <pesder.liao@msa.hinet.net>, 2003.
 # Kuang-che Wu <kcwu@csie.org>, 2007, 2011-2013.
 # Barlos Lee <barlos.lee@gmail.com>, 2010
-# Brian Hsu <brianhsu.hsu@gmail.com>, 2021, 2023.
+# Brian Hsu <brianhsu.hsu@gmail.com>, 2021, 2023, 2025.
 # cjh <cjh@cjh0613.com>, 2021.
 # Newson Parker <2434843612@qq.com>, 2023.
 # Ricky From Hong Kong <lamricky11@hotmail.com>, 2024.
@@ -12,11 +12,11 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuCash 5.12\n"
-"Report-Msgid-Bugs-To: https://bugs.gnucash.org/enter_bug.cgi?"
-"product=GnuCash&component=Translations\n"
+"Report-Msgid-Bugs-To: https://bugs.gnucash.org/"
+"enter_bug.cgi?product=GnuCash&component=Translations\n"
 "POT-Creation-Date: 2025-06-22 12:27-0700\n"
-"PO-Revision-Date: 2024-11-22 05:00+0000\n"
-"Last-Translator: hanyang cheng <cinxiafortis@tutanota.de>\n"
+"PO-Revision-Date: 2025-08-11 05:01+0000\n"
+"Last-Translator: Brian Hsu <brianhsu.hsu@gmail.com>\n"
 "Language-Team: Chinese (Traditional Han script) <https://hosted.weblate.org/"
 "projects/gnucash/gnucash/zh_Hant/>\n"
 "Language: zh_TW\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: bindings/guile/date-utilities.scm:173
 #: gnucash/report/reports/example/daily-reports.scm:260
@@ -712,18 +712,13 @@ msgstr ""
 "請見 https://wiki.gnucash.org/wiki/Mailing_Lists"
 
 #: doc/tip_of_the_day.list.c:11
-#, fuzzy
-#| msgid ""
-#| "The GnuCash developers are easy to contact. As well as several mailing "
-#| "lists, you can chat to them live on IRC! Join them on #gnucash at irc."
-#| "gnome.org"
 msgid ""
 "The GnuCash developers are easy to contact. As well as several mailing "
 "lists, you can chat to them live on IRC! Join them on #gnucash at irc.gimp."
 "net"
 msgstr ""
 "連絡 GnuCash 開發者很容易。不但有許多郵件論壇，還可以在 IRC 跟他們即時聊天！"
-"可以透過 irc.gnome.org 的 #gnucash 頻道加入他們。"
+"可以透過 irc.gimp.net 的 #gnucash 頻道加入他們。"
 
 #: doc/tip_of_the_day.list.c:15
 msgid ""
@@ -1495,15 +1490,6 @@ msgid "Stock split"
 msgstr "股票分割"
 
 #: gnucash/gnome/assistant-stock-transaction.cpp:271
-#, fuzzy
-#| msgid ""
-#| "Company redeems units, thereby increasing the stock price by a multiple, "
-#| "while keeping the total monetary value of the overall investment "
-#| "constant.\n"
-#| "\n"
-#| "If the reverse split results in a cash in lieu for remainder units, "
-#| "please record the sale using the Stock Transaction Assistant first, then "
-#| "record the reverse split."
 msgid ""
 "Company issues additional units, thereby reducing the stock price by a "
 "divisor , while keeping the total monetary value of the overall investment "
@@ -1512,10 +1498,10 @@ msgid ""
 "If the split results in a cash in lieu for remainder units, please record "
 "the sale using the Stock Transaction Assistant first, then record the split."
 msgstr ""
-"公司贖回股票，這將會按比例增加每股的價格，但維持整體的投資金額不變。\n"
+"公司發行新股，這將會按比例減少每股的價格，但維持整體的投資金額不變。\n"
 "\n"
-"如果反向分割導至剩餘的股份是使用現金替代，請先使用股票交易精靈記錄賣出股份，"
-"再記錄反向分割。"
+"如果分割導至剩餘的股份是使用現金替代，請先使用股票交易精靈記錄賣出股份，再記"
+"錄分割。"
 
 #. Translators: this is a stock transaction describing a reverse split
 #. Translators: this is a stock transaction describing a
