@@ -97,7 +97,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-1 simple entry details are correct"
-        '("entry-1-desc" "entry-1-action" "2.00" "$3.0000" "0.00 %" "T" "$0.00" "$6.00")
+        '("entry-1-desc" "entry-1-action" "2.00" "$3.00" "0.00 %" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-1 cust-name is correct"
         '("cust-1-name")
@@ -130,7 +130,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-2 simple entry details are correct"
-        '("entry-inv-2-desc" "entry-inv-2-action" "2.00" "$3.0000" "0.00 %" "T" "$0.00" "$6.00")
+        '("entry-inv-2-desc" "entry-inv-2-action" "2.00" "$3.00" "0.00 %" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-2 cust-name is correct"
         '("cust-1-name")
@@ -156,7 +156,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-3 simple entry details are correct"
-        '("entry-inv-3-desc" "entry-inv-3-action" "2.00" "$3.0000" "T" "$0.00" "$6.00")
+        '("entry-inv-3-desc" "entry-inv-3-action" "2.00" "$3.00" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-3 vend-name is correct"
         '("vend-1-name")
@@ -174,7 +174,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-4 simple entry details are correct"
-        '("entry-inv-4-desc" "entry-inv-4-action" "2.00" "$3.0000" "T" "$0.00" "$6.00")
+        '("entry-inv-4-desc" "entry-inv-4-action" "2.00" "$3.00" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-4 vend-name is correct"
         '("emp-1-name")
@@ -192,7 +192,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-5 simple entry details are correct"
-        '("entry-5-desc" "entry-5-action" "2.00" "$3.0000" "0.00 %" "T" "$0.00" "$6.00")
+        '("entry-5-desc" "entry-5-action" "2.00" "$3.00" "0.00 %" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-5 cust-name is correct"
         '("cust-1-name")
@@ -206,7 +206,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-6 simple entry details are correct"
-        '("entry-inv-6-desc" "entry-inv-6-action" "2.00" "$3.0000" "T" "$0.00" "$6.00")
+        '("entry-inv-6-desc" "entry-inv-6-action" "2.00" "$3.00" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-6 vend-name is correct"
         '("vend-1-name")
@@ -224,7 +224,7 @@
         '("$6.00" "$6.00" "$6.00" "$6.00")
         (sxml-get-row-col "entries-table" sxml #f -1))
       (test-equal "inv-7 simple entry details are correct"
-        '("entry-inv-7-desc" "entry-inv-7-action" "2.00" "$3.0000" "T" "$0.00" "$6.00")
+        '("entry-inv-7-desc" "entry-inv-7-action" "2.00" "$3.00" "T" "$0.00" "$6.00")
         (cdr (sxml-get-row-col "entries-table" sxml 1 #f)))
       (test-equal "inv-7 vend-name is correct"
         '("emp-1-name")
