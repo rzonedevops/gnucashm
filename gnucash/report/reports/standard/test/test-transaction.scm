@@ -67,6 +67,7 @@
   ;; It also catches XML parsing errors, dumping the options changed.
   ;;
   ;; It also dumps the render into /tmp/test-trep-XX.html where XX is the test title
+  (qof-date-format-set QOF-DATE-FORMAT-ISO)
   (gnc:options->sxml trep-uuid options "test-trep" test-title))
 
 (define (get-row-col sxml row col)
@@ -721,7 +722,7 @@
       (set-option! options "Sorting" "Primary Key" 'date)
       (let* ((sxml (options->sxml options "sorting=date")))
         (test-equal "dates are sorted"
-          '("12/31/69" "12/31/69" "01/01/70" "02/01/70" "02/10/70")
+          '("1969-12-31" "1969-12-31" "1970-01-01" "1970-02-01" "1970-02-10")
           (get-row-col sxml #f 1)))
 
       (set-option! options "Sorting" "Primary Key" 'number)
@@ -1001,6 +1002,24 @@
           (list "$0.33" "$10.33" "-$9.67" "$1.00")
           (get-row-col sxml #f 6))))
     (test-end "subtotal table")
+
+    (test-begin "invoice-column")
+    (let* ((invoices (create-test-invoice-data))
+           (options (default-testing-options)))
+      (set-option! options "General" "Start Date" (cons 'absolute (gnc-dmy2time64 1 9 1980)))
+      (set-option! options "General" "End Date" (cons 'absolute (gnc-dmy2time64 7 9 1980)))
+      (set-option! options "Display" "Invoice" #t)
+      (set-option! options "Accounts" "Accounts"
+                   (list
+                    (gnc-account-lookup-by-full-name bank "Root.Asset.Bank")
+                    (gnc-account-lookup-by-full-name bank "Root.A/Receivable")
+                    (gnc-account-lookup-by-full-name bank "Root.A/Payable")
+                    (gnc-account-lookup-by-full-name bank "Root.Income")))
+      (let ((sxml (options->sxml options "show invoice")))
+        (test-equal "retrieve invoice IDs from trep"
+                    '("0003" "0004" "0006" "0007" "0001" "0002" "0005")
+                    (get-row-col sxml #f 5))))
+    (test-end "invoice-column")
 
     (test-begin "csv-export")
     (let ((options (default-testing-options)))

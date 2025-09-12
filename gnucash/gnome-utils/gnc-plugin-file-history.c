@@ -407,8 +407,6 @@ gnc_history_update_action (GncMainWindow *window,
     GncMenuModelSearch *gsm = g_new0 (GncMenuModelSearch, 1);
     gchar *action_name;
     gint limit;
-    gboolean add_item = FALSE;
-    gint pos;
 
     ENTER("window %p, index %d, filename %s", window, index,
           filename ? filename : "(null)");
@@ -418,9 +416,12 @@ gnc_history_update_action (GncMainWindow *window,
     gsm->search_action_label = NULL;
     gsm->search_action_name = action_name;
 
-    if (!gnc_menubar_model_find_item (gnc_main_window_get_menu_model(window), gsm)) // could not find action_name
+    if (gnc_menubar_model_find_item (gnc_main_window_get_menu_model(window), gsm))
     {
-        add_item = TRUE;
+        g_menu_remove (G_MENU(gsm->model), gsm->index);
+    }
+    else // could not find action_name
+    {
         gsm->search_action_name = "FilePlaceholder6"; // placeholder
 
         if (!gnc_menubar_model_find_item (gnc_main_window_get_menu_model(window), gsm))
@@ -430,16 +431,12 @@ gnc_history_update_action (GncMainWindow *window,
             g_free (action_name);
             return;
         }
-        else
-            pos = gsm->index + index;
+        gsm->index += index;
     }
-    else
-        pos = gsm->index;
 
-    limit = gnc_prefs_get_int (GNC_PREFS_GROUP_HISTORY,
-                               GNC_PREF_HISTORY_MAXFILES);
+    limit = gnc_prefs_get_int (GNC_PREFS_GROUP_HISTORY, GNC_PREF_HISTORY_MAXFILES);
 
-    if (filename && (strlen(filename) > 0) && (index < limit))
+    if (filename && *filename && index < limit)
     {
         GMenuItem *item;
         gchar *label_name = gnc_history_generate_label (index, filename);
@@ -448,13 +445,8 @@ gnc_history_update_action (GncMainWindow *window,
                                                action_name, NULL);
 
         item = g_menu_item_new (label_name, full_action_name);
-
         g_menu_item_set_attribute (item, GNC_MENU_ATTRIBUTE_TOOLTIP, "s", tooltip);
-
-        if (!add_item)
-            g_menu_remove (G_MENU(gsm->model), pos);
-
-        g_menu_insert_item (G_MENU(gsm->model), pos, item);
+        g_menu_insert_item (G_MENU(gsm->model), gsm->index, item);
 
         g_free (full_action_name);
         g_free (label_name);

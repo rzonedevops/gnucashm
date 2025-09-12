@@ -281,6 +281,8 @@ static const char * get_pric_entry (VirtualLocation virt_loc,
     GncEntryLedger *ledger = user_data;
     GncEntry *entry;
     gnc_numeric price;
+    gnc_commodity *curr;
+    GNCPrintAmountInfo print_info;
 
     entry = gnc_entry_ledger_get_entry (ledger, virt_loc.vcell_loc);
     if (ledger->is_cust_doc)
@@ -291,7 +293,10 @@ static const char * get_pric_entry (VirtualLocation virt_loc,
     if (gnc_numeric_zero_p (price))
         return NULL;
 
-    return xaccPrintAmount (price, gnc_default_print_info (FALSE));
+    curr = gncInvoiceGetCurrency (ledger->invoice);
+    print_info = gnc_default_price_print_info (curr);
+
+    return xaccPrintAmount (price, print_info);
 }
 
 static const char * get_qty_entry (VirtualLocation virt_loc,

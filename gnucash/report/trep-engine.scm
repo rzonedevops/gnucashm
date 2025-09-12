@@ -945,6 +945,10 @@ be excluded from periodic reporting.")
         (set! disp-memo? x)
         (apply-selectable-by-name-display-options)))
 
+    (gnc-register-simple-boolean-option
+     options gnc:pagename-display (N_ "Invoice")
+     "d5" (G_ "Display invoice details") #f)
+
     ;; Ditto for Account Name #t -> Use Full Account Name is selectable
     (gnc-register-complex-boolean-option options
       gnc:pagename-display (N_ "Account Name")
@@ -1032,6 +1036,21 @@ be excluded from periodic reporting.")
       (() #f)
       (((? (cut assq <> cell)) . rest) (lp rest))
       ((fld . _) (gnc:error "field " fld " missing in cell " cell) #t))))
+
+(define (split->invoice-anchors split)
+  (define split->invoice (compose gncInvoiceGetInvoiceFromLot xaccSplitGetLot))
+  (define not-apar? (negate (compose xaccAccountIsAPARType xaccAccountGetType xaccSplitGetAccount)))
+  (let lp ((splits (xaccTransGetSplitList (xaccSplitGetParent split))) (invs '()) (rv '()))
+    (match splits
+      (() rv)
+      (((? not-apar?) . rest) (lp rest invs rv))
+      (((= split->invoice inv) . rest)
+       (if (or (null? inv) (member inv invs))
+           (lp rest invs rv)
+           (lp rest
+               (cons inv invs)
+               (cons (gnc:html-markup-anchor (gnc:invoice-anchor-text inv) (gncInvoiceGetID inv))
+                     (if (null? rv) rv (cons (gnc:html-markup-br) rv)))))))))
 
 ;; ;;;;;;;;;;;;;;;;;;;;
 ;; Here comes the big function that builds the whole table.
@@ -1149,6 +1168,15 @@ be excluded from periodic reporting.")
                                      (if (and (string-null? memo) (report-uses? 'notes))
                                          (xaccTransGetNotes trans)
                                          memo)))))
+
+               (add-if (report-uses? 'invoice)
+                       (list (cons 'heading (G_ "Invoice"))
+                             (cons 'renderer-fn
+                                   (lambda (split transaction-row?)
+                                     (and transaction-row?
+                                          (match (split->invoice-anchors split)
+                                            (() #f)
+                                            (inv-anchors (apply gnc:make-html-text inv-anchors))))))))
 
                (add-if (or (report-uses? 'account-name) (report-uses? 'account-code))
                        (list (cons 'heading (G_ "Account"))
@@ -2248,6 +2276,7 @@ be excluded from periodic reporting.")
                 (cons 'account-full-name
                       (opt-val gnc:pagename-display (N_ "Use Full Account Name")))
                 (cons 'memo (opt-val gnc:pagename-display (N_ "Memo")))
+                (cons 'invoice (opt-val gnc:pagename-display (N_ "Invoice")))
                 (cons 'notes (opt-val gnc:pagename-display (N_ "Notes")))
                 (cons 'account-code (opt-val gnc:pagename-display (N_ "Account Code")))
                 (cons 'other-account-code

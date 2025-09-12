@@ -713,9 +713,14 @@ gnc_entry_ledger_compute_value (GncEntryLedger *ledger,
     GList *taxes = NULL;
     int denom = 100;
     gnc_numeric value_unrounded, taxes_unrounded;
+	GncEntry *entry;
 
     gnc_entry_ledger_get_numeric (ledger, ENTRY_QTY_CELL, &qty);
-    gnc_entry_ledger_get_numeric (ledger, ENTRY_PRIC_CELL, &price);
+    entry = gnc_entry_ledger_get_current_entry (ledger);
+	if (ledger->is_cust_doc)
+		price = gncEntryGetInvPrice (entry);
+    else
+        price = gncEntryGetBillPrice (entry);
     gnc_entry_ledger_get_numeric (ledger, ENTRY_DISC_CELL, &discount);
 
     disc_type = gnc_entry_ledger_get_type (ledger, ENTRY_DISTYPE_CELL);

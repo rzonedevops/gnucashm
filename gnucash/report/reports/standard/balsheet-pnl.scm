@@ -361,6 +361,9 @@ also show overall period profit & loss."))
                              (gnc:make-html-table-cell/size
                               1 (if disable-account-indent? 1 (- maxindent indent))
                               label)))
+           ;; ensure the account name cell doesn't wrap
+           (_ (gnc:html-table-cell-set-style! account-cell "text-cell"
+                                              'attribute '("style" "white-space:nowrap;")))
            (row (append
                  (if disable-account-indent?
                      '()

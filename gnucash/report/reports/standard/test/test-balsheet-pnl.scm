@@ -172,6 +172,7 @@
       (set-option! balance-sheet-options "Accounts" "Levels of Subaccounts" 'all)
       (set-option! balance-sheet-options "Commodities" "Show Exchange Rates" #t)
       balance-sheet-options))
+  (qof-date-format-set QOF-DATE-FORMAT-ISO)
   (display "\n\n balsheet tests\n\n")
   (let* ((balance-sheet-options (default-balsheet-testing-options))
          (sxml (options->sxml balance-sheet-uuid balance-sheet-options "balsheet-default")))
@@ -331,7 +332,7 @@
         '("#200.00" "$340.00" "30. FUNDS" "$14,424.52" "$106,709.00" "$106,709.00")
         (sxml->table-row-col sxml 1 3 6))
       (test-equal "show-rates enabled"
-        '("1. FUNDS" "$480 + 85/104" "#1.00" "$1.7000")
+        '("1. FUNDS" "$480 + 85/104" "#1.00" "$1.70")
         (sxml->table-row-col sxml 2 #f #f)))
 
     ;;make-multilevel
@@ -467,7 +468,7 @@
         (list "-#600.00" "-$1,020.00" "-$250.00" "-$250.00")
         (sxml->table-row-col sxml 1 2 6))
       (test-equal "show-rates enabled"
-        (list "#1.00" "$1.7000")
+        (list "#1.00" "$1.70")
         (sxml->table-row-col sxml 2 #f #f)))
 
     ;;make-multilevel
@@ -519,23 +520,23 @@
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol-balsheet-halfyear")))
       (test-equal "bal-1/1/70"
-        '("01/01/70" "$113,100.00" "$113,100.00" "$8,970.00" "$2,000.00"
+        '("1970-01-01" "$113,100.00" "$113,100.00" "$8,970.00" "$2,000.00"
           "$6,870.00" "$0.00" "$100.00" "$4,000.00" "$2,000.00" "$2,000.00"
           "10. FUNDS " "$130.00" "$130.00" "#100.00 " "$100,000.00" "$113,100.00"
           "$9,500.00" "$9,500.00" "$500.00" "$9,000.00" "$9,500.00" "$103,600.00"
-          "$0.00" "$0.00" "$103,600.00" "$113,100.00" "#1.00 $1.3000"
-          "1. FUNDS $200.0000")
+          "$0.00" "$0.00" "$103,600.00" "$113,100.00" "#1.00 $1.30"
+          "1. FUNDS $200.00")
         (sxml->table-row-col sxml 1 #f 2))
       (test-equal "bal-1/1/71"
-        '("01/01/71" "$116,006.33" "$116,006.33" "$4,709.00" "$2,000.00"
+        '("1971-01-01" "$116,006.33" "$116,006.33" "$4,709.00" "$2,000.00"
           "$2,609.00" "$0.00" "$100.00" "$11,000.30" "$2,000.00" "$9,000.30"
           "30. FUNDS " "$297.03" "$297.03" "#200.00 " "$100,000.00" "$116,006.33"
           "$9,500.00" "$9,500.00" "$500.00" "$9,000.00" "$9,500.00" "$103,600.00"
           "$2,906.33" "$0.00" "$106,506.33" "$116,006.33" "#1.00 $1 + 49/101"
-          "1. FUNDS $300.0100")
+          "1. FUNDS $300.01")
         (sxml->table-row-col sxml 1 #f 3))
       (test-equal "bal-1/1/72"
-        '("01/01/72" "$117,437.00" "$117,437.00" "$4,709.00" "$2,000.00"
+        '("1972-01-01" "$117,437.00" "$117,437.00" "$4,709.00" "$2,000.00"
           "$2,609.00" "$0.00" "$100.00" "$12,396.63" "$2,000.00" "$10,396.63"
           "30. FUNDS " "$331.37" "$331.37" "#200.00 " "$100,000.00" "$117,437.00"
           "$9,500.00" "$9,500.00" "$500.00" "$9,000.00" "$9,500.00" "$103,600.00"
@@ -547,7 +548,7 @@
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol-balsheet-halfyear")))
       (test-equal "bal-1/1/70-reverse-chrono"
-        '("Date" "01/01/72" "01/01/71" "01/01/70")
+        '("Date" "1972-01-01" "1971-01-01" "1970-01-01")
         (sxml->table-row-col sxml 1 1 #f)))
 
     (set-option! multi-bs-options "General" "Period order is most recent first" #f)
@@ -564,7 +565,7 @@
           "$1,190.00" "$1,190.00" "#700.00 " "$100,000.00" "$122,743.52"
           "$9,500.00" "$9,500.00" "$500.00" "$9,000.00" "$9,500.00"
           "$103,600.00" "$8,373.52" "$1,270.00" "$113,243.52" "$122,743.52"
-          "#1.00 $1.7000" "1. FUNDS $480 + 85/104")
+          "#1.00 $1.70" "1. FUNDS $480 + 85/104")
         (sxml->table-row-col sxml 1 #f 2)))))
 
 (define (multicol-pnl-tests)
@@ -601,49 +602,49 @@
     (let ((sxml (options->sxml multicol-pnl-uuid multi-bs-options
                                "multicol-pnl-halfyear")))
       (test-equal "pnl-1/80"
-        '("01/01/80" " to 01/31/80" "$1,100.00" "$250.00" "$850.00" "#500.00 "
-          "$1,100.00" "#1.00 $1.7000")
+        '("1980-01-01" " to 01/31/80" "$1,100.00" "$250.00" "$850.00" "#500.00 "
+          "$1,100.00" "#1.00 $1.70")
         (sxml->table-row-col sxml 1 #f 2))
       (test-equal "pnl-2/80"
-        '("02/01/80" " to 02/29/80" "$170.00" "$0.00" "$170.00" "#100.00 "
-          "$170.00" "#1.00 $1.7000")
+        '("1980-02-01" " to 02/29/80" "$170.00" "$0.00" "$170.00" "#100.00 "
+          "$170.00" "#1.00 $1.70")
         (sxml->table-row-col sxml 1 #f 3))
       (test-equal "pnl-3/80"
-        '("03/01/80" " to 03/31/80" "$0.00" "$0.00" "$0.00" "#0.00 "
-          "$0.00" "#1.00 $1.7000")
+        '("1980-03-01" " to 03/31/80" "$0.00" "$0.00" "$0.00" "#0.00 "
+          "$0.00" "#1.00 $1.70")
         (sxml->table-row-col sxml 1 #f 4)))
 
     (set-option! multi-bs-options "General" "Period order is most recent first" #t)
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "testing period reverse chrono order pnl")))
       (test-equal "pnl-reverse chrono"
-        '("Date" "03/31/80" "03/01/80" "02/01/80" "01/01/80")
+        '("Date" "1980-03-31" "1980-03-01" "1980-02-01" "1980-01-01")
         (sxml->table-row-col sxml 1 1 #f)))
 
     (set-option! multi-bs-options "Commodities" "Price Source" 'weighted-average)
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol pnl weighted-average")))
       (test-equal "weighted average exchange-rate"
-        '("#1.00 $1.4990" "1. FUNDS $235 + 3/7")
+        '("#1.00 $1.499" "1. FUNDS $235 + 3/7")
         (sxml->table-row-col sxml 1 -2 -1)))
 
     (set-option! multi-bs-options "Commodities" "Price Source" 'average-cost)
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol pnl average-cost")))
       (test-equal "average-cost exchange-rate"
-        '("#1.00 $1.4550" "1. FUNDS $203 + 1/3")
+        '("#1.00 $1.455" "1. FUNDS $203 + 1/3")
         (sxml->table-row-col sxml 1 -2 -1)))
 
     (set-option! multi-bs-options "Commodities" "Price Source" 'pricedb-nearest)
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol pnl pricedb-nearest")))
       (test-equal "pricedb-nearest exchange-rate"
-        '("#1.00 $1.7000" "1. FUNDS $480 + 85/104")
+        '("#1.00 $1.70" "1. FUNDS $480 + 85/104")
         (sxml->table-row-col sxml 1 -2 -1)))
 
     (set-option! multi-bs-options "Commodities" "Price Source" 'pricedb-latest)
     (let ((sxml (options->sxml multicol-balsheet-uuid multi-bs-options
                                "multicol pnl pricedb-latest")))
       (test-equal "pricedb-latest exchange-rate"
-        '("#1.00 $1.7000" "1. FUNDS $480 + 85/104")
+        '("#1.00 $1.70" "1. FUNDS $480 + 85/104")
         (sxml->table-row-col sxml 1 -2 -1)))))

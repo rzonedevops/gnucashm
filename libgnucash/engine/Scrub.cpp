@@ -594,9 +594,6 @@ add_balance_split (Transaction *trans, gnc_numeric imbalance,
         LEAVE("");
         return;
     }
-    account = xaccSplitGetAccount(balance_split);
-
-    xaccTransBeginEdit (trans);
 
     old_value = xaccSplitGetValue (balance_split);
 
@@ -607,8 +604,25 @@ add_balance_split (Transaction *trans, gnc_numeric imbalance,
                                  gnc_commodity_get_fraction(currency),
                                  GNC_HOW_RND_ROUND_HALF_UP);
 
-    xaccSplitSetValue (balance_split, new_value);
+    if (gnc_numeric_zero_p (new_value))
+    {
+        const char *p;
+        p = xaccSplitGetMemo (balance_split);
+        if (!p || !*p)
+        {
+            p = xaccSplitGetAction (balance_split);
+            if (!p || !*p)
+            {
+                xaccSplitDestroy (balance_split);
+                return;
+            }
+        }
+    }
 
+    xaccTransBeginEdit (trans);
+    xaccSplitSetValue (balance_split, new_value);
+        
+    account = xaccSplitGetAccount(balance_split);
     commodity = xaccAccountGetCommodity (account);
     if (gnc_commodity_equiv (currency, commodity))
     {

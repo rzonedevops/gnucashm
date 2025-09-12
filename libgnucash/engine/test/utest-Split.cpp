@@ -667,7 +667,7 @@ test_xaccSplitRollbackEdit (Fixture *fixture, gconstpointer pData)
     fixture->split->orig_parent = NULL;
 
     xaccSplitRollbackEdit (fixture->split);
-    test_signal_assert_hits (sig1, 1);
+    test_signal_assert_hits (sig1, 2);
     test_signal_assert_hits (sig2, 0);
     test_signal_assert_hits (sig3, 0);
     g_assert_true (fixture->split->acc == NULL);
@@ -684,9 +684,9 @@ test_xaccSplitRollbackEdit (Fixture *fixture, gconstpointer pData)
     g_assert_true (fixture->split->acc == acc);
     g_assert_true (fixture->split->parent == txn1);
     g_assert_true (fixture->split->orig_parent == txn1);
-    test_signal_assert_hits (sig1, 1);
+    test_signal_assert_hits (sig1, 2);
     test_signal_assert_hits (sig2, 1);
-    test_signal_assert_hits (sig3, 1);
+    test_signal_assert_hits (sig3, 2);
     g_assert_true (fixture->split->parent == fixture->split->orig_parent);
     g_assert_true (fixture->split->parent == txn1);
 

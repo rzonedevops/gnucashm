@@ -12,10 +12,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: GnuCash 5.12\n"
-"Report-Msgid-Bugs-To: https://bugs.gnucash.org/enter_bug.cgi?"
-"product=GnuCash&component=Translations\n"
+"Report-Msgid-Bugs-To: https://bugs.gnucash.org/"
+"enter_bug.cgi?product=GnuCash&component=Translations\n"
 "POT-Creation-Date: 2025-06-22 12:27-0700\n"
-"PO-Revision-Date: 2025-04-07 15:03+0000\n"
+"PO-Revision-Date: 2025-08-21 02:02+0000\n"
 "Last-Translator: Szia Tomi <sziatomi01@gmail.com>\n"
 "Language-Team: Hungarian <https://hosted.weblate.org/projects/gnucash/"
 "gnucash/hu/>\n"
@@ -24,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.11-dev\n"
+"X-Generator: Weblate 5.13\n"
 
 #: bindings/guile/date-utilities.scm:173
 #: gnucash/report/reports/example/daily-reports.scm:260
@@ -5432,27 +5432,29 @@ msgstr "Ugrás a dátumra"
 
 #: gnucash/gnome/gnc-plugin-page-register.cpp:5060
 #: gnucash/gnome/gnc-plugin-page-register.cpp:5089
-#, fuzzy
-#| msgid "_Jump to the other account"
 msgid "Unable to jump to other account"
-msgstr "_Ugrás a másik számlára"
+msgstr "Nem lehet a másik számlára ugrani"
 
 #: gnucash/gnome/gnc-plugin-page-register.cpp:5063
 msgid ""
 "This transaction involves more than one other account. Select a specific "
 "split to jump to that account."
 msgstr ""
+"Ez a tranzakció egynél több másik számlát érint. Válasszon ki egy adott "
+"felosztást a számlára való ugráshoz."
 
 #: gnucash/gnome/gnc-plugin-page-register.cpp:5092
 msgid ""
 "This transaction only involves the current account so there is no other "
 "account to jump to."
 msgstr ""
+"Ez a tranzakció csak a jelenlegi számlát érinti, így nincs másik számla, "
+"amelyre át lehetne ugrani."
 
 #: gnucash/gnome/gnc-plugin-page-register.cpp:5246
 #, c-format
 msgid "Checking splits in current register: %u of %u"
-msgstr ""
+msgstr "Felosztások ellenőrzése a jelenlegi regiszterben: %u / %u"
 
 #: gnucash/gnome/gnc-plugin-page-report.cpp:234
 msgid "Print"
@@ -7635,7 +7637,7 @@ msgstr ""
 # msgid_plural "The following %d bills are due:"
 #: gnucash/gnome-utils/gnc-file.c:754
 msgid "The following are noted in this file:"
-msgstr ""
+msgstr "Ebben a fájlban a következők szerepelnek:"
 
 #: gnucash/gnome-utils/gnc-file.c:880
 #, c-format
@@ -10289,13 +10291,15 @@ msgstr ""
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:267
 msgid "\"Jump\" behaviour when there are multiple splits"
-msgstr ""
+msgstr "Az ugrási művelet viselkedése több felosztás esetén"
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:268
 msgid ""
 "Select how the \"Jump\" operation should behave when a transaction has "
 "multiple splits."
 msgstr ""
+"Válassza ki, hogy az ugrási művelet hogyan viselkedjen, ha egy tranzakciónak "
+"több felosztása van."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:272
 msgid "Create a new window for each new register"
@@ -10422,7 +10426,7 @@ msgstr ""
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:317
 msgid "Only display leaf account names."
-msgstr "Utolsó számlanevek megjelenítése."
+msgstr "A teljes számlanévből csak az utolsó nevet jelenítse meg."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:318
 msgid ""
@@ -10431,6 +10435,11 @@ msgid ""
 "including the path in the account tree. Activating this option implies that "
 "you use unique leaf names."
 msgstr ""
+"A teljes számlanévből csak az utolsó nevet jeleníti meg a regiszterben és a "
+"felugró számlakiválasztó ablakban. Az alapértelmezett viselkedés a teljes "
+"név megjelenítése, beleértve az elérési utat is a számlafában. A beállítás "
+"aktiválása azt feltételezi, hogy egyedi számlaneveket használ (nincsenek "
+"olyan számlái, melyeknek ugyanaz a neve)."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.gschema.xml.in:322
 #, fuzzy
@@ -10741,9 +10750,8 @@ msgstr "Ez a párbeszédablak jelenik meg, mielőtt egy meglévő árat lecseré
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:49
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:182
-#, fuzzy
 msgid "Edit account payable/accounts receivable register"
-msgstr "Kinttlévőség"
+msgstr "Kifizetendő/követelés számlák nyilvántartásának szerkesztése"
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:50
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:183
@@ -10752,6 +10760,9 @@ msgid ""
 "accounts receivable account. These account types are reserved for the "
 "business features and should rarely be manipulated manually."
 msgstr ""
+"Ez a párbeszédablak jelenik meg, mielőtt lehetővé tenné a kifizetendő számlá"
+"k/követelés számlák szerkesztését. Ezek a számlatípusok üzleti funkciók "
+"számára vannak fenntartva, és ritkán szabad ezeket kézzel változtatni."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:54
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:187
@@ -10972,10 +10983,8 @@ msgstr ""
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:129
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:262
-#, fuzzy
-#| msgid "_Jump to the other account"
 msgid "Jump when there are multiple other accounts"
-msgstr "_Ugrás a másik számlára"
+msgstr "Az ugrási művelet ha több másik számla van"
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:130
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:263
@@ -10984,27 +10993,23 @@ msgid ""
 "because it has splits for multiple other accounts. A specific split must be "
 "selected to jump to the other account."
 msgstr ""
+"Ez a párbeszédablak jelenik meg, ha egy tranzakciónál nem tud ugrani, mert "
+"az több másik számlát érintő felosztást tartalmaz. A másik számlára való "
+"ugráshoz ki kell választani egy adott felosztást."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:134
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:267
-#, fuzzy
-#| msgid "_Jump to the other account"
 msgid "Jump when there are no other accounts"
-msgstr "_Ugrás a másik számlára"
+msgstr "Az ugrási művelet ha nincs másik számla"
 
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:135
 #: gnucash/gschemas/org.gnucash.GnuCash.warnings.gschema.xml.in:268
-#, fuzzy
-#| msgid ""
-#| "This dialog is presented when you attempt to duplicate a modified "
-#| "transaction. The changed data must be saved or the duplication canceled."
 msgid ""
 "This dialog is presented when you are unable to jump on a transaction "
 "because it only has splits for the current account."
 msgstr ""
-"Ez a párbeszédablak jelenik meg, amikor megpróbál duplikálni egy "
-"megváltozott tranzakciót. A megváltozott adatokat rögzíteni kell, vagy meg "
-"kell szakítani a duplikálást."
+"Ez a párbeszédablak jelenik meg, ha egy tranzakciónál nem tud ugrani, mert "
+"az csak a jelenlegi számlát érintő felosztásokat tartalmaz."
 
 #: gnucash/gschemas/org.gnucash.GnuCash.window.pages.account.tree.gschema.xml.in:5
 #: gnucash/gschemas/org.gnucash.GnuCash.window.pages.account.tree.gschema.xml.in:6
@@ -12070,13 +12075,11 @@ msgstr "THM (összevont havi)"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:58
 msgid "APR (Compounded Quarterly)"
-msgstr "THM (összevont negyedévi)"
+msgstr "THM (összevont negyedéves)"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:61
-#, fuzzy
-#| msgid "APR (Compounded Annually)"
 msgid "APR (Compounded Semi-annually)"
-msgstr "THM (összevont éves)"
+msgstr "THM (összevont féléves)"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:64
 msgid "APR (Compounded Annually)"
@@ -12088,19 +12091,19 @@ msgstr "fix kamatlábú"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:78
 msgid "3/1 Year ARM"
-msgstr "3 éves THM"
+msgstr "3/1 éves változó kamatozású jelzáloghitel"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:81
 msgid "5/1 Year ARM"
-msgstr "5 éves THM"
+msgstr "5/1 éves változó kamatozású jelzáloghitel"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:84
 msgid "7/1 Year ARM"
-msgstr "7 éves THM"
+msgstr "7/1 éves változó kamatozású jelzáloghitel"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:87
 msgid "10/1 Year ARM"
-msgstr "10 éves THM"
+msgstr "10/1 éves változó kamatozású jelzáloghitel"
 
 #: gnucash/gtkbuilder/assistant-loan.glade:107
 msgid ""
@@ -13310,10 +13313,8 @@ msgstr "Szűrés…"
 
 #: gnucash/gtkbuilder/dialog-account.glade:906
 #: gnucash/gtkbuilder/gnc-plugin-page-register.glade:498
-#, fuzzy
-#| msgid "Clear All"
 msgid "Clear _All"
-msgstr "Kijelölések törlése"
+msgstr "_Összes törlése"
 
 #: gnucash/gtkbuilder/dialog-account.glade:922
 msgid "_Default"
@@ -15730,11 +15731,11 @@ msgstr ""
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2581
 msgid "<b>Jump action for multiple splits</b>"
-msgstr "<b>Ugrási művelet kettőnél több felosztás esetén</b>"
+msgstr "<b>Az ugrási művelet több felosztás esetén</b>"
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2583
 msgid "Transaction jump action when there are more than two splits."
-msgstr "Tranzakciós ugrási művelet kettőnél több felosztás esetén."
+msgstr "A tranzakciós ugrási művelet kettőnél több felosztás esetén."
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2593
 msgid "Do _nothing"
@@ -15746,21 +15747,25 @@ msgstr "Ne csináljon semmit."
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2612
 msgid "Go to the first split with the _largest value"
-msgstr ""
+msgstr "Válassza az első leg_nagyobb értékkel rendelkező felosztást"
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2618
 msgid ""
 "Use the first split with the largest value to determine the other account."
 msgstr ""
+"Az első legnagyobb értékkel rendelkező felosztást használja a másik számla "
+"meghatározásához."
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2632
 msgid "Go to the first split with the _smallest value"
-msgstr ""
+msgstr "Válassza az első leg_kisebb értékkel rendelkező felosztást"
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2638
 msgid ""
 "Use the first split with the smallest value to determine the other account."
 msgstr ""
+"Az első legkisebb értékkel rendelkező felosztást használja a másik számla "
+"meghatározásához."
 
 #: gnucash/gtkbuilder/dialog-preferences.glade:2665
 msgid "<b>Reconciling</b>"
@@ -20029,10 +20034,8 @@ msgid "A"
 msgstr "Ú"
 
 #: gnucash/import-export/import-main-matcher.cpp:1605
-#, fuzzy
-#| msgid "Add a reversing transaction."
 msgid "Add as a new transaction"
-msgstr "Fordított tranzakció felvétele (Storno)."
+msgstr "Hozzáadás új tranzakcióként"
 
 #: gnucash/import-export/import-main-matcher.cpp:1607
 msgctxt "Column header for 'Updating plus Clearing transaction'"
@@ -20040,16 +20043,13 @@ msgid "U+C"
 msgstr "F+K"
 
 #: gnucash/import-export/import-main-matcher.cpp:1610
-#, fuzzy
-#| msgid ""
-#| "Select \"U+C\" to update a matching transaction and mark it as cleared "
-#| "(c)."
 msgid ""
 "Update + Clear Transaction\n"
 "Update existing transaction with the imported data and mark it as cleared"
 msgstr ""
-"Egy egyező tranzakció frissítéséhez és kiegyenlítettnek (k) jelöléséhez "
-"válassza az „F+K” lehetőséget."
+"Tranzakció frissítése + kiegyenlítettnek jelölése\n"
+"Egy meglévő tranzakciót frissít az importált adatokkal, és kiegyenlítettnek "
+"jelöl"
 
 #: gnucash/import-export/import-main-matcher.cpp:1612
 msgctxt "Column header for 'Clearing transaction'"
@@ -20061,6 +20061,9 @@ msgid ""
 "Clear Transaction\n"
 "Mark existing transaction as cleared without changing its details"
 msgstr ""
+"Tranzakció kiegyenlítettnek jelölése\n"
+"Egy meglévő tranzakciót kiegyenlítettnek jelöl anélkül, hogy annak "
+"részleteit megváltoztatná"
 
 #: gnucash/import-export/import-main-matcher.cpp:1620
 msgid "Info"
@@ -27412,11 +27415,11 @@ msgstr "Pénzpiaci"
 
 #: gnucash/report/report-utilities.scm:215
 msgid "Accounts Receivable"
-msgstr "Kinttlévőség"
+msgstr "Követelés számlák"
 
 #: gnucash/report/report-utilities.scm:216
 msgid "Accounts Payable"
-msgstr "Fizethető számlák"
+msgstr "Kifizetendő számlák"
 
 #: gnucash/report/report-utilities.scm:217
 msgid "Credit Lines"
@@ -30677,7 +30680,7 @@ msgstr "Bukaresti értéktőzsde, RO"
 #: libgnucash/engine/gnc-commodity.cpp:199
 msgctxt "FQ Source"
 msgid "China Merchants Bank, CN"
-msgstr ""
+msgstr "Kínai kereskedelmi bank, CN"
 
 #: libgnucash/engine/gnc-commodity.cpp:200
 msgctxt "FQ Source"
