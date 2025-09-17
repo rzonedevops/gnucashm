@@ -328,4 +328,251 @@ qof_collection_foreach (const QofCollection *col, QofInstanceForeachCB cb_func,
 {
     qof_collection_foreach_sorted (col, cb_func, user_data, nullptr);
 }
+
+/* =============================================================== */
+/* Multi-Entity Collection Implementation */
+
+struct QofMultiEntityCollection_s
+{
+    GHashTable * entity_table;     /* Hash table of entities (key: GUID, value: QofInstance) */
+    GHashTable * type_table;       /* Hash table of types present (key: QofIdType, value: count) */
+};
+
+QofMultiEntityCollection *
+qof_multi_entity_collection_new (void)
+{
+    QofMultiEntityCollection *multi_coll;
+    
+    multi_coll = g_new0 (QofMultiEntityCollection, 1);
+    multi_coll->entity_table = g_hash_table_new (g_direct_hash, g_direct_equal);
+    multi_coll->type_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, NULL);
+    
+    return multi_coll;
+}
+
+void
+qof_multi_entity_collection_destroy (QofMultiEntityCollection *multi_coll)
+{
+    if (!multi_coll) return;
+    
+    g_hash_table_destroy (multi_coll->entity_table);
+    g_hash_table_destroy (multi_coll->type_table);
+    g_free (multi_coll);
+}
+
+static void
+add_entity_to_multi_collection_cb (QofInstance *entity, gpointer user_data)
+{
+    QofMultiEntityCollection *multi_coll = (QofMultiEntityCollection *)user_data;
+    qof_multi_entity_collection_add_entity (multi_coll, entity);
+}
+
+void
+qof_multi_entity_collection_add_collection (QofMultiEntityCollection *multi_coll,
+                                             const QofCollection *coll)
+{
+    if (!multi_coll || !coll) return;
+    
+    qof_collection_foreach (coll, add_entity_to_multi_collection_cb, multi_coll);
+}
+
+struct FilterData
+{
+    QofMultiEntityCollection *multi_coll;
+    QofEntityFilterCB filter;
+    gpointer user_data;
+};
+
+static void
+add_entity_filtered_cb (QofInstance *entity, gpointer user_data)
+{
+    struct FilterData *filter_data = (struct FilterData *)user_data;
+    
+    if (filter_data->filter (entity, filter_data->user_data))
+    {
+        qof_multi_entity_collection_add_entity (filter_data->multi_coll, entity);
+    }
+}
+
+void
+qof_multi_entity_collection_add_collection_filtered (QofMultiEntityCollection *multi_coll,
+                                                      const QofCollection *coll,
+                                                      QofEntityFilterCB filter,
+                                                      gpointer user_data)
+{
+    struct FilterData filter_data;
+    
+    if (!multi_coll || !coll || !filter) return;
+    
+    filter_data.multi_coll = multi_coll;
+    filter_data.filter = filter;
+    filter_data.user_data = user_data;
+    
+    qof_collection_foreach (coll, add_entity_filtered_cb, &filter_data);
+}
+
+gboolean
+qof_multi_entity_collection_add_entity (QofMultiEntityCollection *multi_coll,
+                                         QofInstance *entity)
+{
+    const GncGUID *guid;
+    const char *type;
+    gpointer count_ptr;
+    guint count;
+    
+    if (!multi_coll || !entity) return FALSE;
+    
+    guid = qof_instance_get_guid (entity);
+    if (!guid || guid_equal (guid, guid_null ())) return FALSE;
+    
+    /* Check if entity is already present */
+    if (g_hash_table_lookup (multi_coll->entity_table, guid))
+        return FALSE;
+    
+    /* Add entity */
+    g_hash_table_insert (multi_coll->entity_table, (gpointer)guid, entity);
+    
+    /* Update type count */
+    type = entity->e_type;
+    count_ptr = g_hash_table_lookup (multi_coll->type_table, type);
+    count = GPOINTER_TO_UINT (count_ptr) + 1;
+    g_hash_table_insert (multi_coll->type_table, (gpointer)type, GUINT_TO_POINTER (count));
+    
+    return TRUE;
+}
+
+gboolean
+qof_multi_entity_collection_remove_entity (QofMultiEntityCollection *multi_coll,
+                                            QofInstance *entity)
+{
+    const GncGUID *guid;
+    const char *type;
+    gpointer count_ptr;
+    guint count;
+    
+    if (!multi_coll || !entity) return FALSE;
+    
+    guid = qof_instance_get_guid (entity);
+    if (!guid) return FALSE;
+    
+    /* Check if entity is present */
+    if (!g_hash_table_lookup (multi_coll->entity_table, guid))
+        return FALSE;
+    
+    /* Remove entity */
+    g_hash_table_remove (multi_coll->entity_table, guid);
+    
+    /* Update type count */
+    type = entity->e_type;
+    count_ptr = g_hash_table_lookup (multi_coll->type_table, type);
+    count = GPOINTER_TO_UINT (count_ptr);
+    if (count > 1)
+    {
+        g_hash_table_insert (multi_coll->type_table, (gpointer)type, GUINT_TO_POINTER (count - 1));
+    }
+    else
+    {
+        g_hash_table_remove (multi_coll->type_table, type);
+    }
+    
+    return TRUE;
+}
+
+guint
+qof_multi_entity_collection_count (const QofMultiEntityCollection *multi_coll)
+{
+    if (!multi_coll) return 0;
+    return g_hash_table_size (multi_coll->entity_table);
+}
+
+gboolean
+qof_multi_entity_collection_contains (const QofMultiEntityCollection *multi_coll,
+                                       const QofInstance *entity)
+{
+    const GncGUID *guid;
+    
+    if (!multi_coll || !entity) return FALSE;
+    
+    guid = qof_instance_get_guid (entity);
+    if (!guid) return FALSE;
+    
+    return g_hash_table_lookup (multi_coll->entity_table, guid) != NULL;
+}
+
+void
+qof_multi_entity_collection_foreach (const QofMultiEntityCollection *multi_coll,
+                                      QofInstanceForeachCB cb_func,
+                                      gpointer user_data)
+{
+    qof_multi_entity_collection_foreach_sorted (multi_coll, cb_func, user_data, NULL);
+}
+
+void
+qof_multi_entity_collection_foreach_sorted (const QofMultiEntityCollection *multi_coll,
+                                             QofInstanceForeachCB cb_func,
+                                             gpointer user_data,
+                                             GCompareFunc sort_fn)
+{
+    GList *entities;
+    
+    if (!multi_coll || !cb_func) return;
+    
+    entities = g_hash_table_get_values (multi_coll->entity_table);
+    if (sort_fn)
+        entities = g_list_sort (entities, sort_fn);
+    
+    g_list_foreach (entities, (GFunc)cb_func, user_data);
+    g_list_free (entities);
+}
+
+GList *
+qof_multi_entity_collection_get_types (const QofMultiEntityCollection *multi_coll)
+{
+    if (!multi_coll) return NULL;
+    return g_hash_table_get_keys (multi_coll->type_table);
+}
+
+QofMultiEntityCollection *
+qof_multi_entity_collection_filter (const QofMultiEntityCollection *multi_coll,
+                                     QofEntityFilterCB filter,
+                                     gpointer user_data)
+{
+    struct FilterData filter_data;
+    QofMultiEntityCollection *filtered_coll;
+    
+    if (!multi_coll || !filter) return NULL;
+    
+    filtered_coll = qof_multi_entity_collection_new ();
+    filter_data.multi_coll = filtered_coll;
+    filter_data.filter = filter;
+    filter_data.user_data = user_data;
+    
+    qof_multi_entity_collection_foreach (multi_coll, add_entity_filtered_cb, &filter_data);
+    
+    return filtered_coll;
+}
+
+QofMultiEntityCollection *
+qof_multi_entity_collection_merge (const QofMultiEntityCollection *coll1,
+                                    const QofMultiEntityCollection *coll2)
+{
+    QofMultiEntityCollection *merged_coll;
+    
+    if (!coll1 && !coll2) return NULL;
+    
+    merged_coll = qof_multi_entity_collection_new ();
+    
+    if (coll1)
+    {
+        qof_multi_entity_collection_foreach (coll1, add_entity_to_multi_collection_cb, merged_coll);
+    }
+    
+    if (coll2)
+    {
+        qof_multi_entity_collection_foreach (coll2, add_entity_to_multi_collection_cb, merged_coll);
+    }
+    
+    return merged_coll;
+}
+
 /* =============================================================== */
