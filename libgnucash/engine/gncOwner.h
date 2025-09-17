@@ -50,6 +50,7 @@ typedef enum
     GNC_OWNER_JOB ,
     GNC_OWNER_VENDOR ,
     GNC_OWNER_EMPLOYEE ,
+    GNC_OWNER_ORGANIZATION ,
 } GncOwnerType;
 
 #include "qof.h"
@@ -57,6 +58,7 @@ typedef enum
 #include "gncJob.h"
 #include "gncVendor.h"
 #include "gncEmployee.h"
+#include "gncOrganization.h"
 #include "gncInvoice.h"
 #include "Account.h"
 #include "gnc-lot.h"
@@ -95,7 +97,7 @@ gncOwnerRegister(void);
 /** \struct GncOwner */
 struct _gncOwner
 {
-    GncOwnerType     type;      /**< Customer, Job, Vendor, Employee or Undefined. */
+    GncOwnerType     type;      /**< Customer, Job, Vendor, Employee, Organization or Undefined. */
     union
     {
         gpointer       undefined;
@@ -103,6 +105,7 @@ struct _gncOwner
         GncJob *       job;
         GncVendor *    vendor;
         GncEmployee *  employee;
+        GncOrganization * organization;
     } owner;                   /**< holds the pointer to the owner object. */
     gpointer         qof_temp; /**< Set type independently of the owner. */
 };

@@ -92,6 +92,8 @@ set (engine_HEADERS
   gncJobP.h
   gncOrder.h
   gncOrderP.h
+  gncOrganization.h
+  gncOrganizationP.h
   gncOwner.h
   gncOwnerP.h
   gncTaxTable.h
@@ -188,6 +190,7 @@ set (engine_SOURCES
   gncInvoice.c
   gncJob.c
   gncOrder.c
+  gncOrganization.c
   gncOwner.c
   gncTaxTable.c
   gncVendor.c

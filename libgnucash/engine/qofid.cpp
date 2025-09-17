@@ -30,6 +30,7 @@
 #include "qof.h"
 #include "qofid-p.h"
 #include "qofinstance-p.h"
+#include "gncOrganization.h"
 
 static QofLogModule log_module = QOF_MOD_ENGINE;
 
@@ -573,6 +574,73 @@ qof_multi_entity_collection_merge (const QofMultiEntityCollection *coll1,
     }
     
     return merged_coll;
+}
+
+/* =============================================================== */
+/* Organization-specific multi-entity functions */
+
+QofMultiEntityCollection *
+qof_multi_entity_collection_from_organization (const GncOrganization *org)
+{
+    QofMultiEntityCollection *multi_coll;
+    GList *entities;
+    GList *node;
+    
+    if (!org) return NULL;
+    
+    multi_coll = qof_multi_entity_collection_new();
+    
+    /* Add all entities belonging to the organization */
+    entities = gncOrganizationGetEntities(org);
+    for (node = entities; node; node = node->next)
+    {
+        if (QOF_IS_INSTANCE(node->data))
+        {
+            qof_multi_entity_collection_add_entity(multi_coll, (QofInstance*)node->data);
+        }
+    }
+    
+    return multi_coll;
+}
+
+void
+qof_multi_entity_collection_add_organization_entities (QofMultiEntityCollection *multi_coll,
+                                                        const GncOrganization *org)
+{
+    GList *entities;
+    GList *node;
+    
+    if (!multi_coll || !org) return;
+    
+    entities = gncOrganizationGetEntities(org);
+    for (node = entities; node; node = node->next)
+    {
+        if (QOF_IS_INSTANCE(node->data))
+        {
+            qof_multi_entity_collection_add_entity(multi_coll, (QofInstance*)node->data);
+        }
+    }
+}
+
+static gboolean
+filter_by_organization_cb (QofInstance *entity, gpointer user_data)
+{
+    const GncOrganization *org = (const GncOrganization *)user_data;
+    GList *org_entities;
+    
+    if (!entity || !org) return FALSE;
+    
+    org_entities = gncOrganizationGetEntities(org);
+    return (g_list_find(org_entities, entity) != NULL);
+}
+
+QofMultiEntityCollection *
+qof_multi_entity_collection_filter_by_organization (const QofMultiEntityCollection *multi_coll,
+                                                     const GncOrganization *org)
+{
+    if (!multi_coll || !org) return NULL;
+    
+    return qof_multi_entity_collection_filter(multi_coll, filter_by_organization_cb, (gpointer)org);
 }
 
 /* =============================================================== */

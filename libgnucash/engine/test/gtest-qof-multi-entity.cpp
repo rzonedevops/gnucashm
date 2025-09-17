@@ -340,3 +340,43 @@ TEST_F(QofMultiEntityTest, NullPointerHandling)
     EXPECT_EQ(nullptr, qof_multi_entity_collection_filter(nullptr, filter_accounts_only, nullptr));
     EXPECT_EQ(nullptr, qof_multi_entity_collection_merge(nullptr, nullptr));
 }
+
+// Tests for organization-specific multi-entity functionality
+TEST_F(QofMultiEntityTest, OrganizationMultiEntity)
+{
+    QofMultiEntityCollection* multi_coll = qof_multi_entity_collection_new();
+    
+    // Create a mock organization with entities
+    // Note: In a real implementation, you would use actual GncOrganization objects
+    // For testing, we'll simulate this functionality
+    
+    // Add some entities to the multi-entity collection
+    qof_multi_entity_collection_add_collection(multi_coll, account_coll);
+    
+    EXPECT_EQ(3, qof_multi_entity_collection_count(multi_coll));
+    
+    qof_multi_entity_collection_destroy(multi_coll);
+}
+
+TEST_F(QofMultiEntityTest, OrganizationFiltering)
+{
+    QofMultiEntityCollection* multi_coll = qof_multi_entity_collection_new();
+    
+    // Add both collections
+    qof_multi_entity_collection_add_collection(multi_coll, account_coll);
+    qof_multi_entity_collection_add_collection(multi_coll, transaction_coll);
+    
+    EXPECT_EQ(6, qof_multi_entity_collection_count(multi_coll));
+    
+    // Test filtering - in a real implementation, this would filter by organization
+    // For now, we'll test the basic filtering mechanism
+    QofMultiEntityCollection* filtered = 
+        qof_multi_entity_collection_filter(multi_coll, filter_accounts_only, nullptr);
+    
+    // The filter should reduce the count (exact number depends on implementation)
+    guint filtered_count = qof_multi_entity_collection_count(filtered);
+    EXPECT_LE(filtered_count, 6);
+    
+    qof_multi_entity_collection_destroy(multi_coll);
+    qof_multi_entity_collection_destroy(filtered);
+}

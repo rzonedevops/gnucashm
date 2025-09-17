@@ -41,6 +41,7 @@
 #include "gncOwner.h"
 #include "gncOwnerP.h"
 #include "gncVendorP.h"
+#include "gncOrganizationP.h"
 #include "gncInvoice.h"
 #include "gnc-commodity.h"
 #include "Scrub2.h"
@@ -97,6 +98,11 @@ void gncOwnerBeginEdit (GncOwner *owner)
         gncEmployeeBeginEdit(owner->owner.employee);
         break;
     }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationBeginEdit(owner->owner.organization);
+        break;
+    }
     }
 }
 
@@ -128,6 +134,11 @@ void gncOwnerCommitEdit (GncOwner *owner)
         gncEmployeeCommitEdit(owner->owner.employee);
         break;
     }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationCommitEdit(owner->owner.organization);
+        break;
+    }
     }
 }
 
@@ -157,6 +168,11 @@ void gncOwnerDestroy (GncOwner *owner)
     case GNC_OWNER_EMPLOYEE :
     {
         gncEmployeeDestroy(owner->owner.employee);
+        break;
+    }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationDestroy(owner->owner.organization);
         break;
     }
     }
@@ -220,6 +236,8 @@ const char * gncOwnerGetTypeString (const GncOwner *owner)
         return N_("Vendor");
     case GNC_OWNER_EMPLOYEE:
         return N_("Employee");
+    case GNC_OWNER_ORGANIZATION:
+        return N_("Organization");
     default:
         PWARN ("Unknown owner type");
         return NULL;
@@ -265,6 +283,11 @@ QofIdTypeConst gncOwnerTypeToQofIdType(GncOwnerType t)
     case GNC_OWNER_EMPLOYEE :
     {
         type = GNC_ID_EMPLOYEE;
+        break;
+    }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        type = GNC_ID_ORGANIZATION;
         break;
     }
     }
@@ -433,6 +456,8 @@ const char * gncOwnerGetID (const GncOwner *owner)
         return gncVendorGetID (owner->owner.vendor);
     case GNC_OWNER_EMPLOYEE:
         return gncEmployeeGetID (owner->owner.employee);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetID (owner->owner.organization);
     }
 }
 
@@ -453,6 +478,8 @@ const char * gncOwnerGetName (const GncOwner *owner)
         return gncVendorGetName (owner->owner.vendor);
     case GNC_OWNER_EMPLOYEE:
         return gncEmployeeGetName (owner->owner.employee);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetName (owner->owner.organization);
     }
 }
 
