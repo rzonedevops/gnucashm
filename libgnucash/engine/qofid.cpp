@@ -335,7 +335,7 @@ qof_collection_foreach (const QofCollection *col, QofInstanceForeachCB cb_func,
 struct QofMultiEntityCollection_s
 {
     GHashTable * entity_table;     /* Hash table of entities (key: GUID, value: QofInstance) */
-    GHashTable * type_table;       /* Hash table of types present (key: QofIdType, value: count) */
+    GHashTable * type_table;       /* Hash table of types present (key: QofIdType, value: int count) */
 };
 
 QofMultiEntityCollection *
@@ -418,7 +418,7 @@ qof_multi_entity_collection_add_entity (QofMultiEntityCollection *multi_coll,
     const GncGUID *guid;
     const char *type;
     gpointer count_ptr;
-    guint count;
+    int count;
     
     if (!multi_coll || !entity) return FALSE;
     
@@ -435,8 +435,8 @@ qof_multi_entity_collection_add_entity (QofMultiEntityCollection *multi_coll,
     /* Update type count */
     type = entity->e_type;
     count_ptr = g_hash_table_lookup (multi_coll->type_table, type);
-    count = GPOINTER_TO_UINT (count_ptr) + 1;
-    g_hash_table_insert (multi_coll->type_table, (gpointer)type, GUINT_TO_POINTER (count));
+    count = GPOINTER_TO_INT (count_ptr) + 1;
+    g_hash_table_insert (multi_coll->type_table, (gpointer)type, GINT_TO_POINTER (count));
     
     return TRUE;
 }
@@ -448,7 +448,7 @@ qof_multi_entity_collection_remove_entity (QofMultiEntityCollection *multi_coll,
     const GncGUID *guid;
     const char *type;
     gpointer count_ptr;
-    guint count;
+    int count;
     
     if (!multi_coll || !entity) return FALSE;
     
@@ -465,10 +465,10 @@ qof_multi_entity_collection_remove_entity (QofMultiEntityCollection *multi_coll,
     /* Update type count */
     type = entity->e_type;
     count_ptr = g_hash_table_lookup (multi_coll->type_table, type);
-    count = GPOINTER_TO_UINT (count_ptr);
+    count = GPOINTER_TO_INT (count_ptr);
     if (count > 1)
     {
-        g_hash_table_insert (multi_coll->type_table, (gpointer)type, GUINT_TO_POINTER (count - 1));
+        g_hash_table_insert (multi_coll->type_table, (gpointer)type, GINT_TO_POINTER (count - 1));
     }
     else
     {

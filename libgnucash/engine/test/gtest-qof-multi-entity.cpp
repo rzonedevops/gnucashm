@@ -44,14 +44,19 @@ protected:
         account_coll = qof_collection_new("Account");
         transaction_coll = qof_collection_new("Transaction");
         
-        // Create test entities
+        // Create test entities with proper GUIDs
         for (int i = 0; i < 3; i++)
         {
             QofInstance* account = g_new0(QofInstance, 1);
             QofInstance* transaction = g_new0(QofInstance, 1);
             
-            qof_instance_init_data(account, "Account", nullptr);
-            qof_instance_init_data(transaction, "Transaction", nullptr);
+            // Simple initialization with type
+            account->e_type = "Account";
+            transaction->e_type = "Transaction";
+            
+            // Generate GUIDs
+            guid_replace(&account->guid);
+            guid_replace(&transaction->guid);
             
             qof_collection_insert_entity(account_coll, account);
             qof_collection_insert_entity(transaction_coll, transaction);
