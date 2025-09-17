@@ -217,6 +217,72 @@ QofCollection*
 qof_collection_from_glist (QofIdType type, const GList *glist);
 
 /** @} */
+
+/** @name Multi-Entity Aggregation
+ @{
+*/
+
+/** Multi-entity collection structure for aggregating entities across collections */
+typedef struct QofMultiEntityCollection_s QofMultiEntityCollection;
+
+/** Callback type for filtering entities during aggregation */
+typedef gboolean (*QofEntityFilterCB) (QofInstance *entity, gpointer user_data);
+
+/** Create a new multi-entity collection */
+QofMultiEntityCollection * qof_multi_entity_collection_new (void);
+
+/** Destroy a multi-entity collection */
+void qof_multi_entity_collection_destroy (QofMultiEntityCollection *multi_coll);
+
+/** Add all entities from a collection to the multi-entity collection */
+void qof_multi_entity_collection_add_collection (QofMultiEntityCollection *multi_coll,
+                                                  const QofCollection *coll);
+
+/** Add all entities from a collection that match the filter to the multi-entity collection */
+void qof_multi_entity_collection_add_collection_filtered (QofMultiEntityCollection *multi_coll,
+                                                           const QofCollection *coll,
+                                                           QofEntityFilterCB filter,
+                                                           gpointer user_data);
+
+/** Add a single entity to the multi-entity collection */
+gboolean qof_multi_entity_collection_add_entity (QofMultiEntityCollection *multi_coll,
+                                                  QofInstance *entity);
+
+/** Remove an entity from the multi-entity collection */
+gboolean qof_multi_entity_collection_remove_entity (QofMultiEntityCollection *multi_coll,
+                                                     QofInstance *entity);
+
+/** Get the total count of entities in the multi-entity collection */
+guint qof_multi_entity_collection_count (const QofMultiEntityCollection *multi_coll);
+
+/** Check if the multi-entity collection contains a specific entity */
+gboolean qof_multi_entity_collection_contains (const QofMultiEntityCollection *multi_coll,
+                                                const QofInstance *entity);
+
+/** Iterate over all entities in the multi-entity collection */
+void qof_multi_entity_collection_foreach (const QofMultiEntityCollection *multi_coll,
+                                           QofInstanceForeachCB cb_func,
+                                           gpointer user_data);
+
+/** Iterate over all entities in the multi-entity collection with sorting */
+void qof_multi_entity_collection_foreach_sorted (const QofMultiEntityCollection *multi_coll,
+                                                  QofInstanceForeachCB cb_func,
+                                                  gpointer user_data,
+                                                  GCompareFunc sort_fn);
+
+/** Get all entity types present in the multi-entity collection */
+GList * qof_multi_entity_collection_get_types (const QofMultiEntityCollection *multi_coll);
+
+/** Filter entities and create a new multi-entity collection */
+QofMultiEntityCollection * qof_multi_entity_collection_filter (const QofMultiEntityCollection *multi_coll,
+                                                                QofEntityFilterCB filter,
+                                                                gpointer user_data);
+
+/** Merge two multi-entity collections into a new one */
+QofMultiEntityCollection * qof_multi_entity_collection_merge (const QofMultiEntityCollection *coll1,
+                                                               const QofMultiEntityCollection *coll2);
+
+/** @} */
 /** @} */
 
 #ifdef __cplusplus
