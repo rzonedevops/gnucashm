@@ -76,4 +76,31 @@ USE CASES:
 - Data export/import operations
 - Business logic that needs to work across entity boundaries
 - Performance optimization for complex queries
+- Organization-wide reporting and analysis
+- Multi-entity consolidation for organizational structures
+
+ORGANIZATION ENHANCEMENTS:
+// Create an organization and add entities to it
+GncOrganization *company = gncOrganizationCreate(book);
+gncOrganizationSetName(company, "ACME Corporation");
+
+// Add various business entities to the organization
+gncOrganizationAddEntity(company, QOF_INSTANCE(customer1));
+gncOrganizationAddEntity(company, QOF_INSTANCE(vendor1));
+gncOrganizationAddEntity(company, QOF_INSTANCE(employee1));
+
+// Create multi-entity collection from organization
+QofMultiEntityCollection *org_entities = 
+    qof_multi_entity_collection_from_organization(company);
+
+// Filter existing multi-entity collection by organization
+QofMultiEntityCollection *org_filtered = 
+    qof_multi_entity_collection_filter_by_organization(report_entities, company);
+
+// Add organization entities to existing multi-entity collection
+qof_multi_entity_collection_add_organization_entities(report_entities, company);
+
+// Get count of entities in organization
+guint entity_count = gncOrganizationGetEntityCount(company);
+printf("Organization has %u entities\n", entity_count);
 */

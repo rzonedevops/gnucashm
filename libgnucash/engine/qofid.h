@@ -225,6 +225,9 @@ qof_collection_from_glist (QofIdType type, const GList *glist);
 /** Multi-entity collection structure for aggregating entities across collections */
 typedef struct QofMultiEntityCollection_s QofMultiEntityCollection;
 
+/** Forward declaration for organization-specific functions */
+typedef struct _gncOrganization GncOrganization;
+
 /** Callback type for filtering entities during aggregation */
 typedef gboolean (*QofEntityFilterCB) (QofInstance *entity, gpointer user_data);
 
@@ -281,6 +284,19 @@ QofMultiEntityCollection * qof_multi_entity_collection_filter (const QofMultiEnt
 /** Merge two multi-entity collections into a new one */
 QofMultiEntityCollection * qof_multi_entity_collection_merge (const QofMultiEntityCollection *coll1,
                                                                const QofMultiEntityCollection *coll2);
+
+/** Organization-specific multi-entity functions */
+
+/** Create a multi-entity collection from all entities belonging to an organization */
+QofMultiEntityCollection * qof_multi_entity_collection_from_organization (const GncOrganization *org);
+
+/** Add all entities from an organization to the multi-entity collection */
+void qof_multi_entity_collection_add_organization_entities (QofMultiEntityCollection *multi_coll,
+                                                             const GncOrganization *org);
+
+/** Filter entities by organization membership */
+QofMultiEntityCollection * qof_multi_entity_collection_filter_by_organization (const QofMultiEntityCollection *multi_coll,
+                                                                                const GncOrganization *org);
 
 /** @} */
 /** @} */

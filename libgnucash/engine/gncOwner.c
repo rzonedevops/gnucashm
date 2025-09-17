@@ -41,6 +41,7 @@
 #include "gncOwner.h"
 #include "gncOwnerP.h"
 #include "gncVendorP.h"
+#include "gncOrganizationP.h"
 #include "gncInvoice.h"
 #include "gnc-commodity.h"
 #include "Scrub2.h"
@@ -97,6 +98,11 @@ void gncOwnerBeginEdit (GncOwner *owner)
         gncEmployeeBeginEdit(owner->owner.employee);
         break;
     }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationBeginEdit(owner->owner.organization);
+        break;
+    }
     }
 }
 
@@ -128,6 +134,11 @@ void gncOwnerCommitEdit (GncOwner *owner)
         gncEmployeeCommitEdit(owner->owner.employee);
         break;
     }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationCommitEdit(owner->owner.organization);
+        break;
+    }
     }
 }
 
@@ -157,6 +168,11 @@ void gncOwnerDestroy (GncOwner *owner)
     case GNC_OWNER_EMPLOYEE :
     {
         gncEmployeeDestroy(owner->owner.employee);
+        break;
+    }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        gncOrganizationDestroy(owner->owner.organization);
         break;
     }
     }
