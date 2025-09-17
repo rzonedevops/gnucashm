@@ -236,6 +236,8 @@ const char * gncOwnerGetTypeString (const GncOwner *owner)
         return N_("Vendor");
     case GNC_OWNER_EMPLOYEE:
         return N_("Employee");
+    case GNC_OWNER_ORGANIZATION:
+        return N_("Organization");
     default:
         PWARN ("Unknown owner type");
         return NULL;
@@ -281,6 +283,11 @@ QofIdTypeConst gncOwnerTypeToQofIdType(GncOwnerType t)
     case GNC_OWNER_EMPLOYEE :
     {
         type = GNC_ID_EMPLOYEE;
+        break;
+    }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        type = GNC_ID_ORGANIZATION;
         break;
     }
     }
@@ -449,6 +456,8 @@ const char * gncOwnerGetID (const GncOwner *owner)
         return gncVendorGetID (owner->owner.vendor);
     case GNC_OWNER_EMPLOYEE:
         return gncEmployeeGetID (owner->owner.employee);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetID (owner->owner.organization);
     }
 }
 
@@ -469,6 +478,8 @@ const char * gncOwnerGetName (const GncOwner *owner)
         return gncVendorGetName (owner->owner.vendor);
     case GNC_OWNER_EMPLOYEE:
         return gncEmployeeGetName (owner->owner.employee);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetName (owner->owner.organization);
     }
 }
 
