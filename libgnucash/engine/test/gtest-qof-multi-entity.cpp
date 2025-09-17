@@ -44,19 +44,15 @@ protected:
         account_coll = qof_collection_new("Account");
         transaction_coll = qof_collection_new("Transaction");
         
-        // Create test entities with proper GUIDs
+        // Create test entities using proper GObject creation
         for (int i = 0; i < 3; i++)
         {
-            QofInstance* account = g_new0(QofInstance, 1);
-            QofInstance* transaction = g_new0(QofInstance, 1);
+            QofInstance* account = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
+            QofInstance* transaction = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
             
-            // Simple initialization with type
+            // Set entity types
             account->e_type = "Account";
             transaction->e_type = "Transaction";
-            
-            // Generate GUIDs
-            guid_replace(&account->guid);
-            guid_replace(&transaction->guid);
             
             qof_collection_insert_entity(account_coll, account);
             qof_collection_insert_entity(transaction_coll, transaction);
@@ -71,11 +67,11 @@ protected:
         // Clean up entities
         for (auto* account : accounts)
         {
-            g_free(account);
+            g_object_unref(account);
         }
         for (auto* transaction : transactions)
         {
-            g_free(transaction);
+            g_object_unref(transaction);
         }
         
         // Clean up collections
