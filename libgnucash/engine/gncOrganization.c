@@ -24,7 +24,9 @@
  * Author: GnuCash Contributors
  */
 
+#ifdef HAVE_CONFIG_H
 #include <config.h>
+#endif
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <string.h>
@@ -37,6 +39,18 @@
 #include "qofinstance-p.h"
 #include "qofclass.h"
 #include "qof-string-cache.h"
+
+#ifndef CACHE_INSERT
+#define CACHE_INSERT(str) (str ? g_strdup(str) : g_strdup(""))
+#endif
+
+#ifndef CACHE_REMOVE
+#define CACHE_REMOVE(str) do { if (str) { g_free((char*)str); str = NULL; } } while(0)
+#endif
+
+#ifndef safe_strcmp
+#define safe_strcmp(a, b) g_strcmp0(a, b)
+#endif
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
