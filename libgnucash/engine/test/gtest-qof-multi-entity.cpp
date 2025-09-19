@@ -375,7 +375,7 @@ TEST_F(QofMultiEntityTest, OrganizationFiltering)
     
     // The filter should reduce the count (exact number depends on implementation)
     guint filtered_count = qof_multi_entity_collection_count(filtered);
-    EXPECT_LE(filtered_count, 6);
+    EXPECT_LE(filtered_count, 6U);
     
     qof_multi_entity_collection_destroy(multi_coll);
     qof_multi_entity_collection_destroy(filtered);
