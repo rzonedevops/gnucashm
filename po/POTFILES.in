@@ -655,6 +655,7 @@ libgnucash/engine/gnc-option-date.cpp
 libgnucash/engine/gnc-optiondb.cpp
 libgnucash/engine/gnc-option-impl.cpp
 libgnucash/engine/gncOrder.c
+libgnucash/engine/gncOrganization.c
 libgnucash/engine/gncOwner.c
 libgnucash/engine/gnc-pricedb.cpp
 libgnucash/engine/gnc-rational.cpp
@@ -666,6 +667,8 @@ libgnucash/engine/gncVendor.c
 libgnucash/engine/guid.cpp
 libgnucash/engine/kvp-frame.cpp
 libgnucash/engine/kvp-value.cpp
+libgnucash/engine/multi-entity-usage-example.c
+libgnucash/engine/organization-multi-entity-demo.c
 libgnucash/engine/policy.cpp
 libgnucash/engine/qof-backend.cpp
 libgnucash/engine/qofbook.cpp
