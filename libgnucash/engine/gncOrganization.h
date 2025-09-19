@@ -46,9 +46,6 @@ business entities like customers, vendors, and employees.
 @param	GList *         entities;
 */
 
-typedef struct _gncOrganization GncOrganization;
-typedef struct _gncOrganizationClass GncOrganizationClass;
-
 #include "gncAddress.h"
 #include "gncBillTerm.h"
 #include "gncTaxTable.h"
