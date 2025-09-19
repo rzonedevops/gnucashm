@@ -90,7 +90,7 @@ TEST_F(QofMultiEntityTest, CreateAndDestroy)
     QofMultiEntityCollection* multi_coll = qof_multi_entity_collection_new();
     ASSERT_NE(nullptr, multi_coll);
     
-    EXPECT_EQ(0, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(0U, qof_multi_entity_collection_count(multi_coll));
     
     qof_multi_entity_collection_destroy(multi_coll);
 }
@@ -101,12 +101,12 @@ TEST_F(QofMultiEntityTest, AddSingleEntity)
     
     // Add a single account
     EXPECT_TRUE(qof_multi_entity_collection_add_entity(multi_coll, accounts[0]));
-    EXPECT_EQ(1, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(1U, qof_multi_entity_collection_count(multi_coll));
     EXPECT_TRUE(qof_multi_entity_collection_contains(multi_coll, accounts[0]));
     
     // Try to add the same entity again (should fail)
     EXPECT_FALSE(qof_multi_entity_collection_add_entity(multi_coll, accounts[0]));
-    EXPECT_EQ(1, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(1U, qof_multi_entity_collection_count(multi_coll));
     
     qof_multi_entity_collection_destroy(multi_coll);
 }
@@ -117,7 +117,7 @@ TEST_F(QofMultiEntityTest, AddEntireCollection)
     
     // Add all accounts
     qof_multi_entity_collection_add_collection(multi_coll, account_coll);
-    EXPECT_EQ(3, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(3U, qof_multi_entity_collection_count(multi_coll));
     
     // Verify all accounts are present
     for (const auto* account : accounts)
@@ -136,7 +136,7 @@ TEST_F(QofMultiEntityTest, AddMultipleCollections)
     qof_multi_entity_collection_add_collection(multi_coll, account_coll);
     qof_multi_entity_collection_add_collection(multi_coll, transaction_coll);
     
-    EXPECT_EQ(6, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(6U, qof_multi_entity_collection_count(multi_coll));
     
     // Verify all entities are present
     for (const auto* account : accounts)
@@ -157,16 +157,16 @@ TEST_F(QofMultiEntityTest, RemoveEntity)
     
     // Add all accounts
     qof_multi_entity_collection_add_collection(multi_coll, account_coll);
-    EXPECT_EQ(3, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(3U, qof_multi_entity_collection_count(multi_coll));
     
     // Remove one account
     EXPECT_TRUE(qof_multi_entity_collection_remove_entity(multi_coll, accounts[0]));
-    EXPECT_EQ(2, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(2U, qof_multi_entity_collection_count(multi_coll));
     EXPECT_FALSE(qof_multi_entity_collection_contains(multi_coll, accounts[0]));
     
     // Try to remove the same entity again (should fail)
     EXPECT_FALSE(qof_multi_entity_collection_remove_entity(multi_coll, accounts[0]));
-    EXPECT_EQ(2, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(2U, qof_multi_entity_collection_count(multi_coll));
     
     qof_multi_entity_collection_destroy(multi_coll);
 }
@@ -180,7 +180,7 @@ TEST_F(QofMultiEntityTest, GetTypes)
     qof_multi_entity_collection_add_collection(multi_coll, transaction_coll);
     
     GList* types = qof_multi_entity_collection_get_types(multi_coll);
-    EXPECT_EQ(2, g_list_length(types));
+    EXPECT_EQ(2U, g_list_length(types));
     
     // Check that both types are present
     gboolean found_account = FALSE;
@@ -220,7 +220,7 @@ TEST_F(QofMultiEntityTest, FilteredAdd)
                                                          filter_accounts_only, nullptr);
     
     // Should only have accounts (3), no transactions
-    EXPECT_EQ(3, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(3U, qof_multi_entity_collection_count(multi_coll));
     
     for (const auto* account : accounts)
     {
@@ -246,7 +246,7 @@ TEST_F(QofMultiEntityTest, FilterCollection)
     QofMultiEntityCollection* filtered_coll = 
         qof_multi_entity_collection_filter(multi_coll, filter_accounts_only, nullptr);
     
-    EXPECT_EQ(3, qof_multi_entity_collection_count(filtered_coll));
+    EXPECT_EQ(3U, qof_multi_entity_collection_count(filtered_coll));
     
     for (const auto* account : accounts)
     {
@@ -274,7 +274,7 @@ TEST_F(QofMultiEntityTest, MergeCollections)
     QofMultiEntityCollection* merged_coll = 
         qof_multi_entity_collection_merge(coll1, coll2);
     
-    EXPECT_EQ(6, qof_multi_entity_collection_count(merged_coll));
+    EXPECT_EQ(6U, qof_multi_entity_collection_count(merged_coll));
     
     // Verify all entities are present
     for (const auto* account : accounts)
@@ -319,7 +319,7 @@ TEST_F(QofMultiEntityTest, ForEach)
     qof_multi_entity_collection_foreach(multi_coll, count_entities_cb, &counter);
     
     EXPECT_EQ(6, counter.count);
-    EXPECT_EQ(6, counter.entities.size());
+    EXPECT_EQ(6U, counter.entities.size());
     
     qof_multi_entity_collection_destroy(multi_coll);
 }
@@ -333,7 +333,7 @@ TEST_F(QofMultiEntityTest, NullPointerHandling)
                                                          filter_accounts_only, nullptr);
     EXPECT_FALSE(qof_multi_entity_collection_add_entity(nullptr, accounts[0]));
     EXPECT_FALSE(qof_multi_entity_collection_remove_entity(nullptr, accounts[0]));
-    EXPECT_EQ(0, qof_multi_entity_collection_count(nullptr));
+    EXPECT_EQ(0U, qof_multi_entity_collection_count(nullptr));
     EXPECT_FALSE(qof_multi_entity_collection_contains(nullptr, accounts[0]));
     qof_multi_entity_collection_foreach(nullptr, count_entities_cb, nullptr);
     EXPECT_EQ(nullptr, qof_multi_entity_collection_get_types(nullptr));
@@ -353,7 +353,7 @@ TEST_F(QofMultiEntityTest, OrganizationMultiEntity)
     // Add some entities to the multi-entity collection
     qof_multi_entity_collection_add_collection(multi_coll, account_coll);
     
-    EXPECT_EQ(3, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(3U, qof_multi_entity_collection_count(multi_coll));
     
     qof_multi_entity_collection_destroy(multi_coll);
 }
@@ -366,7 +366,7 @@ TEST_F(QofMultiEntityTest, OrganizationFiltering)
     qof_multi_entity_collection_add_collection(multi_coll, account_coll);
     qof_multi_entity_collection_add_collection(multi_coll, transaction_coll);
     
-    EXPECT_EQ(6, qof_multi_entity_collection_count(multi_coll));
+    EXPECT_EQ(6U, qof_multi_entity_collection_count(multi_coll));
     
     // Test filtering - in a real implementation, this would filter by organization
     // For now, we'll test the basic filtering mechanism
