@@ -54,6 +54,9 @@
 
 static QofLogModule log_module = GNC_MOD_BUSINESS;
 
+/* Forward declaration */
+static void mark_organization(GncOrganization *organization);
+
 G_DEFINE_TYPE(GncOrganization, gnc_organization, QOF_TYPE_INSTANCE)
 
 static void
@@ -392,8 +395,7 @@ int gncOrganizationCompare(const GncOrganization* a, const GncOrganization* b)
 /* ============================================================== */
 /* misc inline funcs */
 
-static inline void mark_organization (GncOrganization *organization);
-void mark_organization (GncOrganization *organization)
+static void mark_organization (GncOrganization *organization)
 {
     qof_instance_set_dirty(&organization->inst);
     qof_event_gen (&organization->inst, QOF_EVENT_MODIFY, NULL);

@@ -64,6 +64,11 @@ extern "C" {
  @{ */
 GncOrganization *gncOrganizationCreate (QofBook *book);
 void gncOrganizationDestroy (GncOrganization *org);
+
+static inline GncOrganization * gncOrganizationLookup (const QofBook *book, const GncGUID *guid)
+{
+    QOF_BOOK_RETURN_ENTITY(book, guid, GNC_ID_ORGANIZATION, GncOrganization);
+}
 /** @} */
 
 /** @name Set Functions

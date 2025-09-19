@@ -120,6 +120,7 @@ void gncOwnerInitCustomer (GncOwner *owner, GncCustomer *customer);
 void gncOwnerInitJob (GncOwner *owner, GncJob *job);
 void gncOwnerInitVendor (GncOwner *owner, GncVendor *vendor);
 void gncOwnerInitEmployee (GncOwner *owner, GncEmployee *employee);
+void gncOwnerInitOrganization (GncOwner *owner, GncOrganization *organization);
 /** @} */
 /** \name Get routines.
 @{
