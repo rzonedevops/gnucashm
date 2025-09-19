@@ -93,6 +93,9 @@ struct _QofInstanceClass
 /** Return the GType of a QofInstance */
 GType qof_instance_get_type(void);
 
+/** Add GLib autoptr cleanup support for QofInstance */
+G_DEFINE_AUTOPTR_CLEANUP_FUNC(QofInstance, g_object_unref)
+
 /** Initialise the settings associated with an instance */
 void qof_instance_init_data (QofInstance *, QofIdType, QofBook *);
 

@@ -83,6 +83,9 @@ typedef const gchar * QofIdTypeConst;
 
 typedef struct QofCollection_s QofCollection;
 
+/** Forward declaration for GncOrganization to support multi-entity functions */
+typedef struct _GncOrganization GncOrganization;
+
 #include "qofinstance.h"
 
 #ifdef __cplusplus
@@ -224,9 +227,6 @@ qof_collection_from_glist (QofIdType type, const GList *glist);
 
 /** Multi-entity collection structure for aggregating entities across collections */
 typedef struct QofMultiEntityCollection_s QofMultiEntityCollection;
-
-/** Forward declaration for organization-specific functions */
-typedef struct _gncOrganization GncOrganization;
 
 /** Callback type for filtering entities during aggregation */
 typedef gboolean (*QofEntityFilterCB) (QofInstance *entity, gpointer user_data);

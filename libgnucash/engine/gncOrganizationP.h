@@ -51,11 +51,6 @@ struct _GncOrganization
     GList *       entities;   /* List of QofInstance entities belonging to this organization */
 };
 
-typedef struct _GncOrganizationClass
-{
-    QofInstanceClass parent_class;
-} GncOrganizationClass;
-
 /** The organization properties
  */
 enum
@@ -67,7 +62,6 @@ enum
     PROP_ACTIVE,    
 };
 
-void mark_organization (GncOrganization *organization);
 void gncOrganizationBeginEdit (GncOrganization *organization);
 void gncOrganizationCommitEdit (GncOrganization *organization);
 void gncOrganizationFree (GncOrganization *organization);
