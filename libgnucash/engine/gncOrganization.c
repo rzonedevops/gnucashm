@@ -241,7 +241,7 @@ gncOrganizationFree(GncOrganization* org)
 /* Set Functions */
 
 #define SET_STR(obj, member, str) { \
-        char * tmp; \
+        const char * tmp; \
         \
         if (!safe_strcmp (member, str)) return; \
         gncOrganizationBeginEdit (obj); \
