@@ -49,7 +49,9 @@
 #include "Transaction.h"
 #include "engine-helpers.h"
 
+#ifndef _GNC_MOD_NAME
 #define _GNC_MOD_NAME   GNC_ID_OWNER
+#endif
 
 #define GNC_OWNER_ID    "gncOwner"
 
