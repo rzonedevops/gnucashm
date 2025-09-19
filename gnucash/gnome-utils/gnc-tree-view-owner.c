@@ -348,6 +348,10 @@ gnc_tree_view_owner_new (GncOwnerType owner_type)
         owner_name = _("Employee Name");
         owner_id = _("Employee Number");
         break;
+    case GNC_OWNER_ORGANIZATION :
+        owner_name = _("Organization Name");
+        owner_id = _("Organization ID");
+        break;
     }
     /* Create our view */
     GncTreeViewOwner *view = g_object_new (GNC_TYPE_TREE_VIEW_OWNER,
