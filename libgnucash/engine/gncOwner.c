@@ -213,6 +213,13 @@ void gncOwnerInitEmployee (GncOwner *owner, GncEmployee *employee)
     owner->owner.employee = employee;
 }
 
+void gncOwnerInitOrganization (GncOwner *owner, GncOrganization *organization)
+{
+    if (!owner) return;
+    owner->type = GNC_OWNER_ORGANIZATION;
+    owner->owner.organization = organization;
+}
+
 GncOwnerType gncOwnerGetType (const GncOwner *owner)
 {
     if (!owner) return GNC_OWNER_NONE;
@@ -334,6 +341,11 @@ qofOwnerGetOwner (const GncOwner *owner)
         ent = QOF_INSTANCE(owner->owner.employee);
         break;
     }
+    case GNC_OWNER_ORGANIZATION :
+    {
+        ent = QOF_INSTANCE(owner->owner.organization);
+        break;
+    }
     }
     return ent;
 }
@@ -364,6 +376,11 @@ qofOwnerSetEntity (GncOwner *owner, QofInstance *ent)
     {
         owner->type = GNC_OWNER_EMPLOYEE;
         gncOwnerInitEmployee(owner, (GncEmployee*)ent);
+    }
+    else if (0 == g_strcmp0(ent->e_type, GNC_ID_ORGANIZATION))
+    {
+        owner->type = GNC_OWNER_ORGANIZATION;
+        gncOwnerInitOrganization(owner, (GncOrganization*)ent);
     }
     else
     {
@@ -499,6 +516,8 @@ GncAddress * gncOwnerGetAddr (const GncOwner *owner)
         return gncVendorGetAddr (owner->owner.vendor);
     case GNC_OWNER_EMPLOYEE:
         return gncEmployeeGetAddr (owner->owner.employee);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetAddr (owner->owner.organization);
     }
 }
 
@@ -519,6 +538,8 @@ gnc_commodity * gncOwnerGetCurrency (const GncOwner *owner)
         return gncEmployeeGetCurrency (owner->owner.employee);
     case GNC_OWNER_JOB:
         return gncOwnerGetCurrency (gncJobGetOwner (owner->owner.job));
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetCurrency (owner->owner.organization);
     }
 }
 
@@ -539,6 +560,8 @@ gboolean gncOwnerGetActive (const GncOwner *owner)
         return gncEmployeeGetActive (owner->owner.employee);
     case GNC_OWNER_JOB:
         return gncJobGetActive (owner->owner.job);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationGetActive (owner->owner.organization);
     }
 }
 
@@ -560,6 +583,8 @@ const GncGUID * gncOwnerGetGUID (const GncOwner *owner)
         return qof_instance_get_guid (QOF_INSTANCE(owner->owner.vendor));
     case GNC_OWNER_EMPLOYEE:
         return qof_instance_get_guid (QOF_INSTANCE(owner->owner.employee));
+    case GNC_OWNER_ORGANIZATION:
+        return qof_instance_get_guid (QOF_INSTANCE(owner->owner.organization));
     }
 }
 
@@ -580,6 +605,9 @@ gncOwnerSetActive (const GncOwner *owner, gboolean active)
         break;
     case GNC_OWNER_JOB:
         gncJobSetActive (owner->owner.job, active);
+        break;
+    case GNC_OWNER_ORGANIZATION:
+        gncOrganizationSetActive (owner->owner.organization, active);
         break;
     case GNC_OWNER_NONE:
     case GNC_OWNER_UNDEFINED:
@@ -608,6 +636,7 @@ const GncOwner * gncOwnerGetEndOwner (const GncOwner *owner)
     case GNC_OWNER_CUSTOMER:
     case GNC_OWNER_VENDOR:
     case GNC_OWNER_EMPLOYEE:
+    case GNC_OWNER_ORGANIZATION:
         return owner;
     case GNC_OWNER_JOB:
         return gncJobGetOwner (owner->owner.job);
@@ -637,6 +666,8 @@ int gncOwnerCompare (const GncOwner *a, const GncOwner *b)
         return gncEmployeeCompare (a->owner.employee, b->owner.employee);
     case GNC_OWNER_JOB:
         return gncJobCompare (a->owner.job, b->owner.job);
+    case GNC_OWNER_ORGANIZATION:
+        return gncOrganizationCompare (a->owner.organization, b->owner.organization);
     }
 }
 
@@ -688,6 +719,9 @@ gboolean gncOwnerGetOwnerFromLot (GNCLot *lot, GncOwner *owner)
         break;
     case GNC_OWNER_JOB:
         gncOwnerInitJob (owner, gncJobLookup (book, guid));
+        break;
+    case GNC_OWNER_ORGANIZATION:
+        gncOwnerInitOrganization (owner, gncOrganizationLookup (book, guid));
         break;
     default:
         guid_free (guid);
@@ -1480,6 +1514,9 @@ gncOwnerGetAccountTypesList (const GncOwner *owner)
     case GNC_OWNER_EMPLOYEE:
         return (g_list_prepend (NULL, (gpointer)ACCT_TYPE_PAYABLE));
         break;
+    case GNC_OWNER_ORGANIZATION:
+        /* Organizations can be both payable and receivable */
+        return (g_list_prepend (g_list_prepend (NULL, (gpointer)ACCT_TYPE_PAYABLE), (gpointer)ACCT_TYPE_RECEIVABLE));
     default:
         return (g_list_prepend (NULL, (gpointer)ACCT_TYPE_NONE));
     }
@@ -1626,6 +1663,12 @@ gboolean gncOwnerGetOwnerFromTypeGuid (QofBook *book, GncOwner *owner, QofIdType
         GncEmployee *employee = gncEmployeeLookup(book, guid);
         gncOwnerInitEmployee(owner, employee);
         return (NULL != employee);
+    }
+    else if (0 == g_strcmp0(type, GNC_ID_ORGANIZATION))
+    {
+        GncOrganization *organization = gncOrganizationLookup(book, guid);
+        gncOwnerInitOrganization(owner, organization);
+        return (NULL != organization);
     }
     return 0;
 }

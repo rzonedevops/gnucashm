@@ -33,7 +33,9 @@
 extern "C" {
 #endif
 
+#ifndef _GNC_MOD_NAME
 #define _GNC_MOD_NAME	GNC_ID_ORGANIZATION
+#endif
 
 #define GNC_ORGANIZATION_ID    "gncOrganization"
 #define GNC_ORGANIZATION_TABLE "gncOrganization"
@@ -42,9 +44,9 @@ extern "C" {
 struct _GncOrganization
 {
     QofInstance   inst;
-    char *        id;
-    char *        name;
-    char *        notes;
+    const char *  id;
+    const char *  name;
+    const char *  notes;
     GncAddress *  addr;
     gnc_commodity * currency;
     gboolean      active;
