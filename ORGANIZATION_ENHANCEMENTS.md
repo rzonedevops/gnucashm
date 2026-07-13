@@ -82,6 +82,7 @@ This enhancement adds comprehensive organization support to GnuCash's multi-enti
 - `gncOrganizationP.h` - Private organization definitions
 - `gncOwner.h/c` - Enhanced owner system with organization support
 - `qofid.h/cpp` - Multi-entity collection enhancements
+- `gnc-fincosys-sync.h/cpp` - Fincosys ecosystem sync bridge (see below)
 - `CMakeLists.txt` - Build system integration
 
 ### QOF Integration
@@ -108,8 +109,48 @@ This enhancement adds comprehensive organization support to GnuCash's multi-enti
 The organization entity is designed to be compatible with existing GnuCash database backends and can be extended to support:
 - SQL database storage
 - XML serialization
-- Network synchronization
+- Network synchronization -- **implemented** (see below)
 - Backup and restore operations
+
+## Fincosys Ecosystem Sync
+
+The "Network synchronization" extension point above is now partially implemented:
+`libgnucash/engine/gnc-fincosys-sync.h/cpp` serializes/parses
+`QofMultiEntityCollection` / `GncOrganization` data to and from the shared
+**Fincosys Ecosystem Sync Schema v1** (`"schema": "fincosys-ecosystem-sync/v1"`)
+used across the wider financial-ecosystem tooling:
+
+- `gnc_organizations_to_fincosys_json(GList *organizations)` walks a list of
+  `GncOrganization*` and their `Account` entities and returns a JSON document
+  (`"source": "gnucashm"`) with `organizations[].accounts[]` entries.
+- `gnc_organizations_from_fincosys_json(QofBook *book, const gchar *json)`
+  parses a document in the same schema (e.g. produced by
+  `fincosys-atomspace-builder`'s `EcosystemSyncExporter`, or by fincosys
+  itself) and creates a `GncOrganization` plus placeholder `Account` entries
+  per organization.
+
+The consumer/producer side of this bridge lives in the
+[`fincosys-atomspace-builder`](https://github.com/RegimA-Zone/fincosys-atomspace-builder)
+repository: `atomspace_builder/loaders/gnucashm.py` reads gnucashm's export
+and merges it into a built AtomSpace hypergraph (updating existing
+entity/account nodes loaded from fincosys's `MASTER_ENTITIES.json` rather
+than duplicating them), and `EcosystemSyncExporter` produces documents this
+importer can read back. See that repo's README for the full schema and the
+`gnucashcog-v3` / `helix` sides of the same sync loop.
+
+The JSON (de)serialization in `gnc-fincosys-sync.cpp` is a small,
+purpose-built parser/writer scoped to this schema's shape -- it is not a
+general-purpose JSON library, and does not pull in a new external
+dependency.
+
+Unrelated to this bridge: while building and testing this change, the
+existing `test-qof-multi-entity` gtest suite (`gtest-qof-multi-entity.cpp`)
+was found to have 11/13 pre-existing failures against the current
+`QofMultiEntityCollection` implementation, reproducible on a clean checkout
+of this branch prior to these changes. That regression is out of scope
+here (this change only adds new files plus the `gncOrganizationGetEntities`
+read path already exercised in `gnc-fincosys-sync.cpp`'s own passing test
+suite) but is worth a follow-up investigation.
 
 ## Conclusion
 
