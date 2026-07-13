@@ -121,7 +121,10 @@ public:
     bool parse (JsonValue &out)
     {
         skip_ws ();
-        return parse_value (out);
+        if (!parse_value (out))
+            return false;
+        skip_ws ();
+        return eof ();
     }
 
 private:
@@ -394,12 +397,20 @@ gnc_organizations_to_fincosys_json (GList *organizations)
         if (org == nullptr)
             continue;
 
+        /* Skip organizations without an assigned code: the importer (and
+         * fincosys-atomspace-builder's loader) treat "code" as the primary
+         * key and skip records without one, so an empty code can never be
+         * synced -- exporting it would silently vanish on reimport. */
+        const char *org_code = gncOrganizationGetID (org);
+        if (org_code == nullptr || *org_code == '\0')
+            continue;
+
         if (!first_org)
             out << ",\n";
         first_org = false;
 
         out << "    {\n";
-        out << "      \"code\": " << json_quote (gncOrganizationGetID (org)) << ",\n";
+        out << "      \"code\": " << json_quote (org_code) << ",\n";
         out << "      \"name\": " << json_quote (gncOrganizationGetName (org)) << ",\n";
         out << "      \"active\": " << (gncOrganizationGetActive (org) ? "true" : "false") << ",\n";
         out << "      \"accounts\": [";
@@ -419,6 +430,12 @@ gnc_organizations_to_fincosys_json (GList *organizations)
             const char *acct_name = xaccAccountGetName (account);
             std::string acct_number = (acct_code && *acct_code) ? acct_code
                                                                  : (acct_name ? acct_name : "");
+
+            /* As with organization codes above: an account with no usable
+             * identifier can't be re-imported, since the importer treats
+             * "account_number" as the primary key too. */
+            if (acct_number.empty ())
+                continue;
 
             out << (first_acct ? "\n" : ",\n");
             first_acct = false;

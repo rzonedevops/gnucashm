@@ -134,6 +134,51 @@ TEST_F(GncFincosysSyncTest, ExportSkipsNonAccountEntities)
     g_object_unref(plain);
 }
 
+TEST_F(GncFincosysSyncTest, ExportSkipsOrganizationWithoutCode)
+{
+    /* A freshly-created GncOrganization has no ID until
+     * gncOrganizationSetID() is called. Exporting it anyway would produce
+     * a record the importer (and the Python loader) can never re-import,
+     * since both treat "code" as the primary key. */
+    GncOrganization* org = gncOrganizationCreate(book);
+    gncOrganizationSetName(org, "Unidentified Org");
+
+    GList* orgs = g_list_append(nullptr, org);
+    gchar* json = gnc_organizations_to_fincosys_json(orgs);
+    ASSERT_NE(nullptr, json);
+
+    std::string text(json);
+    EXPECT_EQ(std::string::npos, text.find("Unidentified Org"));
+    EXPECT_NE(std::string::npos, text.find("\"organizations\": [\n\n  ]"));
+
+    g_free(json);
+    g_list_free(orgs);
+    gncOrganizationDestroy(org);
+}
+
+TEST_F(GncFincosysSyncTest, ExportSkipsAccountWithoutIdentifier)
+{
+    GncOrganization* org = gncOrganizationCreate(book);
+    gncOrganizationSetID(org, "RST");
+
+    /* No code and no name set -- acct_number resolves to empty. */
+    Account* account = xaccMallocAccount(book);
+    xaccAccountSetType(account, ACCT_TYPE_BANK);
+    gncOrganizationAddEntity(org, QOF_INSTANCE(account));
+
+    GList* orgs = g_list_append(nullptr, org);
+    gchar* json = gnc_organizations_to_fincosys_json(orgs);
+    ASSERT_NE(nullptr, json);
+
+    std::string text(json);
+    EXPECT_NE(std::string::npos, text.find("\"accounts\": []"));
+
+    g_free(json);
+    g_list_free(orgs);
+    gncOrganizationDestroy(org);
+    xaccAccountDestroy(account);
+}
+
 TEST_F(GncFincosysSyncTest, ImportNullJsonReturnsMinusOne)
 {
     EXPECT_EQ(-1, gnc_organizations_from_fincosys_json(book, nullptr));
@@ -149,6 +194,22 @@ TEST_F(GncFincosysSyncTest, ImportEmptyOrganizationsReturnsZero)
     const gchar* json =
         R"JSON({"schema":"fincosys-ecosystem-sync/v1","organizations":[]})JSON";
     EXPECT_EQ(0, gnc_organizations_from_fincosys_json(book, json));
+}
+
+TEST_F(GncFincosysSyncTest, ImportRejectsTrailingGarbageAfterDocument)
+{
+    /* Two concatenated JSON documents -- only the first would previously
+     * be parsed silently, with the rest ignored. */
+    const gchar* json =
+        R"JSON({"schema":"fincosys-ecosystem-sync/v1","organizations":[]}{"garbage":true})JSON";
+    EXPECT_EQ(-1, gnc_organizations_from_fincosys_json(book, json));
+}
+
+TEST_F(GncFincosysSyncTest, ImportRejectsTruncatedTrailingText)
+{
+    const gchar* json =
+        R"JSON({"schema":"fincosys-ecosystem-sync/v1","organizations":[]} trailing text)JSON";
+    EXPECT_EQ(-1, gnc_organizations_from_fincosys_json(book, json));
 }
 
 TEST_F(GncFincosysSyncTest, ImportCreatesOrganizationAndAccount)
