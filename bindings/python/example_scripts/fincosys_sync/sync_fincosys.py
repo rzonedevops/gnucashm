@@ -456,10 +456,12 @@ def _import_gnucash():
     try:
         from gnucash import Session, Account, Transaction, Split, \
             GncNumeric, SessionOpenMode
+        from gnucash.gnucash_core import GnuCashBackendException
         from gnucash.gnucash_core_c import (
             ACCT_TYPE_ASSET, ACCT_TYPE_LIABILITY, ACCT_TYPE_BANK,
             ACCT_TYPE_EXPENSE, ACCT_TYPE_INCOME, ACCT_TYPE_EQUITY,
             GNC_DENOM_AUTO, GNC_HOW_DENOM_EXACT,
+            ERR_FILEIO_FILE_NOT_FOUND, ERR_BACKEND_NO_SUCH_DB,
         )
     except ImportError as exc:
         raise ImportError(
@@ -477,6 +479,7 @@ def _import_gnucash():
         "Split": Split,
         "GncNumeric": GncNumeric,
         "SessionOpenMode": SessionOpenMode,
+        "GnuCashBackendException": GnuCashBackendException,
         "ACCT_TYPE_ASSET": ACCT_TYPE_ASSET,
         "ACCT_TYPE_LIABILITY": ACCT_TYPE_LIABILITY,
         "ACCT_TYPE_BANK": ACCT_TYPE_BANK,
@@ -485,6 +488,9 @@ def _import_gnucash():
         "ACCT_TYPE_EQUITY": ACCT_TYPE_EQUITY,
         "GNC_DENOM_AUTO": GNC_DENOM_AUTO,
         "GNC_HOW_DENOM_EXACT": GNC_HOW_DENOM_EXACT,
+        "NOT_FOUND_ERRORS": frozenset(
+            {ERR_FILEIO_FILE_NOT_FOUND, ERR_BACKEND_NO_SUCH_DB}
+        ),
     }
 
 
@@ -509,15 +515,31 @@ def _account_type_const(gnc, account_type):
 
 
 def _find_or_make_child(gnc, book, parent, name, account_type=None,
-                         commodity=None):
+                         commodity=None, code=None):
+    """Find an existing child account or create a new one.
+
+    When `code` is given, it is the authoritative key (it's the plan's
+    unique account identifier) and children are matched by GetCode(), not
+    by display name -- two distinct accounts (e.g. two bank accounts that
+    both fell back to the same default display name) must never be
+    collapsed into one just because their names collide. `code=None` is
+    used for the top-level/entity placeholder nodes, which have no `code`
+    of their own and are legitimately keyed by name (their name IS an
+    entity code, already unique at that level).
+    """
+    Account = gnc["Account"]
     for child in parent.get_children():
-        Account = gnc["Account"]
         if not isinstance(child, Account):
             child = Account(instance=child)
-        if child.GetName() == name:
+        if code is not None:
+            if child.GetCode() == code:
+                return child
+        elif child.GetName() == name:
             return child
     account = gnc["Account"](book)
     account.SetName(name)
+    if code is not None:
+        account.SetCode(code)
     if account_type is not None:
         account.SetType(account_type)
     if commodity is not None:
@@ -546,10 +568,21 @@ def apply_plan(plan, book_url):
     Split = gnc["Split"]
     GncNumeric = gnc["GncNumeric"]
     SessionOpenMode = gnc["SessionOpenMode"]
+    GnuCashBackendException = gnc["GnuCashBackendException"]
+    not_found_errors = gnc["NOT_FOUND_ERRORS"]
 
     try:
         session = Session(book_url, SessionOpenMode.SESSION_NORMAL_OPEN)
-    except Exception:
+    except GnuCashBackendException as exc:
+        # Only "no book exists yet at this URI" should fall through to
+        # creating a new store. Lock contention, permission errors, auth
+        # failures, and corrupt stores are real problems the operator needs
+        # to see -- silently retrying as SESSION_NEW_STORE for those would
+        # either mask the actual cause behind a misleading "store already
+        # exists" error, or (worse) attempt to create a new store over data
+        # that failed to open for some other reason.
+        if not any(err in not_found_errors for err in exc.errors):
+            raise
         session = Session(book_url, SessionOpenMode.SESSION_NEW_STORE)
 
     stats = {
@@ -606,8 +639,8 @@ def apply_plan(plan, book_url):
                 gnc, book, parent, a["name"],
                 account_type=_account_type_const(gnc, a.get("account_type")),
                 commodity=currency,
+                code=a["code"],
             )
-            account.SetCode(a["code"])
             if a.get("description"):
                 account.SetDescription(a["description"])
             after_is_new = len(list(parent.get_children())) > before
@@ -689,11 +722,13 @@ def run_apply(args):
             plan = json.load(fh)
 
     if not plan["validation"]["is_clean"]:
-        print("refusing to --apply: plan has validation issues. Run "
-              "--plan-only first and review {} for details, or pass "
-              "--force to apply anyway.".format(args.out))
         if not args.force:
+            print("refusing to --apply: plan has validation issues. Run "
+                  "--plan-only first and review {} for details, or pass "
+                  "--force to apply anyway.".format(args.out))
             return 1
+        print("warning: plan has validation issues but --force was given; "
+              "applying anyway. Review {} for details.".format(args.out))
 
     stats = apply_plan(plan, args.book)
     print("applied fincosys sync plan to {}".format(args.book))
