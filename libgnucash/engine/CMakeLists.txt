@@ -94,6 +94,7 @@ set (engine_HEADERS
   gncOrderP.h
   gncOrganization.h
   gncOrganizationP.h
+  gnc-fincosys-sync.h
   gncOwner.h
   gncOwnerP.h
   gncTaxTable.h
@@ -191,6 +192,7 @@ set (engine_SOURCES
   gncJob.c
   gncOrder.c
   gncOrganization.c
+  gnc-fincosys-sync.cpp
   gncOwner.c
   gncTaxTable.c
   gncVendor.c
