@@ -29,6 +29,7 @@
 #include "../qofid.h"
 #include "../qofinstance.h"
 #include "../guid.h"
+#include "../qof-string-cache.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcpp"
@@ -50,9 +51,15 @@ protected:
             QofInstance* account = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
             QofInstance* transaction = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
             
-            // Set entity types
-            account->e_type = "Account";
-            transaction->e_type = "Transaction";
+            // Set entity types using the string cache so the pointer matches the
+            // collection's cached type (qof_collection_insert_entity uses pointer equality)
+            account->e_type = static_cast<QofIdType>(CACHE_INSERT("Account"));
+            transaction->e_type = static_cast<QofIdType>(CACHE_INSERT("Transaction"));
+            
+            // Generate valid (non-null) GUIDs — qof_collection_insert_entity
+            // silently skips entities whose GUID equals guid_null()
+            guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(account)));
+            guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(transaction)));
             
             qof_collection_insert_entity(account_coll, account);
             qof_collection_insert_entity(transaction_coll, transaction);
