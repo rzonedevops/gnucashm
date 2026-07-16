@@ -57,7 +57,11 @@ protected:
             transaction->e_type = static_cast<QofIdType>(CACHE_INSERT("Transaction"));
             
             // Generate valid (non-null) GUIDs — qof_collection_insert_entity
-            // silently skips entities whose GUID equals guid_null()
+            // silently skips entities whose GUID equals guid_null().
+            // const_cast is safe here: qof_instance_get_guid() returns a pointer
+            // into the instance's own private storage; we own 'account'/'transaction'
+            // and no public setter exists for the GUID on a bare QofInstance that
+            // was not initialised via qof_instance_init_data().
             guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(account)));
             guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(transaction)));
             
