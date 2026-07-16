@@ -75,6 +75,37 @@ gchar *gnc_organizations_to_fincosys_json (GList *organizations);
  */
 gint gnc_organizations_from_fincosys_json (QofBook *book, const gchar *json);
 
+/** Parse a JSON document matching the "GnuCash sync-feed" schema (\c
+ *  "schema_version": "1.0") produced by fincosys-atomspace-builder's
+ *  \c GnuCashSyncExporter (see its
+ *  \c atomspace_builder/exporters/gnucash_exporter.py) and materialize
+ *  full double-entry Account and Transaction/Split records in @a book.
+ *
+ *  Unlike gnc_organizations_from_fincosys_json(), which only carries
+ *  organization/account metadata, this schema also carries transactions
+ *  with balanced splits -- it is the counterpart that lets gnucashm
+ *  round-trip actual ledger activity synced from fincosys, including the
+ *  synthetic "Imbalance-*" counter-accounts the exporter generates for
+ *  fincosys's single-sided bank-statement source data.
+ *
+ *  All accounts in the document's "accounts" array are created (and
+ *  linked into the account tree via each entry's "parent_code", falling
+ *  back to the book's root account when absent or unresolved) before any
+ *  transaction is processed, so a transaction's splits may reference an
+ *  account appearing anywhere in the array regardless of order. A split
+ *  whose "account_code" has no matching account is skipped (logged)
+ *  rather than aborting the whole transaction -- a partial/unbalanced
+ *  import is still useful for manual reconciliation, mirroring how
+ *  gnc_organizations_from_fincosys_json() degrades gracefully on missing
+ *  identifiers.
+ *
+ *  @param book The QofBook to create accounts/transactions in.
+ *  @param json The JSON document text.
+ *  @return The number of transactions imported, or -1 if @a json could
+ *          not be parsed.
+ */
+gint gnc_transactions_from_syncfeed_json (QofBook *book, const gchar *json);
+
 #ifdef __cplusplus
 }
 #endif
