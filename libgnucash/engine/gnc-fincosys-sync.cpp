@@ -18,6 +18,7 @@
 #include "Account.h"
 #include "Split.h"
 #include "Transaction.h"
+#include "TransactionP.hpp"
 #include "gnc-commodity.h"
 #include "gnc-date.h"
 #include "gnc-numeric.h"
@@ -670,8 +671,12 @@ gnc_transactions_from_syncfeed_json (QofBook *book, const gchar *json)
             xaccTransSetCurrency (trans, comm);
         xaccTransSetDescription (trans, tx_val.get_string ("description").c_str ());
         xaccTransSetNum (trans, tx_val.get_string ("txid").c_str ());
-        xaccTransSetDatePostedSecsNormalized (
-            trans, parse_syncfeed_datetime (tx_val.get_string ("date")));
+
+        std::string date_str = tx_val.get_string ("date");
+        if (!date_str.empty ())
+            xaccTransSetDatePostedSecsNormalized (trans, parse_syncfeed_datetime (date_str));
+        /* else: leave the posted date unset rather than silently stamping
+         * an epoch (1970-01-01) date the source document never specified. */
 
         int splits_added = 0;
         for (const JsonValue &split_val : splits->items ())
@@ -706,7 +711,17 @@ gnc_transactions_from_syncfeed_json (QofBook *book, const gchar *json)
             ++splits_added;
         }
 
+        /* xaccTransCommitEdit() normally auto-invokes xaccTransScrubImbalance(),
+         * which would rebalance a transaction left intentionally unbalanced
+         * by a skipped split above (adding yet another synthetic Imbalance-*
+         * split of its own) -- disabling scrubbing around the commit is the
+         * same pattern Scrub.cpp itself uses when composing a transaction's
+         * splits programmatically (see xaccDisableDataScrubbing()'s doc
+         * comment: "scrubbing needs to be disabled during file load", which
+         * describes exactly this bulk-import scenario). */
+        xaccDisableDataScrubbing ();
         xaccTransCommitEdit (trans);
+        xaccEnableDataScrubbing ();
 
         if (splits_added > 0)
             ++count;
