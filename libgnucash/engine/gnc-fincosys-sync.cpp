@@ -16,7 +16,11 @@
 #include "gnc-fincosys-sync.h"
 
 #include "Account.h"
+#include "Split.h"
+#include "Transaction.h"
+#include "TransactionP.hpp"
 #include "gnc-commodity.h"
+#include "gnc-date.h"
 #include "gnc-numeric.h"
 #include "qofinstance.h"
 
@@ -376,6 +380,27 @@ account_currency_mnemonic (const Account *account)
     return mnemonic ? mnemonic : "ZAR";
 }
 
+/* gnc_iso8601_to_time64_gmt() requires a full "YYYY-MM-DD HH:MM:SS"-style
+ * string; the sync-feed's "date" fields may instead be bare "YYYY-MM-DD"
+ * (fincosys's bank-statement extracts don't carry a time-of-day) or use a
+ * 'T' separator per RFC 3339. Normalize both into the form the parser
+ * accepts, defaulting to midnight when no time-of-day is present. */
+time64
+parse_syncfeed_datetime (const std::string &date_str)
+{
+    if (date_str.empty ())
+        return 0;
+
+    std::string normalized = date_str;
+    auto tpos = normalized.find ('T');
+    if (tpos != std::string::npos)
+        normalized[tpos] = ' ';
+    else if (normalized.find (' ') == std::string::npos)
+        normalized += " 00:00:00";
+
+    return gnc_iso8601_to_time64_gmt (normalized.c_str ());
+}
+
 } // namespace
 
 gchar *
@@ -539,6 +564,167 @@ gnc_organizations_from_fincosys_json (QofBook *book, const gchar *json)
         }
 
         ++count;
+    }
+
+    return count;
+}
+
+gint
+gnc_transactions_from_syncfeed_json (QofBook *book, const gchar *json)
+{
+    g_return_val_if_fail (book != nullptr, -1);
+    g_return_val_if_fail (json != nullptr, -1);
+
+    JsonValue root;
+    JsonParser parser (json);
+    if (!parser.parse (root) || !root.is_object ())
+    {
+        g_warning ("gnc_transactions_from_syncfeed_json: invalid JSON document");
+        return -1;
+    }
+
+    const JsonValue *accounts = root.find ("accounts");
+    const JsonValue *transactions = root.find ("transactions");
+    if (transactions == nullptr || !transactions->is_array ())
+        return 0;
+
+    gnc_commodity_table *comm_table = gnc_commodity_table_get_table (book);
+    Account *root_account = gnc_book_get_root_account (book);
+
+    /* Pass 1: create every account up front, keyed by "code", so that
+     * transaction splits can reference accounts regardless of the order
+     * they appear in the "accounts" array. */
+    std::map<std::string, Account *> accounts_by_code;
+    std::map<std::string, std::string> parent_by_code;
+
+    if (accounts != nullptr && accounts->is_array ())
+    {
+        for (const JsonValue &acct_val : accounts->items ())
+        {
+            if (!acct_val.is_object ())
+                continue;
+
+            std::string code = acct_val.get_string ("code");
+            if (code.empty () || accounts_by_code.count (code))
+                continue;
+
+            Account *account = xaccMallocAccount (book);
+            xaccAccountSetCode (account, code.c_str ());
+            xaccAccountSetName (account, acct_val.get_string ("name", code).c_str ());
+            xaccAccountSetDescription (account, acct_val.get_string ("description").c_str ());
+
+            GNCAccountType acct_type = ACCT_TYPE_ASSET;
+            std::string type_str = acct_val.get_string ("account_type");
+            if (!type_str.empty ())
+                xaccAccountStringToType (type_str.c_str (), &acct_type);
+            xaccAccountSetType (account, acct_type);
+
+            std::string currency = acct_val.get_string ("currency", "ZAR");
+            gnc_commodity *comm = gnc_commodity_table_lookup (
+                comm_table, GNC_COMMODITY_NS_CURRENCY, currency.c_str ());
+            if (comm != nullptr)
+                xaccAccountSetCommodity (account, comm);
+
+            accounts_by_code[code] = account;
+            parent_by_code[code] = acct_val.get_string ("parent_code");
+        }
+
+        /* Pass 2: wire up the account tree now that every code is known,
+         * falling back to the book's root account for entries with no
+         * "parent_code" (or one that never resolved to an account). */
+        for (const auto &entry : accounts_by_code)
+        {
+            const std::string &code = entry.first;
+            Account *account = entry.second;
+
+            auto parent_it = parent_by_code.find (code);
+            Account *parent = root_account;
+            if (parent_it != parent_by_code.end () && !parent_it->second.empty ())
+            {
+                auto found = accounts_by_code.find (parent_it->second);
+                if (found != accounts_by_code.end ())
+                    parent = found->second;
+            }
+            gnc_account_append_child (parent, account);
+        }
+    }
+
+    gint count = 0;
+
+    for (const JsonValue &tx_val : transactions->items ())
+    {
+        if (!tx_val.is_object ())
+            continue;
+
+        const JsonValue *splits = tx_val.find ("splits");
+        if (splits == nullptr || !splits->is_array ())
+            continue;
+
+        std::string currency = tx_val.get_string ("currency", "ZAR");
+        gnc_commodity *comm = gnc_commodity_table_lookup (
+            comm_table, GNC_COMMODITY_NS_CURRENCY, currency.c_str ());
+
+        Transaction *trans = xaccMallocTransaction (book);
+        xaccTransBeginEdit (trans);
+
+        if (comm != nullptr)
+            xaccTransSetCurrency (trans, comm);
+        xaccTransSetDescription (trans, tx_val.get_string ("description").c_str ());
+        xaccTransSetNum (trans, tx_val.get_string ("txid").c_str ());
+
+        std::string date_str = tx_val.get_string ("date");
+        if (!date_str.empty ())
+            xaccTransSetDatePostedSecsNormalized (trans, parse_syncfeed_datetime (date_str));
+        /* else: leave the posted date unset rather than silently stamping
+         * an epoch (1970-01-01) date the source document never specified. */
+
+        int splits_added = 0;
+        for (const JsonValue &split_val : splits->items ())
+        {
+            if (!split_val.is_object ())
+                continue;
+
+            std::string account_code = split_val.get_string ("account_code");
+            auto found = accounts_by_code.find (account_code);
+            if (found == accounts_by_code.end ())
+            {
+                /* Split references an account not present in this
+                 * document's "accounts" array -- skip it rather than
+                 * aborting the whole transaction; a partial/unbalanced
+                 * import is still useful for manual reconciliation. */
+                g_warning ("gnc_transactions_from_syncfeed_json: split "
+                           "references unknown account_code '%s', skipping",
+                           account_code.c_str ());
+                continue;
+            }
+
+            Split *split = xaccMallocSplit (book);
+            xaccSplitSetParent (split, trans);
+            xaccSplitSetAccount (split, found->second);
+            xaccSplitSetMemo (split, split_val.get_string ("memo").c_str ());
+
+            gnc_numeric amount = double_to_gnc_numeric (
+                split_val.get_number ("amount", 0.0), GNC_DENOM_AUTO,
+                GNC_HOW_DENOM_REDUCE | GNC_HOW_RND_NEVER);
+            xaccSplitSetValue (split, amount);
+            xaccSplitSetAmount (split, amount);
+            ++splits_added;
+        }
+
+        /* xaccTransCommitEdit() normally auto-invokes xaccTransScrubImbalance(),
+         * which would rebalance a transaction left intentionally unbalanced
+         * by a skipped split above (adding yet another synthetic Imbalance-*
+         * split of its own) -- disabling scrubbing around the commit is the
+         * same pattern Scrub.cpp itself uses when composing a transaction's
+         * splits programmatically (see xaccDisableDataScrubbing()'s doc
+         * comment: "scrubbing needs to be disabled during file load", which
+         * describes exactly this bulk-import scenario). */
+        xaccDisableDataScrubbing ();
+        xaccTransCommitEdit (trans);
+        xaccEnableDataScrubbing ();
+
+        if (splits_added > 0)
+            ++count;
     }
 
     return count;

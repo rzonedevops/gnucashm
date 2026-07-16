@@ -28,6 +28,8 @@
 #include <string>
 
 #include "../Account.h"
+#include "../Split.h"
+#include "../Transaction.h"
 #include "../gnc-fincosys-sync.h"
 #include "../gncOrganization.h"
 #include "../qofbook.h"
@@ -275,4 +277,100 @@ TEST_F(GncFincosysSyncTest, RoundTripExportThenImport)
     gncOrganizationDestroy(org);
     xaccAccountDestroy(account);
     qof_book_destroy(import_book);
+}
+
+TEST_F(GncFincosysSyncTest, TxSyncNullJsonReturnsMinusOne)
+{
+    EXPECT_EQ(-1, gnc_transactions_from_syncfeed_json(book, nullptr));
+}
+
+TEST_F(GncFincosysSyncTest, TxSyncInvalidJsonReturnsMinusOne)
+{
+    EXPECT_EQ(-1, gnc_transactions_from_syncfeed_json(book, "not json"));
+}
+
+TEST_F(GncFincosysSyncTest, TxSyncMissingTransactionsArrayReturnsZero)
+{
+    const gchar* json = R"JSON({"schema_version":"1.0","accounts":[]})JSON";
+    EXPECT_EQ(0, gnc_transactions_from_syncfeed_json(book, json));
+}
+
+TEST_F(GncFincosysSyncTest, TxSyncCreatesBalancedTransaction)
+{
+    const gchar* json = R"JSON(
+    {
+      "schema_version": "1.0",
+      "source": {"repo": "fincosys", "generator": "fincosys-atomspace-builder"},
+      "accounts": [
+        {"code": "RST", "name": "RST", "parent_code": null, "account_type": "EQUITY", "currency": "ZAR"},
+        {"code": "1000", "name": "Bank", "parent_code": "RST", "account_type": "BANK", "currency": "ZAR"},
+        {"code": "RST-Imbalance-UNCATEGORIZED", "name": "Imbalance", "parent_code": "RST", "account_type": "EXPENSE", "currency": "ZAR"}
+      ],
+      "transactions": [
+        {
+          "txid": "TX001",
+          "date": "2026-01-15",
+          "description": "Test payment",
+          "currency": "ZAR",
+          "entity_code": "RST",
+          "splits": [
+            {"account_code": "1000", "amount": -500.0, "memo": "out"},
+            {"account_code": "RST-Imbalance-UNCATEGORIZED", "amount": 500.0, "memo": "out"}
+          ]
+        }
+      ]
+    }
+    )JSON";
+
+    gint count = gnc_transactions_from_syncfeed_json(book, json);
+    EXPECT_EQ(1, count);
+
+    Account* bank = gnc_account_lookup_by_code(gnc_book_get_root_account(book), "1000");
+    ASSERT_NE(nullptr, bank);
+    EXPECT_STREQ("Bank", xaccAccountGetName(bank));
+
+    SplitList* splits = xaccAccountGetSplitList(bank);
+    ASSERT_NE(nullptr, splits);
+    Split* split = static_cast<Split*>(splits->data);
+    Transaction* trans = xaccSplitGetParent(split);
+    ASSERT_NE(nullptr, trans);
+    EXPECT_STREQ("Test payment", xaccTransGetDescription(trans));
+    EXPECT_STREQ("TX001", xaccTransGetNum(trans));
+    EXPECT_EQ(2, xaccTransCountSplits(trans));
+}
+
+TEST_F(GncFincosysSyncTest, TxSyncSkipsSplitWithUnknownAccountCode)
+{
+    const gchar* json = R"JSON(
+    {
+      "schema_version": "1.0",
+      "accounts": [
+        {"code": "1000", "name": "Bank", "account_type": "BANK", "currency": "ZAR"}
+      ],
+      "transactions": [
+        {
+          "txid": "TX002",
+          "date": "2026-01-16",
+          "description": "Unmatched split",
+          "currency": "ZAR",
+          "splits": [
+            {"account_code": "1000", "amount": -10.0, "memo": ""},
+            {"account_code": "DOES-NOT-EXIST", "amount": 10.0, "memo": ""}
+          ]
+        }
+      ]
+    }
+    )JSON";
+
+    gint count = gnc_transactions_from_syncfeed_json(book, json);
+    EXPECT_EQ(1, count);
+
+    Account* bank = gnc_account_lookup_by_code(gnc_book_get_root_account(book), "1000");
+    ASSERT_NE(nullptr, bank);
+    SplitList* splits = xaccAccountGetSplitList(bank);
+    ASSERT_NE(nullptr, splits);
+    Split* split = static_cast<Split*>(splits->data);
+    Transaction* trans = xaccSplitGetParent(split);
+    ASSERT_NE(nullptr, trans);
+    EXPECT_EQ(1, xaccTransCountSplits(trans));
 }
