@@ -104,6 +104,14 @@ public:
         return (v && v->m_type == Type::Bool) ? v->m_bool : def;
     }
 
+    /* Direct accessor for a value that IS a string itself (e.g. one
+     * element of an array), as opposed to get_string(key) which looks up
+     * a string-valued field within an object. */
+    std::string as_string (const std::string &def = "") const
+    {
+        return m_type == Type::String ? m_string : def;
+    }
+
 private:
     Type m_type;
     std::string m_string;
@@ -370,6 +378,99 @@ json_quote (const char *s)
     return "\"" + json_escape (s ? s : "") + "\"";
 }
 
+/* @a items rendered as a JSON array of quoted strings, e.g. ["a", "b"]. */
+std::string
+json_array_of_strings (const std::vector<std::string> &items)
+{
+    std::ostringstream out;
+    out << "[";
+    for (size_t i = 0; i < items.size (); ++i)
+    {
+        if (i > 0)
+            out << ", ";
+        out << json_quote (items[i].c_str ());
+    }
+    out << "]";
+    return out.str ();
+}
+
+/* Collects every string element of a JSON array value (non-string
+ * elements are skipped rather than aborting the whole array). Returns an
+ * empty vector if @a arr_val is null or not an array. */
+std::vector<std::string>
+json_string_array (const JsonValue *arr_val)
+{
+    std::vector<std::string> out;
+    if (arr_val != nullptr && arr_val->is_array ())
+    {
+        for (const JsonValue &item : arr_val->items ())
+            if (item.type () == JsonValue::Type::String)
+                out.push_back (item.as_string ());
+    }
+    return out;
+}
+
+/*
+ * GncOrganization (see gncOrganization.h) has no generic KVP accessor
+ * wired up in this engine -- "notes" is the only free-text field it
+ * exposes -- so evidence_refs/legal_categories are round-tripped the same
+ * way an imported account's synced balance already is a few lines below:
+ * encoded into a recognizable tagged line in "notes" on import, and parsed
+ * back out of that same line on export. A future dedicated KVP slot would
+ * be a drop-in replacement for both halves of this encoding.
+ */
+const char *EVIDENCE_REFS_TAG = "fincosys:evidence_refs=";
+const char *LEGAL_CATEGORIES_TAG = "fincosys:legal_categories=";
+
+std::string
+join_csv (const std::vector<std::string> &items)
+{
+    std::ostringstream out;
+    for (size_t i = 0; i < items.size (); ++i)
+    {
+        if (i > 0)
+            out << ",";
+        out << items[i];
+    }
+    return out.str ();
+}
+
+std::vector<std::string>
+split_csv (const std::string &csv)
+{
+    std::vector<std::string> out;
+    if (csv.empty ())
+        return out;
+    size_t start = 0;
+    for (;;)
+    {
+        size_t comma = csv.find (',', start);
+        if (comma == std::string::npos)
+        {
+            out.push_back (csv.substr (start));
+            break;
+        }
+        out.push_back (csv.substr (start, comma - start));
+        start = comma + 1;
+    }
+    return out;
+}
+
+/* Extracts the comma-separated value following @a tag on its own line
+ * within @a notes, or an empty vector if @a tag isn't present. */
+std::vector<std::string>
+extract_tagged_csv (const std::string &notes, const std::string &tag)
+{
+    size_t pos = notes.find (tag);
+    if (pos == std::string::npos)
+        return {};
+    pos += tag.size ();
+    size_t end = notes.find ('\n', pos);
+    std::string value = (end == std::string::npos) ? notes.substr (pos)
+                                                     : notes.substr (pos, end - pos);
+    return split_csv (value);
+}
+
 const char *
 account_currency_mnemonic (const Account *account)
 {
@@ -434,10 +535,18 @@ gnc_organizations_to_fincosys_json (GList *organizations)
             out << ",\n";
         first_org = false;
 
+        const char *org_notes = gncOrganizationGetNotes (org);
+        std::vector<std::string> evidence_refs =
+            extract_tagged_csv (org_notes ? org_notes : "", EVIDENCE_REFS_TAG);
+        std::vector<std::string> legal_categories =
+            extract_tagged_csv (org_notes ? org_notes : "", LEGAL_CATEGORIES_TAG);
+
         out << "    {\n";
         out << "      \"code\": " << json_quote (org_code) << ",\n";
         out << "      \"name\": " << json_quote (gncOrganizationGetName (org)) << ",\n";
         out << "      \"active\": " << (gncOrganizationGetActive (org) ? "true" : "false") << ",\n";
+        out << "      \"evidence_refs\": " << json_array_of_strings (evidence_refs) << ",\n";
+        out << "      \"legal_categories\": " << json_array_of_strings (legal_categories) << ",\n";
         out << "      \"accounts\": [";
 
         /* gncOrganizationGetEntities() returns the organization's internal
@@ -521,6 +630,23 @@ gnc_organizations_from_fincosys_json (QofBook *book, const gchar *json)
         gncOrganizationSetID (org, code.c_str ());
         gncOrganizationSetName (org, org_val.get_string ("name", code).c_str ());
         gncOrganizationSetActive (org, org_val.get_bool ("active", true));
+
+        /* Round-trip evidence_refs/legal_categories (revstream1/ad-res-j7
+         * case-evidence provenance -- see fincosys-atomspace-builder's
+         * CaseEvidenceEnricher) via the organization's notes field, since
+         * GncOrganization has no generic KVP accessor of its own. */
+        std::vector<std::string> evidence_refs =
+            json_string_array (org_val.find ("evidence_refs"));
+        std::vector<std::string> legal_categories =
+            json_string_array (org_val.find ("legal_categories"));
+        if (!evidence_refs.empty () || !legal_categories.empty ())
+        {
+            std::ostringstream notes;
+            notes << "Synced from fincosys-ecosystem-sync/v1:\n";
+            notes << EVIDENCE_REFS_TAG << join_csv (evidence_refs) << "\n";
+            notes << LEGAL_CATEGORIES_TAG << join_csv (legal_categories);
+            gncOrganizationSetNotes (org, notes.str ().c_str ());
+        }
 
         const JsonValue *accounts = org_val.find ("accounts");
         if (accounts != nullptr && accounts->is_array ())

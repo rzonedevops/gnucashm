@@ -52,6 +52,14 @@ extern "C"
  *  entities) to the shared Fincosys Ecosystem Sync Schema v1
  *  (\c "schema": "fincosys-ecosystem-sync/v1", \c "source": "gnucashm").
  *
+ *  Each organization's \c "evidence_refs" / \c "legal_categories" arrays
+ *  (the revstream1/ad-res-j7 case-evidence provenance fields -- see
+ *  fincosys-atomspace-builder's \c CaseEvidenceEnricher) are recovered
+ *  from tagged lines in the organization's \c notes field, as previously
+ *  written there by gnc_organizations_from_fincosys_json() -- see that
+ *  function's doc comment for why \c notes is used rather than a
+ *  dedicated KVP slot.
+ *
  *  @param organizations A GList of GncOrganization* to export.
  *  @return Newly allocated JSON string (caller frees with g_free()), or
  *          NULL if @a organizations is NULL.
@@ -67,6 +75,12 @@ gchar *gnc_organizations_to_fincosys_json (GList *organizations);
  *  This is a purpose-built parser scoped to the sync schema's shape
  *  (flat objects/arrays of strings/numbers/booleans/null) -- it is not a
  *  general-purpose JSON parser.
+ *
+ *  Each organization's \c "evidence_refs" / \c "legal_categories" string
+ *  arrays, if present, are recorded on the created GncOrganization's
+ *  \c notes field as tagged comma-separated lines (GncOrganization has no
+ *  generic KVP accessor of its own), so a later
+ *  gnc_organizations_to_fincosys_json() call can round-trip them back out.
  *
  *  @param book The QofBook to create organizations/accounts in.
  *  @param json The JSON document text.
