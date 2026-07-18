@@ -26,6 +26,7 @@
 #include <config.h>
 #include <glib.h>
 #include <string>
+#include <vector>
 
 #include "../Account.h"
 #include "../Split.h"
@@ -33,6 +34,7 @@
 #include "../gnc-fincosys-sync.h"
 #include "../gncOrganization.h"
 #include "../qofbook.h"
+#include "../qofid.h"
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcpp"
@@ -54,6 +56,34 @@ protected:
 
     QofBook* book;
 };
+
+namespace
+{
+
+/* Collects every GncOrganization currently registered in @a book's
+ * GNC_ID_ORGANIZATION collection, in whatever order qof_collection_foreach()
+ * visits them. gnc_organizations_from_fincosys_json() only returns a count,
+ * not the GncOrganization* pointers it created, so this is how a test
+ * recovers the imported organization in order to feed it straight back into
+ * gnc_organizations_to_fincosys_json() and exercise a full import-then-export
+ * round trip. */
+void
+collect_organization_cb(QofInstance* inst, gpointer user_data)
+{
+    auto* orgs = static_cast<std::vector<GncOrganization*>*>(user_data);
+    orgs->push_back(GNC_ORGANIZATION(inst));
+}
+
+std::vector<GncOrganization*>
+collect_organizations(QofBook* book)
+{
+    std::vector<GncOrganization*> orgs;
+    QofCollection* coll = qof_book_get_collection(book, GNC_ID_ORGANIZATION);
+    qof_collection_foreach(coll, collect_organization_cb, &orgs);
+    return orgs;
+}
+
+} // namespace
 
 TEST_F(GncFincosysSyncTest, ExportNullOrganizationsReturnsNull)
 {
@@ -277,6 +307,187 @@ TEST_F(GncFincosysSyncTest, RoundTripExportThenImport)
     gncOrganizationDestroy(org);
     xaccAccountDestroy(account);
     qof_book_destroy(import_book);
+}
+
+/* --- evidence_refs / legal_categories round-trip (see gnc-fincosys-sync.cpp:
+ * EVIDENCE_REFS_TAG / LEGAL_CATEGORIES_TAG and their doc comments) --- */
+
+TEST_F(GncFincosysSyncTest, ImportRecordsEvidenceRefsAndLegalCategoriesInNotes)
+{
+    const gchar* json = R"JSON(
+    {
+      "schema": "fincosys-ecosystem-sync/v1",
+      "source": "fincosys-atomspace-builder",
+      "organizations": [
+        {
+          "code": "RST",
+          "name": "RegimA Skin Treatments CC",
+          "active": true,
+          "evidence_refs": ["JF03-017", "SF10-002"],
+          "legal_categories": ["revenue_theft", "trust_violation"],
+          "accounts": []
+        }
+      ]
+    }
+    )JSON";
+
+    ASSERT_EQ(1, gnc_organizations_from_fincosys_json(book, json));
+
+    std::vector<GncOrganization*> orgs = collect_organizations(book);
+    ASSERT_EQ(1U, orgs.size());
+
+    const char* notes = gncOrganizationGetNotes(orgs[0]);
+    ASSERT_NE(nullptr, notes);
+    std::string notes_str(notes);
+    EXPECT_NE(std::string::npos,
+              notes_str.find("fincosys:evidence_refs=JF03-017,SF10-002"));
+    EXPECT_NE(std::string::npos,
+              notes_str.find("fincosys:legal_categories=revenue_theft,trust_violation"));
+}
+
+TEST_F(GncFincosysSyncTest, ImportWithoutEvidenceFieldsLeavesNotesUnset)
+{
+    /* No "evidence_refs"/"legal_categories" keys at all -- the notes field
+     * should be left untouched (nullptr on a freshly created organization)
+     * rather than acquiring an empty tagged-line stub. */
+    const gchar* json = R"JSON(
+    {
+      "schema": "fincosys-ecosystem-sync/v1",
+      "organizations": [
+        {"code": "RWD", "name": "RegimA Worldwide Distribution", "active": true}
+      ]
+    }
+    )JSON";
+
+    ASSERT_EQ(1, gnc_organizations_from_fincosys_json(book, json));
+
+    std::vector<GncOrganization*> orgs = collect_organizations(book);
+    ASSERT_EQ(1U, orgs.size());
+
+    const char* notes = gncOrganizationGetNotes(orgs[0]);
+    EXPECT_TRUE(notes == nullptr || notes[0] == '\0');
+}
+
+TEST_F(GncFincosysSyncTest, ImportWithEmptyEvidenceArraysLeavesNotesUnset)
+{
+    /* Present-but-empty arrays should behave the same as absent ones. */
+    const gchar* json = R"JSON(
+    {
+      "schema": "fincosys-ecosystem-sync/v1",
+      "organizations": [
+        {
+          "code": "VVA",
+          "name": "Villa Via Arcadia No 2",
+          "active": true,
+          "evidence_refs": [],
+          "legal_categories": []
+        }
+      ]
+    }
+    )JSON";
+
+    ASSERT_EQ(1, gnc_organizations_from_fincosys_json(book, json));
+
+    std::vector<GncOrganization*> orgs = collect_organizations(book);
+    ASSERT_EQ(1U, orgs.size());
+
+    const char* notes = gncOrganizationGetNotes(orgs[0]);
+    EXPECT_TRUE(notes == nullptr || notes[0] == '\0');
+}
+
+TEST_F(GncFincosysSyncTest, ExportEmitsEvidenceRefsAndLegalCategoriesFromTaggedNotes)
+{
+    /* Mirrors exactly what gnc_organizations_from_fincosys_json() writes
+     * into "notes" (see EVIDENCE_REFS_TAG/LEGAL_CATEGORIES_TAG), so this
+     * exercises the export-side tagged-line parsing independently of
+     * import. */
+    GncOrganization* org = gncOrganizationCreate(book);
+    gncOrganizationSetID(org, "RST");
+    gncOrganizationSetName(org, "RegimA Skin Treatments CC");
+    gncOrganizationSetNotes(org,
+        "Synced from fincosys-ecosystem-sync/v1:\n"
+        "fincosys:evidence_refs=JF03-017,SF10-002\n"
+        "fincosys:legal_categories=revenue_theft,trust_violation");
+
+    GList* orgs = g_list_append(nullptr, org);
+    gchar* json = gnc_organizations_to_fincosys_json(orgs);
+    ASSERT_NE(nullptr, json);
+
+    std::string text(json);
+    EXPECT_NE(std::string::npos,
+              text.find("\"evidence_refs\": [\"JF03-017\", \"SF10-002\"]"));
+    EXPECT_NE(std::string::npos,
+              text.find("\"legal_categories\": [\"revenue_theft\", \"trust_violation\"]"));
+
+    g_free(json);
+    g_list_free(orgs);
+    gncOrganizationDestroy(org);
+}
+
+TEST_F(GncFincosysSyncTest, ExportEmitsEmptyArraysWhenNoEvidenceTagsInNotes)
+{
+    GncOrganization* org = gncOrganizationCreate(book);
+    gncOrganizationSetID(org, "RST");
+    gncOrganizationSetName(org, "RegimA Skin Treatments CC");
+    /* No notes set at all -- export must still emit the (empty) arrays
+     * rather than omitting the keys. */
+
+    GList* orgs = g_list_append(nullptr, org);
+    gchar* json = gnc_organizations_to_fincosys_json(orgs);
+    ASSERT_NE(nullptr, json);
+
+    std::string text(json);
+    EXPECT_NE(std::string::npos, text.find("\"evidence_refs\": []"));
+    EXPECT_NE(std::string::npos, text.find("\"legal_categories\": []"));
+
+    g_free(json);
+    g_list_free(orgs);
+    gncOrganizationDestroy(org);
+}
+
+TEST_F(GncFincosysSyncTest,
+       RoundTripPreservesEvidenceRefsAndLegalCategoriesThroughImportThenExport)
+{
+    /* The core round trip this PR adds: a sync-schema document with
+     * populated evidence_refs/legal_categories, imported via
+     * gnc_organizations_from_fincosys_json() (stored as tagged "notes"
+     * lines, since GncOrganization has no generic KVP accessor), then
+     * exported again via gnc_organizations_to_fincosys_json() -- the
+     * arrays must come back exactly as they went in. */
+    const gchar* json = R"JSON(
+    {
+      "schema": "fincosys-ecosystem-sync/v1",
+      "source": "fincosys-atomspace-builder",
+      "organizations": [
+        {
+          "code": "SLG",
+          "name": "Strategic Logistics Group",
+          "active": true,
+          "evidence_refs": ["JF03-017", "SF10-002", "SF15-001"],
+          "legal_categories": ["stock_disappearance", "trust_violation"],
+          "accounts": []
+        }
+      ]
+    }
+    )JSON";
+
+    ASSERT_EQ(1, gnc_organizations_from_fincosys_json(book, json));
+
+    std::vector<GncOrganization*> orgs = collect_organizations(book);
+    ASSERT_EQ(1U, orgs.size());
+
+    GList* org_list = g_list_append(nullptr, orgs[0]);
+    gchar* exported = gnc_organizations_to_fincosys_json(org_list);
+    ASSERT_NE(nullptr, exported);
+
+    std::string text(exported);
+    EXPECT_NE(std::string::npos,
+              text.find("\"evidence_refs\": [\"JF03-017\", \"SF10-002\", \"SF15-001\"]"));
+    EXPECT_NE(std::string::npos,
+              text.find("\"legal_categories\": [\"stock_disappearance\", \"trust_violation\"]"));
+
+    g_free(exported);
+    g_list_free(org_list);
 }
 
 TEST_F(GncFincosysSyncTest, TxSyncNullJsonReturnsMinusOne)

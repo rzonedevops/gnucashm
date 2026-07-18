@@ -52,13 +52,21 @@ business entities like customers, vendors, and employees.
 #include "gnc-commodity.h"
 #include "qof.h"
 
-#define GNC_ID_ORGANIZATION    "gncOrganization"
-#define GNC_TYPE_ORGANIZATION  (gnc_organization_get_type ())
-G_DECLARE_FINAL_TYPE (GncOrganization, gnc_organization, GNC, ORGANIZATION, QofInstance)
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* G_DECLARE_FINAL_TYPE must be inside this extern "C" block: it declares
+ * gnc_organization_get_type(), and a declaration outside extern "C" gets
+ * C++ linkage (name-mangled) when this header is included from a .cpp
+ * file, while gncOrganization.c (compiled as C) always defines it with
+ * plain C linkage -- a mismatch that only fails to link once some C++
+ * translation unit actually calls GNC_ORGANIZATION()/gnc_organization_get_type()
+ * (e.g. via qof_collection_foreach() casting a QofInstance* back to
+ * GncOrganization*). */
+#define GNC_ID_ORGANIZATION    "gncOrganization"
+#define GNC_TYPE_ORGANIZATION  (gnc_organization_get_type ())
+G_DECLARE_FINAL_TYPE (GncOrganization, gnc_organization, GNC, ORGANIZATION, QofInstance)
 
 /** @name Create/Destroy Functions
  @{ */
