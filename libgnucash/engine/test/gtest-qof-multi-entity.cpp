@@ -48,22 +48,20 @@ protected:
         // Create test entities using proper GObject creation
         for (int i = 0; i < 3; i++)
         {
-            QofInstance* account = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
-            QofInstance* transaction = static_cast<QofInstance*>(g_object_new(QOF_TYPE_INSTANCE, NULL));
+            GncGUID account_guid;
+            GncGUID transaction_guid;
+            guid_replace(&account_guid);
+            guid_replace(&transaction_guid);
+
+            QofInstance* account = static_cast<QofInstance*>(
+                g_object_new(QOF_TYPE_INSTANCE, "guid", &account_guid, NULL));
+            QofInstance* transaction = static_cast<QofInstance*>(
+                g_object_new(QOF_TYPE_INSTANCE, "guid", &transaction_guid, NULL));
             
             // Set entity types using the string cache so the pointer matches the
             // collection's cached type (qof_collection_insert_entity uses pointer equality)
             account->e_type = static_cast<QofIdType>(CACHE_INSERT("Account"));
             transaction->e_type = static_cast<QofIdType>(CACHE_INSERT("Transaction"));
-            
-            // Generate valid (non-null) GUIDs — qof_collection_insert_entity
-            // silently skips entities whose GUID equals guid_null().
-            // const_cast is safe here: qof_instance_get_guid() returns a pointer
-            // into the instance's own private storage; we own 'account'/'transaction'
-            // and no public setter exists for the GUID on a bare QofInstance that
-            // was not initialised via qof_instance_init_data().
-            guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(account)));
-            guid_replace(const_cast<GncGUID*>(qof_instance_get_guid(transaction)));
             
             qof_collection_insert_entity(account_coll, account);
             qof_collection_insert_entity(transaction_coll, transaction);
