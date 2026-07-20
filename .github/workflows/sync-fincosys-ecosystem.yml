@@ -1,0 +1,111 @@
+name: Sync fincosys ecosystem
+
+# Manual only. This never runs on a schedule and, by default, only
+# validates the sync -- it does not write or commit anything. Producing and
+# committing a real data snapshot requires explicitly setting `write: true`
+# on a manual run, consistent with this ecosystem's convention of gating
+# real data-sync operations behind an explicit, reviewable step (see
+# cogpy/fincosys's CLAUDE.md, "Running-Balance Continuity & Corpus Sync").
+on:
+  workflow_dispatch:
+    inputs:
+      write:
+        description: "Persist data/fincosys_sync/*.json and open a PR (unchecked = dry run only)"
+        type: boolean
+        default: false
+      entity_filter:
+        description: "Space-separated fincosys entity codes to restrict to (blank = all)"
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout gnucashm
+        uses: actions/checkout@v4
+        with:
+          path: gnucashm
+
+      # Sibling repos are private and cross-repo -- this requires a
+      # personal access token with read access to them, stored as
+      # ECOSYSTEM_SYNC_TOKEN. The job fails fast if it isn't configured
+      # rather than silently skipping sources.
+      - name: Checkout fincosys-atomspace-builder
+        uses: actions/checkout@v4
+        with:
+          repository: RegimA-Zone/fincosys-atomspace-builder
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          path: fincosys-atomspace-builder
+
+      - name: Checkout fincosys
+        uses: actions/checkout@v4
+        with:
+          repository: cogpy/fincosys
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          path: fincosys
+
+      - name: Checkout helix
+        uses: actions/checkout@v4
+        with:
+          repository: fincosys/helix
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          path: helix
+        continue-on-error: true # helix holds no financial records; optional
+
+      - name: Checkout revstream1
+        uses: actions/checkout@v4
+        with:
+          repository: cogpy/revstream1
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          path: revstream1
+        continue-on-error: true # only needed for case-evidence enrichment
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install fincosys-atomspace-builder
+        run: pip install -e ./fincosys-atomspace-builder
+
+      - name: Run sync (dry run unless write=true)
+        working-directory: gnucashm
+        run: |
+          ARGS=(
+            --atomspace-builder-dir ../fincosys-atomspace-builder
+            --fincosys-data-dir ../fincosys/data
+            --helix-manifest ../helix/ecosystem/related_artifacts.json
+            --revstream1-data-dir ../revstream1/data_models
+            --verbose
+          )
+          if [ -n "${{ inputs.entity_filter }}" ]; then
+            ARGS+=(--entity-filter ${{ inputs.entity_filter }})
+          fi
+          if [ "${{ inputs.write }}" = "true" ]; then
+            ARGS+=(--write)
+          fi
+          python scripts/sync_fincosys_ecosystem.py "${ARGS[@]}"
+
+      - name: Open PR with synced data
+        if: ${{ inputs.write == 'true' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          path: gnucashm
+          commit-message: "chore: refresh fincosys ecosystem sync snapshot"
+          branch: bot/fincosys-ecosystem-sync
+          delete-branch: true
+          draft: true
+          title: "Refresh fincosys ecosystem sync snapshot"
+          body: |
+            Automated refresh of `data/fincosys_sync/` via
+            `scripts/sync_fincosys_ecosystem.py`, triggered manually from
+            the Sync fincosys ecosystem workflow.
+
+            This snapshot includes helix-sourced nodes tagged
+            `unverified_self_reported` -- see
+            `docs/FINCOSYS_ECOSYSTEM_SYNC.md` before treating any figure in
+            it as verified case evidence.
