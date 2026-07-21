@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-07-21T00:00:00+00:00",
+  "source": {
+    "repo": "fincosys",
+    "generator": "fincosys-atomspace-builder"
+  },
+  "accounts": [
+    {
+      "code": "RST",
+      "name": "Regima Skin Treatments CC",
+      "parent_code": null,
+      "account_type": "EQUITY",
+      "entity_code": "RST",
+      "currency": "ZAR",
+      "description": "CC"
+    },
+    {
+      "code": "PF",
+      "name": "Peter A Faucitt",
+      "parent_code": null,
+      "account_type": "EQUITY",
+      "entity_code": "PF",
+      "currency": "ZAR",
+      "description": "Individual"
+    },
+    {
+      "code": "55270035642",
+      "name": "Regima Skin Treatments",
+      "parent_code": "RST",
+      "account_type": "BANK",
+      "entity_code": "RST",
+      "currency": "ZAR",
+      "description": "Platinum Business Account"
+    },
+    {
+      "code": "55270018789",
+      "name": "Pete Platinum Acct",
+      "parent_code": "PF",
+      "account_type": "BANK",
+      "entity_code": "PF",
+      "currency": "ZAR",
+      "description": "Platinum Cheque Account"
+    },
+    {
+      "code": "PF-Imbalance-UNCATEGORIZED",
+      "name": "Imbalance - UNCATEGORIZED",
+      "parent_code": "PF",
+      "account_type": "EXPENSE",
+      "entity_code": "PF",
+      "currency": "ZAR",
+      "description": "Auto-generated placeholder counter-account for single-sided bank transactions with category/xero_account_code 'UNCATEGORIZED'; requires manual reclassification."
+    },
+    {
+      "code": "RST-Imbalance-404",
+      "name": "Imbalance - 404",
+      "parent_code": "RST",
+      "account_type": "EXPENSE",
+      "entity_code": "RST",
+      "currency": "ZAR",
+      "description": "Auto-generated placeholder counter-account for single-sided bank transactions with category/xero_account_code '404'; requires manual reclassification."
+    },
+    {
+      "code": "RST-Imbalance-PAYMENT",
+      "name": "Imbalance - PAYMENT",
+      "parent_code": "RST",
+      "account_type": "EXPENSE",
+      "entity_code": "RST",
+      "currency": "ZAR",
+      "description": "Auto-generated placeholder counter-account for single-sided bank transactions with category/xero_account_code 'PAYMENT'; requires manual reclassification."
+    }
+  ],
+  "transactions": [
+    {
+      "txid": "TX_55270035642_226_001",
+      "date": "2020-01-02",
+      "description": "Scheduled Payment To J Faucitt Salary",
+      "currency": "ZAR",
+      "entity_code": "RST",
+      "splits": [
+        {
+          "account_code": "55270035642",
+          "amount": -66137.66,
+          "memo": "J Faucitt Salary"
+        },
+        {
+          "account_code": "RST-Imbalance-PAYMENT",
+          "amount": 66137.66,
+          "memo": "J Faucitt Salary"
+        }
+      ],
+      "metadata": {
+        "is_intercompany": false,
+        "category": "PAYMENT",
+        "xero_account_code": "400",
+        "truth_value": {
+          "strength": 1.0,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "txid": "TX_55270035642_226_002",
+      "date": "2020-01-03",
+      "description": "Bank fee",
+      "currency": "ZAR",
+      "entity_code": "RST",
+      "splits": [
+        {
+          "account_code": "55270035642",
+          "amount": -50.0,
+          "memo": "FNB"
+        },
+        {
+          "account_code": "RST-Imbalance-404",
+          "amount": 50.0,
+          "memo": "FNB"
+        }
+      ],
+      "metadata": {
+        "is_intercompany": null,
+        "category": null,
+        "xero_account_code": "404",
+        "truth_value": {
+          "strength": 1.0,
+          "confidence": 1.0
+        }
+      }
+    },
+    {
+      "txid": "TX_55270018789_227_001",
+      "date": "2020-01-02",
+      "description": "Scheduled Pymt From P Faucitt Salary",
+      "currency": "ZAR",
+      "entity_code": "PF",
+      "splits": [
+        {
+          "account_code": "55270018789",
+          "amount": 66137.66,
+          "memo": null
+        },
+        {
+          "account_code": "PF-Imbalance-UNCATEGORIZED",
+          "amount": -66137.66,
+          "memo": null
+        }
+      ],
+      "metadata": {
+        "is_intercompany": null,
+        "category": null,
+        "xero_account_code": null,
+        "truth_value": {
+          "strength": 1.0,
+          "confidence": 1.0
+        }
+      }
+    }
+  ]
+}
