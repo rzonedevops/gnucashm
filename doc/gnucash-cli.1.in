@@ -63,6 +63,22 @@ command takes the following options:
 Name of the report to run
 .IP --export-type=TYPE
 Specify export type
+.SH Fincosys Ecosystem Sync (activated with --import-fincosys-sync <path>)
+Imports a JSON document produced by fincosys-atomspace-builder (or
+gnucashm's own
+.B scripts/sync_fincosys_ecosystem.py)
+into the given GnuCash datafile. Requires a datafile argument. Accepts
+either the Fincosys Ecosystem Sync Schema v1 (organizations/accounts,
+as exported by
+.B gnc_organizations_to_fincosys_json())
+or the GnuCash sync-feed schema (accounts/transactions, as produced by
+fincosys-atomspace-builder's
+.B GnuCashSyncExporter).
+See
+.I docs/FINCOSYS_ECOSYSTEM_SYNC.md
+in the source tree for background.
+.IP --import-fincosys-sync=PATH
+Path to the fincosys ecosystem sync JSON document to import.
 .SH General Options
 .IP --version
 Show
