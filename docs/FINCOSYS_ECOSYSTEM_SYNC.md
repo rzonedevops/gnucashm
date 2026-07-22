@@ -48,16 +48,36 @@ python scripts/sync_fincosys_ecosystem.py \
     --write
 ```
 
-## What is still missing (follow-up)
+## CLI entry point
 
-`gnc_organizations_from_fincosys_json()` itself is not yet reachable from
-any CLI, Scheme report, or menu action in a built gnucashm — it is only
-called from the gtest suite. Wiring it up (e.g. a `--import-fincosys-sync
-<path>` flag on the `gnucash-cli` binary, or a Scheme procedure exposed via
-SWIG bindings) requires building and testing the full GnuCash engine, which
-this change does not attempt. Until that lands, the file this script
-produces is a staged artifact for manual/future import, not an
-automatically-applied one — no book is modified by running it.
+`gnucash-cli --import-fincosys-sync <path> <accounts.gnucash>` (see
+`Gnucash::import_fincosys_sync()` in `gnucash/gnucash-commands.cpp`, wired
+into `gnucash-cli.cpp`'s option parsing) opens the given datafile, reads
+the sync document at `<path>`, and calls both
+`gnc_organizations_from_fincosys_json()` and
+`gnc_transactions_from_syncfeed_json()` against it — each recognizes its
+own schema by top-level key (`"organizations"` vs. `"transactions"`) and
+returns `0` (not an error) when the other schema's document is passed in,
+so a single flag works for either kind of sync document without the
+caller having to know in advance which one they have. The book is saved
+in place after import. This is the previously-missing wiring the note
+below used to describe; the file `scripts/sync_fincosys_ecosystem.py`
+produces can now be applied directly:
+
+```bash
+gnucash-cli --import-fincosys-sync data/fincosys_sync/gnucashm_ecosystem_sync.json \
+    my-organizations.gnucash
+```
+
+**Not yet attempted**: a full CMake build/link of gnucashm's GnuCash
+engine (it depends on guile, gtk+-3.0, webkit2gtk, libxml++, and boost
+dev packages not present in every environment this change was authored
+in) — the new code was written to reuse the exact same helpers, includes,
+and session-open/save pattern already exercised by the neighbouring
+`Gnucash::add_quotes()` command in the same file, but has not been
+compiled end-to-end. Build and exercise it (`gnucash-cli
+--import-fincosys-sync ... file.gnucash`) in an environment with the full
+GnuCash toolchain before relying on it for a real import.
 
 ## Why helix's contribution is not treated as financial data
 

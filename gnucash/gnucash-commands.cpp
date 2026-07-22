@@ -38,6 +38,7 @@
 #include <gnc-prefs-utils.h>
 #include <gnc-session.h>
 #include <qoflog.h>
+#include <gnc-fincosys-sync.h>
 
 #include <boost/locale.hpp>
 #include <fstream>
@@ -435,5 +436,96 @@ int
 Gnucash::report_list (void)
 {
     scm_boot_guile (0, nullptr, scm_report_list, NULL);
+    return 0;
+}
+
+int
+Gnucash::import_fincosys_sync (const bo_str& file_to_load, const bo_str& sync_file)
+{
+    if (!file_to_load || file_to_load->empty ())
+    {
+        std::cerr << _("Missing data file parameter") << std::endl;
+        return 1;
+    }
+    if (!sync_file || sync_file->empty ())
+    {
+        std::cerr << _("Missing --import-fincosys-sync file parameter") << std::endl;
+        return 1;
+    }
+
+    gchar *contents = nullptr;
+    GError *error = nullptr;
+    if (!g_file_get_contents (sync_file->c_str (), &contents, nullptr, &error))
+    {
+        std::cerr << bl::format (bl::translate ("Failed to read fincosys sync file {1}: {2}"))
+                      % *sync_file % (error ? error->message : "unknown error") << std::endl;
+        if (error)
+            g_error_free (error);
+        return 1;
+    }
+
+    gnc_prefs_init ();
+    qof_event_suspend ();
+
+    auto session = gnc_get_current_session ();
+    if (!session)
+    {
+        g_free (contents);
+        qof_event_resume ();
+        return 1;
+    }
+
+    qof_session_begin (session, file_to_load->c_str (), SESSION_NORMAL_OPEN);
+    if (qof_session_get_error (session) != ERR_BACKEND_NO_ERR)
+    {
+        g_free (contents);
+        return cleanup_and_exit_with_failure (session);
+    }
+
+    qof_session_load (session, nullptr);
+    if (qof_session_get_error (session) != ERR_BACKEND_NO_ERR)
+    {
+        g_free (contents);
+        return cleanup_and_exit_with_failure (session);
+    }
+
+    /* Both parsers scan the same document independently and gracefully
+     * return 0 (not an error) when their own top-level key
+     * ("organizations" vs. "transactions") is absent -- see
+     * gnc-fincosys-sync.cpp -- so it's safe to try both regardless of
+     * which of the two ecosystem sync schemas this particular document
+     * uses. Only a document that fails to parse as JSON at all yields -1
+     * from both. */
+    auto book = qof_session_get_book (session);
+    gint n_orgs = gnc_organizations_from_fincosys_json (book, contents);
+    gint n_txns = gnc_transactions_from_syncfeed_json (book, contents);
+    g_free (contents);
+
+    if (n_orgs < 0 && n_txns < 0)
+    {
+        std::cerr << bl::translate ("Fincosys sync file matched neither the "
+            "fincosys-ecosystem-sync/v1 schema (organizations) nor the GnuCash "
+            "sync-feed schema (transactions); nothing imported.") << std::endl;
+        qof_session_destroy (session);
+        qof_event_resume ();
+        return 1;
+    }
+
+    if (n_orgs > 0)
+        std::cout << bl::format (bl::translate ("Imported {1} organization(s) from fincosys sync data."))
+                      % n_orgs << std::endl;
+    if (n_txns > 0)
+        std::cout << bl::format (bl::translate ("Imported {1} transaction(s) from fincosys sync data."))
+                      % n_txns << std::endl;
+    if (n_orgs <= 0 && n_txns <= 0)
+        std::cout << bl::translate ("Fincosys sync file parsed but contained no "
+            "organizations or transactions to import.") << std::endl;
+
+    qof_session_save (session, nullptr);
+    if (qof_session_get_error (session) != ERR_BACKEND_NO_ERR)
+        return cleanup_and_exit_with_failure (session);
+
+    qof_session_destroy (session);
+    qof_event_resume ();
     return 0;
 }
