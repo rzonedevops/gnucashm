@@ -143,6 +143,13 @@ purpose-built parser/writer scoped to this schema's shape -- it is not a
 general-purpose JSON library, and does not pull in a new external
 dependency.
 
+**Verified end-to-end (2026-07-23)**, including a real `gnucash-cli
+--import-fincosys-sync` run: see `docs/FINCOSYS_ECOSYSTEM_SYNC.md` for the
+build results, the orphan-account persistence bug that run found and
+fixed, and the still-open `GncOrganization` XML-backend gap (organization
+metadata itself -- as opposed to its accounts -- has no persistence path
+yet).
+
 Unrelated to this bridge: while building and testing this change, the
 existing `test-qof-multi-entity` gtest suite (`gtest-qof-multi-entity.cpp`)
 was found to have 11/13 pre-existing failures against the current

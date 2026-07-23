@@ -46,5 +46,7 @@ namespace Gnucash {
     int report_list (void);
     int report_show (const bo_str& file_to_load,
                      const bo_str& run_report);
+    int import_fincosys_sync (const bo_str& file_to_load,
+                              const bo_str& sync_file);
 }
 #endif

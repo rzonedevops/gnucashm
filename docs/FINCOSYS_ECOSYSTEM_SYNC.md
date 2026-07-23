@@ -84,6 +84,57 @@ SWIG bindings) requires building and testing the full GnuCash engine, which
 this change does not attempt. Until that lands, the file this script
 produces is a staged artifact for manual/future import, not an
 automatically-applied one — no book is modified by running it.
+## CLI entry point
+
+`gnucash-cli --import-fincosys-sync <path> <accounts.gnucash>` (see
+`Gnucash::import_fincosys_sync()` in `gnucash/gnucash-commands.cpp`, wired
+into `gnucash-cli.cpp`'s option parsing) opens the given datafile, reads
+the sync document at `<path>`, and calls both
+`gnc_organizations_from_fincosys_json()` and
+`gnc_transactions_from_syncfeed_json()` against it — each recognizes its
+own schema by top-level key (`"organizations"` vs. `"transactions"`) and
+returns `0` (not an error) when the other schema's document is passed in,
+so a single flag works for either kind of sync document without the
+caller having to know in advance which one they have. The book is saved
+in place after import. This is the previously-missing wiring the note
+below used to describe; the file `scripts/sync_fincosys_ecosystem.py`
+produces can now be applied directly:
+
+```bash
+gnucash-cli --import-fincosys-sync data/fincosys_sync/gnucashm_ecosystem_sync.json \
+    my-organizations.gnucash
+```
+
+**Verified end-to-end (2026-07-23)**: a full CMake build of `gnucash-cli`
+(and the narrower `test-fincosys-sync` gtest target) now succeeds with no
+compile fixes needed (`-DWITH_AQBANKING=OFF -DWITH_OFX=OFF -DWITH_SQL=OFF`
+for optional subsystems whose dev packages weren't installed; none touch
+this bridge). `gtest-fincosys-sync` passes all 25 cases.
+
+Exercising a real import (`gnucash-cli --import-fincosys-sync
+data/fincosys_sync/gnucashm_ecosystem_sync.json <book>`) surfaced and fixed
+one genuine runtime bug: `gnc_organizations_from_fincosys_json()` created
+each imported `Account` via `xaccMallocAccount()` but never attached it to
+the book's root account tree via `gnc_account_append_child()`. The XML/SQL
+backends discover accounts to persist by walking from the root account, so
+those accounts were silently dropped on `qof_session_save()` even though
+`gncOrganizationAddEntity()` had already linked them to their owning
+organization -- confirmed by inspecting the saved/reloaded book before and
+after the fix (accounts like "Aymac International" / `62012990132` now
+correctly persist). The neighbouring `gnc_transactions_from_syncfeed_json()`
+in the same file already did this correctly, which is what made the
+omission obvious. Rebuilt and reran the gtest suite after the fix -- still
+25/25.
+
+**Known remaining gap (real, not yet closed)**: `GncOrganization` itself
+has no XML backend module registered (unlike `GncVendor`/`GncCustomer`,
+which each have their own `gnc-*-xml-v2.cpp`), so organization-level
+metadata -- code, name, `notes` (which carries the round-tripped
+`evidence_refs`/`legal_categories`) -- has no persistence path in the XML
+book format yet. Only the organization's *accounts* now survive a save;
+the `GncOrganization` record itself does not. Building that backend module
+is a real feature addition (see `gnc-*-xml-v2.cpp` for the pattern to
+follow), not a bug fix, and remains open follow-up work.
 
 ## Why helix's contribution is not treated as financial data
 

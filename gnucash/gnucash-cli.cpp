@@ -66,6 +66,8 @@ namespace Gnucash {
         boost::optional <std::string> m_report_name;
         boost::optional <std::string> m_export_type;
         boost::optional <std::string> m_output_file;
+
+        boost::optional <std::string> m_import_fincosys_sync;
     };
 
 }
@@ -124,6 +126,16 @@ may be specified to describe some saved options.\n"
     m_opt_desc_display->add (report_options);
     m_opt_desc_all.add (report_options);
 
+    bpo::options_description fincosys_options(_("Fincosys Ecosystem Sync Options"));
+    fincosys_options.add_options()
+    ("import-fincosys-sync", bpo::value (&m_import_fincosys_sync),
+     _("Import a JSON document produced by fincosys-atomspace-builder (or "
+       "gnucashm's own scripts/sync_fincosys_ecosystem.py) into the given "
+       "GnuCash datafile. Accepts either the Fincosys Ecosystem Sync Schema "
+       "v1 (organizations/accounts) or the GnuCash sync-feed schema "
+       "(accounts/transactions) -- see docs/FINCOSYS_ECOSYSTEM_SYNC.md.\n"));
+    m_opt_desc_display->add (fincosys_options);
+    m_opt_desc_all.add (fincosys_options);
 }
 
 int
@@ -215,6 +227,17 @@ Gnucash::GnucashCli::start ([[maybe_unused]] int argc, [[maybe_unused]] char **a
                       << *m_opt_desc_display.get();
             return 1;
         }
+    }
+
+    if (m_import_fincosys_sync)
+    {
+        if (!m_file_to_load || m_file_to_load->empty())
+        {
+            std::cerr << _("Missing data file parameter") << "\n\n"
+                      << *m_opt_desc_display.get() << std::endl;
+            return 1;
+        }
+        return Gnucash::import_fincosys_sync (m_file_to_load, m_import_fincosys_sync);
     }
 
     std::cerr << _("Missing command or option") << "\n\n"
