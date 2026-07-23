@@ -48,6 +48,42 @@ python scripts/sync_fincosys_ecosystem.py \
     --write
 ```
 
+## Cross-repo contract verification (this change)
+
+The Python-bindings sync tool at
+`bindings/python/example_scripts/fincosys_sync/` (`sync_fincosys.py`) has
+its own, separate `--feed` input path for `fincosys-atomspace-builder`'s
+`GnuCashSyncExporter` (`atomspace_builder/exporters/gnucash_exporter.py`)
+— distinct from the `gnc_organizations_from_fincosys_json()` /
+`gnc_transactions_from_syncfeed_json()` C++ bridge described above, and
+already reachable without building the full engine (`--plan-only` is pure
+Python; `--apply` needs only the SWIG Python bindings, not a full
+menu/report integration). Until now, that `--feed` path and the exporter
+it targets had never actually been run against each other — each side was
+built and tested in its own repository against a shared *written* schema
+description, with no fixture proving the two agree on the wire format.
+
+`bindings/python/example_scripts/fincosys_sync/tests/fixtures/atomspace_builder_sync_feed.json`
+closes that gap: it's a real document captured from
+`generate_feed()`/`GnuCashSyncExporter` run against that repo's own
+`tests/test_gnucash_exporter.py` fixture (provenance and regeneration
+instructions in `tests/fixtures/README.md` alongside it), and
+`tests/test_atomspace_builder_feed.py` feeds it through `load_feed()` +
+`build_plan()` and asserts a clean result. This does not change the
+C++-bridge status below — it verifies the independent Python `--feed`
+path, which is the one with the shortest path to actually consuming real
+exporter output today.
+
+## What is still missing (follow-up)
+
+`gnc_organizations_from_fincosys_json()` itself is not yet reachable from
+any CLI, Scheme report, or menu action in a built gnucashm — it is only
+called from the gtest suite. Wiring it up (e.g. a `--import-fincosys-sync
+<path>` flag on the `gnucash-cli` binary, or a Scheme procedure exposed via
+SWIG bindings) requires building and testing the full GnuCash engine, which
+this change does not attempt. Until that lands, the file this script
+produces is a staged artifact for manual/future import, not an
+automatically-applied one — no book is modified by running it.
 ## CLI entry point
 
 `gnucash-cli --import-fincosys-sync <path> <accounts.gnucash>` (see

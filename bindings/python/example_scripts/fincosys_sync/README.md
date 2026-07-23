@@ -53,14 +53,21 @@ GnuCash book                               Account (Fincosys Import >
                                             idempotent re-sync via txid.
 ```
 
-Today, `fincosys-atomspace-builder`'s `GnuCashSyncExporter` does not exist
-in this environment yet, so this script's `--data-dir` fallback loader
-reads `fincosys/data/MASTER_ENTITIES.json`, `MASTER_ACCOUNTS.json` and
-`transaction_index.json` directly and builds the equivalent in-memory
-structure. Once the exporter exists and emits `gnucash_sync_feed.json`,
-switch to `--feed <path>` -- the rest of the pipeline (plan validation,
-apply, idempotency) is unchanged, because the fallback loader's output is
-shaped identically to the feed schema.
+`fincosys-atomspace-builder`'s `GnuCashSyncExporter`
+(`atomspace_builder/exporters/gnucash_exporter.py`) now exists and emits
+`gnucash_sync_feed.json` in exactly this shape -- prefer `--feed <path>`
+pointed at its output over the `--data-dir` fallback loader below when a
+sibling `fincosys-atomspace-builder` checkout is available. The two are
+cross-verified: `tests/fixtures/atomspace_builder_sync_feed.json` is a real
+document captured from that exporter's own test fixture (see
+`tests/fixtures/README.md` for provenance/regeneration), and
+`tests/test_atomspace_builder_feed.py` feeds it through `load_feed()` +
+`build_plan()` and asserts the plan comes out clean -- so schema drift on
+either side of the repo boundary fails this repo's test suite instead of
+silently breaking at apply time. The `--data-dir` fallback loader remains
+available for when no exporter output is at hand; its output is shaped
+identically to the feed schema, so both paths are interchangeable
+downstream of `load_plan_inputs()`.
 
 ### Sync feed schema (schema_version "1.0")
 
