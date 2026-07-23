@@ -39,21 +39,21 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: RegimA-Zone/fincosys-atomspace-builder
-          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
           path: fincosys-atomspace-builder
 
       - name: Checkout fincosys
         uses: actions/checkout@v4
         with:
           repository: cogpy/fincosys
-          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
           path: fincosys
 
       - name: Checkout helix
         uses: actions/checkout@v4
         with:
           repository: fincosys/helix
-          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
           path: helix
         continue-on-error: true # helix holds no financial records; optional
 
@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: cogpy/revstream1
-          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN }}
+          token: ${{ secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
           path: revstream1
         continue-on-error: true # only needed for case-evidence enrichment
 
