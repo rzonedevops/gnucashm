@@ -26,7 +26,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     env:
-      ECOSYSTEM_SYNC_CHECKOUT_TOKEN: ${{ secrets.ECOSYSTEM_SYNC_TOKEN != '' && secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
+      ECOSYSTEM_SYNC_CHECKOUT_TOKEN: ${{ secrets.ECOSYSTEM_SYNC_TOKEN || github.token }}
     steps:
       - name: Checkout gnucashm
         uses: actions/checkout@v4
