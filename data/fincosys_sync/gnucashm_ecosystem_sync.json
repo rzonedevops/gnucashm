@@ -1,0 +1,2199 @@
+{
+  "schema": "fincosys-ecosystem-sync/v1",
+  "source": "gnucashm",
+  "organizations": [
+    {
+      "code": "AYM",
+      "name": "Aymac International",
+      "org_type": "CK",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62012990132",
+          "account_name": "Aymac International",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "COR",
+      "name": "CORPCLO 2065",
+      "org_type": "CK",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62060760404",
+          "account_name": "CORPCLO 2065",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "FFT",
+      "name": "Faucitt Family Trust",
+      "org_type": "Trust",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "JAX",
+      "name": "Jaxac",
+      "org_type": "Business",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "63194518016",
+          "account_name": "Jaxac - FNB Gold Business Account",
+          "account_type": "Gold Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "63194519634",
+          "account_name": "Jaxac - FNB Gold Business Account",
+          "account_type": "Gold Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "KIH",
+      "name": "Ketoni Investment Holdings (Pty) Ltd",
+      "org_type": "Pty",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [
+        "EVENT081"
+      ],
+      "legal_categories": [
+        "tax_fraud",
+        "breach_of_trust",
+        "companies_act_violation",
+        "fraud"
+      ],
+      "accounts": []
+    },
+    {
+      "code": "PORT",
+      "name": "Portfolio Overview",
+      "org_type": "Virtual",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "80041151533",
+          "account_name": "eBucks For Business",
+          "account_type": "eBucks Rewards Account",
+          "balance": null,
+          "currency": "eBucks"
+        }
+      ]
+    },
+    {
+      "code": "REG",
+      "name": "Regima (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "REZ",
+      "name": "Rezonance (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62707312310",
+          "account_name": "Rezonance",
+          "account_type": "Gold Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62826022577",
+          "account_name": "Money On Call",
+          "account_type": "Money On Call",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "RIS",
+      "name": "Regima International Skin Treatments CC",
+      "org_type": "CC",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "RMD",
+      "name": "Regima Medic (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "RSA",
+      "name": "Regima SA (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62707308252",
+          "account_name": "Regima SA",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62896473974",
+          "account_name": "Trust Account",
+          "account_type": "Trust Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62896474196",
+          "account_name": "RSA Current Account",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62896474972",
+          "account_name": "Business Call Account",
+          "account_type": "Business Call Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62897307015",
+          "account_name": "RSA Trust Account 7015",
+          "account_type": "Trust Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62897307031",
+          "account_name": "RSA Trust Account 7031",
+          "account_type": "Trust Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62897307073",
+          "account_name": "RSA Trust Account 7073",
+          "account_type": "Trust Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "RST",
+      "name": "Regima Skin Treatments CC",
+      "org_type": "CC",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "4790812427545003",
+          "account_name": "Business Gold Credit Card",
+          "account_type": "Credit Card",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "55270035642",
+          "account_name": "Regima Skin Treatments",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62134839127",
+          "account_name": "Business Money Market",
+          "account_type": "Money On Call",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62839603819",
+          "account_name": "Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "GBP"
+        },
+        {
+          "account_number": "62839603827",
+          "account_name": "Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "USD"
+        },
+        {
+          "account_number": "62839609635",
+          "account_name": "Business Global Account (Old)",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "Multi"
+        },
+        {
+          "account_number": "8812710044279003",
+          "account_name": "Business Credit Card",
+          "account_type": "Credit Card",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "RSZ",
+      "name": "Regima Spazone (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "RWD",
+      "name": "Regima Worldwide Distribution (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62323196362",
+          "account_name": "Regima Worldwide Distribution",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62836164880",
+          "account_name": "Worldwide Savings",
+          "account_type": "Business Savings Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62839612323",
+          "account_name": "CFC Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "GBP"
+        },
+        {
+          "account_number": "62839612331",
+          "account_name": "Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "USD"
+        },
+        {
+          "account_number": "62839612349",
+          "account_name": "Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "code": "RZA",
+      "name": "Regima Zone Academy (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62707304606",
+          "account_name": "Regima Zone Academy",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "RZI",
+      "name": "Regima Zone Impact (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62707290003",
+          "account_name": "Regima Zone Impact",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "RZN",
+      "name": "Regima Zone (Pty) Ltd",
+      "org_type": "Pty Ltd",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "63176874808",
+          "account_name": "Regima Zone Gold Business",
+          "account_type": "Gold Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "SLG",
+      "name": "Strategic Logistics CC",
+      "org_type": "CC",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62432501494",
+          "account_name": "Strategic Logistics",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62593375829",
+          "account_name": "Strategic Savings",
+          "account_type": "Business Savings Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62839603835",
+          "account_name": "Business Global Account",
+          "account_type": "Business Global Account",
+          "balance": null,
+          "currency": "EUR"
+        }
+      ]
+    },
+    {
+      "code": "UNI",
+      "name": "Unicorn Dynamics (Pty) Ltd",
+      "org_type": "PTY",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "UNKNOWN_0781",
+          "account_name": "Unicorn Dynamics eBucks",
+          "account_type": "eBucks Rewards Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "UNKNOWN_2339",
+          "account_name": "Unicorn Dynamics Cheque",
+          "account_type": "Cheque Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "UNKNOWN_2347",
+          "account_name": "Unicorn Dynamics Stash",
+          "account_type": "Savings Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "UNK",
+      "name": "Unknown",
+      "org_type": "Unknown",
+      "parent_code": null,
+      "active": false,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "4901368256328009",
+          "account_name": "Unknown Credit Card",
+          "account_type": "FNB Credit Card",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62471767817",
+          "account_name": "Unknown",
+          "account_type": "FNB Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62474237445",
+          "account_name": "GLOBAL ACC",
+          "account_type": "FNB Account",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    },
+    {
+      "code": "VVA",
+      "name": "Villa Via Arcadia No 2 CC",
+      "org_type": "CC",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": [
+        {
+          "account_number": "62423540807",
+          "account_name": "Villa Via Arcadia",
+          "account_type": "Platinum Business Account",
+          "balance": null,
+          "currency": "ZAR"
+        },
+        {
+          "account_number": "62812835744",
+          "account_name": "Money On Call",
+          "account_type": "Money On Call",
+          "balance": null,
+          "currency": "ZAR"
+        }
+      ]
+    }
+  ],
+  "atoms": [
+    {
+      "id": "XERO_COA_200",
+      "atom_type": "ConceptNode",
+      "label": "Sales",
+      "attributes": {
+        "xero_id": "41e509de-b35f-4f03-a2c1-57e6d71cb7c1",
+        "code": "200",
+        "type": "REVENUE",
+        "status": "ACTIVE",
+        "description": "Income from any normal business activity",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_260",
+      "atom_type": "ConceptNode",
+      "label": "Other Revenue",
+      "attributes": {
+        "xero_id": "cc66fc7d-3cc7-4721-be9f-f4dfbfcee2e0",
+        "code": "260",
+        "type": "REVENUE",
+        "status": "ACTIVE",
+        "description": "Any other income that does not relate to  normal business activity and is not recurring",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_270",
+      "atom_type": "ConceptNode",
+      "label": "Interest Income",
+      "attributes": {
+        "xero_id": "e77aae02-4c64-41ec-93a3-021185002b5f",
+        "code": "270",
+        "type": "REVENUE",
+        "status": "ACTIVE",
+        "description": "Gross interest income",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_310",
+      "atom_type": "ConceptNode",
+      "label": "Cost of Goods Sold",
+      "attributes": {
+        "xero_id": "c6643b48-c1cd-4b2b-9fd1-06b832065bab",
+        "code": "310",
+        "type": "DIRECTCOSTS",
+        "status": "ACTIVE",
+        "description": "Cost of goods sold by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_320",
+      "atom_type": "ConceptNode",
+      "label": "Direct Wages",
+      "attributes": {
+        "xero_id": "992a88fc-a7bd-4feb-b322-fbf58eebe793",
+        "code": "320",
+        "type": "DIRECTCOSTS",
+        "status": "ACTIVE",
+        "description": "Payment of wages/salary to an employee whose work can be directly linked to the product or service",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_325",
+      "atom_type": "ConceptNode",
+      "label": "Direct Expenses",
+      "attributes": {
+        "xero_id": "0f2b026b-6cb5-4455-b0be-bcc83fa26f82",
+        "code": "325",
+        "type": "DIRECTCOSTS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred that relate directly to earning revenue",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_400",
+      "atom_type": "ConceptNode",
+      "label": "Advertising & Marketing",
+      "attributes": {
+        "xero_id": "7579debe-993f-4f6d-a3a5-2cde5ddbbaff",
+        "code": "400",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred for advertising and marketing",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_401",
+      "atom_type": "ConceptNode",
+      "label": "Audit & Accountancy fees",
+      "attributes": {
+        "xero_id": "7f7e12e2-175f-4767-98b2-6779eb8455fc",
+        "code": "401",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred relating to accounting and audit fees",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_404",
+      "atom_type": "ConceptNode",
+      "label": "Bank Fees",
+      "attributes": {
+        "xero_id": "33c3cdf3-0c7a-4d42-8c41-f599ac90d858",
+        "code": "404",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Fees charged by your bank for transactions regarding your bank account(s)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_408",
+      "atom_type": "ConceptNode",
+      "label": "Cleaning",
+      "attributes": {
+        "xero_id": "b11f01a8-5a7a-423b-8273-bee97986a497",
+        "code": "408",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred for cleaning business property",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_412",
+      "atom_type": "ConceptNode",
+      "label": "Consulting",
+      "attributes": {
+        "xero_id": "0692ee18-6179-490a-88be-c93ff58c071c",
+        "code": "412",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments made to consultants",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_416",
+      "atom_type": "ConceptNode",
+      "label": "Depreciation Expense",
+      "attributes": {
+        "xero_id": "ccd4857b-5e4a-46a8-b5ab-f132a20ef342",
+        "code": "416",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "The amount of the asset's cost (based on the useful life) that was consumed during the period",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_418",
+      "atom_type": "ConceptNode",
+      "label": "Charitable and Political Donations",
+      "attributes": {
+        "xero_id": "f0092162-f10a-4046-9964-2c1469c411a1",
+        "code": "418",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments made to charities or political organisations or events",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_420",
+      "atom_type": "ConceptNode",
+      "label": "Entertainment-100% business",
+      "attributes": {
+        "xero_id": "289cb645-a551-41fe-9f9d-b25ce299ef41",
+        "code": "420",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on entertainment by the business that for income tax purposes are fully deductable",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_424",
+      "atom_type": "ConceptNode",
+      "label": "Entertainment - 0%",
+      "attributes": {
+        "xero_id": "8bd53c15-975a-4735-bc75-f3caaad0e076",
+        "code": "424",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on entertainment by the business that for income tax purposes are not fully deductable",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_425",
+      "atom_type": "ConceptNode",
+      "label": "Postage, Freight & Courier",
+      "attributes": {
+        "xero_id": "4a416ee5-bda0-48a2-8ef3-3d3e19cf898e",
+        "code": "425",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred by the entity on postage, freight & courier costs",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_429",
+      "atom_type": "ConceptNode",
+      "label": "General Expenses",
+      "attributes": {
+        "xero_id": "b9515574-0737-4acb-9afc-56c1341701b3",
+        "code": "429",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred that relate to the general running of the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_433",
+      "atom_type": "ConceptNode",
+      "label": "Insurance",
+      "attributes": {
+        "xero_id": "7f864ebf-52d4-4189-b71e-1ded1fba19f3",
+        "code": "433",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred for insuring the business' assets",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_437",
+      "atom_type": "ConceptNode",
+      "label": "Interest Paid",
+      "attributes": {
+        "xero_id": "8cd6b125-d6ee-4868-b9ca-d61348f2f8ec",
+        "code": "437",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Interest paid on a business bank account or credit card account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_441",
+      "atom_type": "ConceptNode",
+      "label": "Legal Expenses",
+      "attributes": {
+        "xero_id": "7e43ec11-2256-4efe-87a1-ee3cd96eb2c8",
+        "code": "441",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on any legal matters",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_445",
+      "atom_type": "ConceptNode",
+      "label": "Light, Power, Heating",
+      "attributes": {
+        "xero_id": "7f103a92-818d-4af5-8601-d3d1ae722c30",
+        "code": "445",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred for lighting, power or heating the business premises",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_449",
+      "atom_type": "ConceptNode",
+      "label": "Motor Vehicle Expenses",
+      "attributes": {
+        "xero_id": "73565d97-e610-4eb4-9ea3-71fddb6cfd6f",
+        "code": "449",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on the running of business motor vehicles",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_457",
+      "atom_type": "ConceptNode",
+      "label": "Operating Lease Payments",
+      "attributes": {
+        "xero_id": "780d33f8-0a2d-4c57-bd33-7b5a9ae635d1",
+        "code": "457",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on operating expenses such as office rental and vehicle leases (excludes hire purchase agreements)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_461",
+      "atom_type": "ConceptNode",
+      "label": "Printing & Stationery",
+      "attributes": {
+        "xero_id": "ee423093-806b-4e9c-9e9c-109da7c60f19",
+        "code": "461",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on printing and stationery",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_463",
+      "atom_type": "ConceptNode",
+      "label": "IT Software and Consumables",
+      "attributes": {
+        "xero_id": "59b7cedf-711c-45e6-b3dd-61903ac177f6",
+        "code": "463",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred  on  software or computer consumables",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_465",
+      "atom_type": "ConceptNode",
+      "label": "Rates",
+      "attributes": {
+        "xero_id": "4573e872-8262-4bce-be9e-22bbec56cafe",
+        "code": "465",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments made to local council for rates",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_469",
+      "atom_type": "ConceptNode",
+      "label": "Rent",
+      "attributes": {
+        "xero_id": "44952ec8-f699-40e3-8e6f-81d945d92e73",
+        "code": "469",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments  made to lease a building or area",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_473",
+      "atom_type": "ConceptNode",
+      "label": "Repairs & Maintenance",
+      "attributes": {
+        "xero_id": "f825df81-46db-4a16-b169-2231cb2e1224",
+        "code": "473",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred on a damaged or run down asset that will bring the asset back to its original condition",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_477",
+      "atom_type": "ConceptNode",
+      "label": "Salaries",
+      "attributes": {
+        "xero_id": "32824692-2c1e-4a3d-9a63-c9398a231c4c",
+        "code": "477",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payment to employees in exchange for their resources",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_478",
+      "atom_type": "ConceptNode",
+      "label": "Directors' Remuneration",
+      "attributes": {
+        "xero_id": "f7025168-f80c-4d16-b56d-592d883fd637",
+        "code": "478",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments to company directors in exchange for their resources",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_479",
+      "atom_type": "ConceptNode",
+      "label": "Employers National Insurance",
+      "attributes": {
+        "xero_id": "303a104b-29f8-4b05-bc56-0553897ab72a",
+        "code": "479",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payment made for National Insurance contributions - business contribution only",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_480",
+      "atom_type": "ConceptNode",
+      "label": "Staff Training",
+      "attributes": {
+        "xero_id": "c4a351d7-bf46-4b2f-952d-81d0c354ab72",
+        "code": "480",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred in relation to training staff",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_482",
+      "atom_type": "ConceptNode",
+      "label": "Pensions Costs",
+      "attributes": {
+        "xero_id": "55b1f26c-3df7-4d38-be68-167dea52583a",
+        "code": "482",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments made to pension schemes",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_483",
+      "atom_type": "ConceptNode",
+      "label": "Medical Insurance",
+      "attributes": {
+        "xero_id": "85f271a3-05eb-4587-a01f-fae9af132c54",
+        "code": "483",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Payments made to medical insurance schemes",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_485",
+      "atom_type": "ConceptNode",
+      "label": "Subscriptions",
+      "attributes": {
+        "xero_id": "f12d8ea7-5def-4eae-bca5-b3e3cc5bea5c",
+        "code": "485",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred by the business in relation to subscriptions, such as magazines and professional bodies",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_489",
+      "atom_type": "ConceptNode",
+      "label": "Telephone & Internet",
+      "attributes": {
+        "xero_id": "d5779393-09e8-4f7d-864d-3baf00757a10",
+        "code": "489",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred from any business-related phone calls, phone lines, or internet connections",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_493",
+      "atom_type": "ConceptNode",
+      "label": "Travel - National",
+      "attributes": {
+        "xero_id": "9aa964d5-6f4a-486f-99a9-496726cc7c75",
+        "code": "493",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred from any domestic business travel",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_494",
+      "atom_type": "ConceptNode",
+      "label": "Travel - International",
+      "attributes": {
+        "xero_id": "2d851bed-8e0b-46f1-9ba6-247506d5e1b1",
+        "code": "494",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Expenses incurred from any international business travel",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_497",
+      "atom_type": "ConceptNode",
+      "label": "Bank Revaluations",
+      "attributes": {
+        "xero_id": "761250fb-48c9-4799-9157-16c0fe67f105",
+        "code": "497",
+        "type": "EXPENSE",
+        "status": "ACTIVE",
+        "description": "Bank account revaluations due for foreign exchange rate changes",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_498",
+      "atom_type": "ConceptNode",
+      "label": "Unrealised Currency Gains",
+      "attributes": {
+        "xero_id": "76dd3afb-18f9-4047-9620-447990848e2b",
+        "code": "498",
+        "type": "EXPENSE",
+        "status": "ACTIVE",
+        "description": "Unrealised currency gains on outstanding items",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_499",
+      "atom_type": "ConceptNode",
+      "label": "Realised Currency Gains",
+      "attributes": {
+        "xero_id": "df17c983-76a9-4bb8-bf46-1e981ceff3f8",
+        "code": "499",
+        "type": "EXPENSE",
+        "status": "ACTIVE",
+        "description": "Gains or losses made due to currency exchange rate changes",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_500",
+      "atom_type": "ConceptNode",
+      "label": "Corporation Tax",
+      "attributes": {
+        "xero_id": "e9698f11-f849-4fdc-a939-6b40856051e7",
+        "code": "500",
+        "type": "OVERHEADS",
+        "status": "ACTIVE",
+        "description": "Tax payable on business profits",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_610",
+      "atom_type": "ConceptNode",
+      "label": "Accounts Receivable",
+      "attributes": {
+        "xero_id": "96e21c06-a85b-47d0-b7fe-0b2273610ef4",
+        "code": "610",
+        "type": "CURRENT",
+        "status": "ACTIVE",
+        "description": "Invoices the business has issued but has not yet collected payment on",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_611",
+      "atom_type": "ConceptNode",
+      "label": "Less Provision for Doubtful Debts",
+      "attributes": {
+        "xero_id": "30942fe1-00d6-481c-859d-f235cd56d582",
+        "code": "611",
+        "type": "CURRENT",
+        "status": "ACTIVE",
+        "description": "A provision anticipating that a portion of accounts receivable will never be collected",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_620",
+      "atom_type": "ConceptNode",
+      "label": "Prepayments",
+      "attributes": {
+        "xero_id": "2fc113c1-a7cd-4d76-933e-e1aa27d8fcf5",
+        "code": "620",
+        "type": "CURRENT",
+        "status": "ACTIVE",
+        "description": "An expenditure that has been paid for in advance",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_630",
+      "atom_type": "ConceptNode",
+      "label": "Inventory",
+      "attributes": {
+        "xero_id": "b53346b4-d655-4aa5-a9b0-90e75f68a103",
+        "code": "630",
+        "type": "INVENTORY",
+        "status": "ACTIVE",
+        "description": "Value of tracked items for resale.",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_710",
+      "atom_type": "ConceptNode",
+      "label": "Office Equipment",
+      "attributes": {
+        "xero_id": "5d49ee11-d53d-41c4-bfdd-df2b4910f45c",
+        "code": "710",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Office equipment that is owned and controlled by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_711",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Office Equipment",
+      "attributes": {
+        "xero_id": "4f126151-ef20-43bb-a3dd-3212a7783cbd",
+        "code": "711",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of office equipment costs that has been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_720",
+      "atom_type": "ConceptNode",
+      "label": "Computer Equipment",
+      "attributes": {
+        "xero_id": "96f92ed8-5661-47ff-aeb8-3ad987e9d6da",
+        "code": "720",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Computer equipment that is owned and controlled by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_721",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Computer Equipment",
+      "attributes": {
+        "xero_id": "7b9d373d-5ccb-4b9c-96c4-be930507d9a0",
+        "code": "721",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of computer equipment costs that has been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_740",
+      "atom_type": "ConceptNode",
+      "label": "Buildings",
+      "attributes": {
+        "xero_id": "9455c3bd-66d9-4ed4-97b7-76e0a908cd21",
+        "code": "740",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Buildings that are owned and controlled by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_741",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Buildings",
+      "attributes": {
+        "xero_id": "4fd35d85-57ca-4303-b688-c9e38dc82618",
+        "code": "741",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of buildings costs that have been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_750",
+      "atom_type": "ConceptNode",
+      "label": "Leasehold Improvements",
+      "attributes": {
+        "xero_id": "08e98fb3-4f56-4213-b1a4-c424215f6a53",
+        "code": "750",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The value added to the leased premises via improvements",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_751",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Leasehold Improvements",
+      "attributes": {
+        "xero_id": "e5eef8fc-b52d-42a6-b649-c3f064a2958e",
+        "code": "751",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of leasehold improvement costs that has been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_760",
+      "atom_type": "ConceptNode",
+      "label": "Motor Vehicles",
+      "attributes": {
+        "xero_id": "dd6f788d-dd59-419d-adde-bfb8b7285c94",
+        "code": "760",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Motor vehicles that are owned and controlled by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_761",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Motor Vehicles",
+      "attributes": {
+        "xero_id": "e5e33c41-2528-4614-9bef-29c8c0e838d0",
+        "code": "761",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of motor vehicle costs that has been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_764",
+      "atom_type": "ConceptNode",
+      "label": "Plant and Machinery",
+      "attributes": {
+        "xero_id": "3a761351-dde4-4d0a-94a2-da382442aad2",
+        "code": "764",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Plant and machinery that are owned and controlled by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_765",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Depreciation on Plant and Machinery",
+      "attributes": {
+        "xero_id": "00854ef3-a4ca-4f40-aff7-43ca014987d3",
+        "code": "765",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of plant and machinery cost that has been consumed by the business (based on the useful life)",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_770",
+      "atom_type": "ConceptNode",
+      "label": "Intangibles",
+      "attributes": {
+        "xero_id": "2723756a-ba9d-4468-a5fe-e7a047c99f73",
+        "code": "770",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "Assets with no physical presence e.g. goodwill or patents",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_771",
+      "atom_type": "ConceptNode",
+      "label": "Less Accumulated Amortisation on Intangibles",
+      "attributes": {
+        "xero_id": "51c46374-ee42-4ed1-9d6f-6dbe23046f82",
+        "code": "771",
+        "type": "FIXED",
+        "status": "ACTIVE",
+        "description": "The total amount of intangibles that have been consumed by the business",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_800",
+      "atom_type": "ConceptNode",
+      "label": "Accounts Payable",
+      "attributes": {
+        "xero_id": "7440d452-1c0c-4af7-b02a-5f7631795c81",
+        "code": "800",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Invoices the company has received from suppliers but have not made payment on",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_801",
+      "atom_type": "ConceptNode",
+      "label": "Unpaid Expense Claims",
+      "attributes": {
+        "xero_id": "86981e82-6e1f-4f75-9d6e-7a44f3898c97",
+        "code": "801",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Expense claims typically made by employees/shareholder employees which the business has not made payment on",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_803",
+      "atom_type": "ConceptNode",
+      "label": "Wages Payable",
+      "attributes": {
+        "xero_id": "1c83a3a1-9281-4620-aae2-72c8e9aa245d",
+        "code": "803",
+        "type": "CURRLIAB",
+        "status": "ARCHIVED",
+        "description": "Xero automatically updates this account for payroll entries created using Payroll and will store the payroll amount to be paid to the employee for the pay run. This account enables you to maintain separate accounts for employee Wages Payable amounts and Accounts Payable amounts",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_805",
+      "atom_type": "ConceptNode",
+      "label": "Accruals",
+      "attributes": {
+        "xero_id": "b0c3b5c8-49ec-4ee2-b287-a7ebb981eb5d",
+        "code": "805",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Any services the business has received but have not yet been invoiced for e.g. Accountancy Fees",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_810",
+      "atom_type": "ConceptNode",
+      "label": "Income in Advance",
+      "attributes": {
+        "xero_id": "9bf786b6-23de-4000-887a-eaa542b29b8f",
+        "code": "810",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Any income the business has received but have not provided the goods or services for",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_811",
+      "atom_type": "ConceptNode",
+      "label": "Credit Card Control Account",
+      "attributes": {
+        "xero_id": "212f44b4-dff7-4cd8-83a8-0cbb62e8b0cd",
+        "code": "811",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "The amount owing on the company's credit cards",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_814",
+      "atom_type": "ConceptNode",
+      "label": "Wages Payable - Payroll",
+      "attributes": {
+        "xero_id": "98a670a3-0c2b-4039-bac9-4bf48493d635",
+        "code": "814",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Where this account is set as the nominated Wages Payable account within Payroll Settings, Xero allocates the net wage amount of each pay run created using Payroll to this account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_815",
+      "atom_type": "ConceptNode",
+      "label": "Employee contribution to benefits",
+      "attributes": {
+        "xero_id": "4b817f76-e9b6-4fe3-969c-84542dd1c0eb",
+        "code": "815",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Payroll deductions for employee contributions towards payrolled benefits in kind",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_820",
+      "atom_type": "ConceptNode",
+      "label": "VAT",
+      "attributes": {
+        "xero_id": "35b3f9b1-103a-412f-8475-fa57fd5b8432",
+        "code": "820",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "The balance in this account represents VAT owing to or from the HMRC. At the end of the VAT period, it is this account that should be used to code against either the \u2018refunds from\u2019 or \u2018payments to\u2019 the HMRC that will appear on the bank statement. Xero has been designed to use only one VAT account to track VAT on income and expenses, so there is no need to add any new VAT accounts to Xero",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_825",
+      "atom_type": "ConceptNode",
+      "label": "PAYE Payable",
+      "attributes": {
+        "xero_id": "db64bcdc-f4cc-4bd3-a19e-80fbb1ea8625",
+        "code": "825",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "The Amount of PAYE tax due to be paid to the HMRC",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_826",
+      "atom_type": "ConceptNode",
+      "label": "NIC Payable",
+      "attributes": {
+        "xero_id": "e5dc2fa9-9c1b-45a6-9af5-85006b0612ae",
+        "code": "826",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "The amount of a business' portion of National Insurance Contribution that is due to be paid to the HMRC",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_830",
+      "atom_type": "ConceptNode",
+      "label": "Provision for Corporation Tax",
+      "attributes": {
+        "xero_id": "8f2570a0-45d2-4855-97f4-4d18d0560d7c",
+        "code": "830",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Corporation tax payable to the HMRC",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_835",
+      "atom_type": "ConceptNode",
+      "label": "Directors' Loan Account",
+      "attributes": {
+        "xero_id": "06675292-b2f9-4354-9c73-27b6361dc75e",
+        "code": "835",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Monies owed to or from company directors",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_840",
+      "atom_type": "ConceptNode",
+      "label": "Historical Adjustment",
+      "attributes": {
+        "xero_id": "0e873053-91a7-4b9f-a7cf-a1c6a6cb5d83",
+        "code": "840",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "For any accounting and starting balance adjustments",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_850",
+      "atom_type": "ConceptNode",
+      "label": "Suspense",
+      "attributes": {
+        "xero_id": "fe3958d4-b30b-4e3a-8337-63c081113ca4",
+        "code": "850",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "A clearing account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_858",
+      "atom_type": "ConceptNode",
+      "label": "Pensions Payable",
+      "attributes": {
+        "xero_id": "d0d75279-1cca-4a85-b54f-a0bd50a899fc",
+        "code": "858",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Payroll pension payable account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_860",
+      "atom_type": "ConceptNode",
+      "label": "Rounding",
+      "attributes": {
+        "xero_id": "aca4562c-84fd-4b28-ae90-14aff7907a49",
+        "code": "860",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "An adjustment entry to allow for rounding",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_868",
+      "atom_type": "ConceptNode",
+      "label": "Earnings Orders Payable",
+      "attributes": {
+        "xero_id": "a1de257e-0e94-4c23-bc77-60d924943186",
+        "code": "868",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Payroll earnings order account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_877",
+      "atom_type": "ConceptNode",
+      "label": "Tracking Transfers",
+      "attributes": {
+        "xero_id": "ddb5af44-9839-470b-8384-57118f1754aa",
+        "code": "877",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Transfers between tracking categories",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_900",
+      "atom_type": "ConceptNode",
+      "label": "Loan",
+      "attributes": {
+        "xero_id": "c7bd6f3c-255a-455b-892e-2f9e860bcb8a",
+        "code": "900",
+        "type": "TERMLIAB",
+        "status": "ACTIVE",
+        "description": "Any money that has been borrowed from a creditor",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_910",
+      "atom_type": "ConceptNode",
+      "label": "Hire Purchase Loan",
+      "attributes": {
+        "xero_id": "8611ad4a-cdbb-47c9-b63f-75ee417288ff",
+        "code": "910",
+        "type": "TERMLIAB",
+        "status": "ACTIVE",
+        "description": "Any goods bought through hire purchase agreements",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_920",
+      "atom_type": "ConceptNode",
+      "label": "Deferred Tax",
+      "attributes": {
+        "xero_id": "82efe941-8ca5-43fd-aeb7-8f69345d37d5",
+        "code": "920",
+        "type": "TERMLIAB",
+        "status": "ACTIVE",
+        "description": "Used if there is a timing difference between taxable profits and accounting profits",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_947",
+      "atom_type": "ConceptNode",
+      "label": "Student Loan Deductions Payable",
+      "attributes": {
+        "xero_id": "d0714a56-6b79-40d5-b593-8bb1b035e69f",
+        "code": "947",
+        "type": "CURRLIAB",
+        "status": "ACTIVE",
+        "description": "Payroll student loan deductions payable account",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_950",
+      "atom_type": "ConceptNode",
+      "label": "Capital - x,xxx Ordinary Shares",
+      "attributes": {
+        "xero_id": "24a09223-149d-49b5-9945-c6ebe3a88075",
+        "code": "950",
+        "type": "EQUITY",
+        "status": "ACTIVE",
+        "description": "Paid up capital",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_960",
+      "atom_type": "ConceptNode",
+      "label": "Retained Earnings",
+      "attributes": {
+        "xero_id": "c2b13489-49f1-424d-8c4b-7a3f6181ee5c",
+        "code": "960",
+        "type": "EQUITY",
+        "status": "ACTIVE",
+        "description": "Do not Use",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_970",
+      "atom_type": "ConceptNode",
+      "label": "Owner A Funds Introduced",
+      "attributes": {
+        "xero_id": "2a20f32a-4986-4367-a7a7-09da00cc40fb",
+        "code": "970",
+        "type": "EQUITY",
+        "status": "ACTIVE",
+        "description": "Funds contributed by the owner",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "XERO_COA_980",
+      "atom_type": "ConceptNode",
+      "label": "Owner A Drawings",
+      "attributes": {
+        "xero_id": "d9783fdf-1522-461e-9b87-664c9b8ea3e3",
+        "code": "980",
+        "type": "EQUITY",
+        "status": "ACTIVE",
+        "description": "Withdrawals by the owners",
+        "source": "xero_coa"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "FINCOSYS_SCHEMA_entity_relation",
+      "atom_type": "ConceptNode",
+      "label": "fincosys schema: entity_relation",
+      "attributes": {
+        "source": "fincosys",
+        "schema": "entity_relation"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "FINCOSYS_SCHEMA_event_timeline",
+      "atom_type": "ConceptNode",
+      "label": "fincosys schema: event_timeline",
+      "attributes": {
+        "source": "fincosys",
+        "schema": "event_timeline"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "FINCOSYS_SCHEMA_stock_flow",
+      "atom_type": "ConceptNode",
+      "label": "fincosys schema: stock_flow",
+      "attributes": {
+        "source": "fincosys",
+        "schema": "stock_flow"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "FINCOSYS_SCHEMA_hypergraph",
+      "atom_type": "ConceptNode",
+      "label": "fincosys schema: hypergraph",
+      "attributes": {
+        "source": "fincosys",
+        "schema": "hypergraph"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "FINCOSYS_SCHEMA_integration",
+      "atom_type": "ConceptNode",
+      "label": "fincosys schema: integration",
+      "attributes": {
+        "source": "fincosys",
+        "schema": "integration"
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "CASE_ORG_015",
+      "atom_type": "ConceptNode",
+      "label": "Ketoni Investment Holdings",
+      "attributes": {
+        "source": "revstream1",
+        "case_entity_id": "ORG_015",
+        "role": "unclassified",
+        "legal_categories": [
+          "tax_fraud",
+          "breach_of_trust",
+          "companies_act_violation",
+          "fraud"
+        ],
+        "evidence_refs": [
+          "EVENT081"
+        ]
+      },
+      "truth_value": {
+        "strength": 1.0,
+        "confidence": 1.0
+      }
+    },
+    {
+      "id": "HELIX_R2_com-reports-data",
+      "atom_type": "ConceptNode",
+      "label": "helix R2 bucket (self-reported, unverified): com-reports-data",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "r2_bucket",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "objects": 1411,
+          "bytes": 565473488,
+          "mb": 539.3,
+          "over_50mb": 0
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    },
+    {
+      "id": "HELIX_TABLE_integration.*",
+      "atom_type": "ConceptNode",
+      "label": "helix-tracked table (self-reported, unverified): integration.*",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "db_table",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "table_info": "7 tables"
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    },
+    {
+      "id": "HELIX_TABLE_entity_relation.*",
+      "atom_type": "ConceptNode",
+      "label": "helix-tracked table (self-reported, unverified): entity_relation.*",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "db_table",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "table_info": 12240
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    },
+    {
+      "id": "HELIX_TABLE_event_timeline.*",
+      "atom_type": "ConceptNode",
+      "label": "helix-tracked table (self-reported, unverified): event_timeline.*",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "db_table",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "table_info": "3 tables"
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    },
+    {
+      "id": "HELIX_TABLE_stock_flow.*",
+      "atom_type": "ConceptNode",
+      "label": "helix-tracked table (self-reported, unverified): stock_flow.*",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "db_table",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "table_info": "3 tables"
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    },
+    {
+      "id": "HELIX_TABLE_hypergraph.*",
+      "atom_type": "ConceptNode",
+      "label": "helix-tracked table (self-reported, unverified): hypergraph.*",
+      "attributes": {
+        "source": "helix",
+        "artifact_kind": "db_table",
+        "ecosystem_role": "Autonomous research-loop framework for the 4 multi-paradigm models",
+        "verification_status": "unverified_self_reported",
+        "helix_self_reported": {
+          "table_info": "3 tables"
+        }
+      },
+      "truth_value": {
+        "strength": 0.3,
+        "confidence": 0.1
+      }
+    }
+  ],
+  "links": []
+}
