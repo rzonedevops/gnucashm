@@ -615,6 +615,15 @@ gnc_organizations_from_fincosys_json (QofBook *book, const gchar *json)
         return 0;
 
     gnc_commodity_table *comm_table = gnc_commodity_table_get_table (book);
+    /* Newly created accounts must be parented into the book's account
+     * tree -- the XML (and SQL) backends discover accounts to persist by
+     * walking from the root account, not via generic QOF object
+     * iteration, so an orphan Account created here would be silently
+     * dropped by qof_session_save() even though gncOrganizationAddEntity()
+     * below successfully links it to its owning organization. See the
+     * equivalent, already-correct pattern in
+     * gnc_transactions_from_syncfeed_json()'s account-creation pass. */
+    Account *root_account = gnc_book_get_root_account (book);
     gint count = 0;
 
     for (const JsonValue &org_val : orgs->items ())
@@ -685,6 +694,7 @@ gnc_organizations_from_fincosys_json (QofBook *book, const gchar *json)
                       << acct_val.get_number ("balance", 0.0);
                 xaccAccountSetNotes (account, notes.str ().c_str ());
 
+                gnc_account_append_child (root_account, account);
                 gncOrganizationAddEntity (org, QOF_INSTANCE (account));
             }
         }
