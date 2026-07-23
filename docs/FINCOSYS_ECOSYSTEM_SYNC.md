@@ -69,15 +69,36 @@ gnucash-cli --import-fincosys-sync data/fincosys_sync/gnucashm_ecosystem_sync.js
     my-organizations.gnucash
 ```
 
-**Not yet attempted**: a full CMake build/link of gnucashm's GnuCash
-engine (it depends on guile, gtk+-3.0, webkit2gtk, libxml++, and boost
-dev packages not present in every environment this change was authored
-in) — the new code was written to reuse the exact same helpers, includes,
-and session-open/save pattern already exercised by the neighbouring
-`Gnucash::add_quotes()` command in the same file, but has not been
-compiled end-to-end. Build and exercise it (`gnucash-cli
---import-fincosys-sync ... file.gnucash`) in an environment with the full
-GnuCash toolchain before relying on it for a real import.
+**Verified end-to-end (2026-07-23)**: a full CMake build of `gnucash-cli`
+(and the narrower `test-fincosys-sync` gtest target) now succeeds with no
+compile fixes needed (`-DWITH_AQBANKING=OFF -DWITH_OFX=OFF -DWITH_SQL=OFF`
+for optional subsystems whose dev packages weren't installed; none touch
+this bridge). `gtest-fincosys-sync` passes all 25 cases.
+
+Exercising a real import (`gnucash-cli --import-fincosys-sync
+data/fincosys_sync/gnucashm_ecosystem_sync.json <book>`) surfaced and fixed
+one genuine runtime bug: `gnc_organizations_from_fincosys_json()` created
+each imported `Account` via `xaccMallocAccount()` but never attached it to
+the book's root account tree via `gnc_account_append_child()`. The XML/SQL
+backends discover accounts to persist by walking from the root account, so
+those accounts were silently dropped on `qof_session_save()` even though
+`gncOrganizationAddEntity()` had already linked them to their owning
+organization -- confirmed by inspecting the saved/reloaded book before and
+after the fix (accounts like "Aymac International" / `62012990132` now
+correctly persist). The neighbouring `gnc_transactions_from_syncfeed_json()`
+in the same file already did this correctly, which is what made the
+omission obvious. Rebuilt and reran the gtest suite after the fix -- still
+25/25.
+
+**Known remaining gap (real, not yet closed)**: `GncOrganization` itself
+has no XML backend module registered (unlike `GncVendor`/`GncCustomer`,
+which each have their own `gnc-*-xml-v2.cpp`), so organization-level
+metadata -- code, name, `notes` (which carries the round-tripped
+`evidence_refs`/`legal_categories`) -- has no persistence path in the XML
+book format yet. Only the organization's *accounts* now survive a save;
+the `GncOrganization` record itself does not. Building that backend module
+is a real feature addition (see `gnc-*-xml-v2.cpp` for the pattern to
+follow), not a bug fix, and remains open follow-up work.
 
 ## Why helix's contribution is not treated as financial data
 
