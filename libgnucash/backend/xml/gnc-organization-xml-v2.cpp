@@ -276,6 +276,7 @@ organization_entities_handler (xmlNodePtr node, gpointer organization_pdata)
 {
     struct organization_pdata* pdata = static_cast<decltype (pdata)> (organization_pdata);
     xmlNodePtr mark;
+    GList* resolved = NULL;
 
     g_return_val_if_fail (node, FALSE);
 
@@ -294,11 +295,17 @@ organization_entities_handler (xmlNodePtr node, gpointer organization_pdata)
             continue;
 
         if (g_strcmp0 (organization_entity_string, (char*)mark->name))
+        {
+            g_list_free (resolved);
             return FALSE;
+        }
 
         qof_type = xmlGetProp (mark, BAD_CAST organization_entity_qof_type_string);
         if (!qof_type)
+        {
+            g_list_free (resolved);
             return FALSE;
+        }
 
         guid_node = mark->xmlChildrenNode;
         while (guid_node && g_strcmp0 ("text", (char*)guid_node->name) == 0)
@@ -308,6 +315,7 @@ organization_entities_handler (xmlNodePtr node, gpointer organization_pdata)
             g_strcmp0 (organization_entity_guid_string, (char*)guid_node->name))
         {
             xmlFree (qof_type);
+            g_list_free (resolved);
             return FALSE;
         }
 
@@ -315,23 +323,25 @@ organization_entities_handler (xmlNodePtr node, gpointer organization_pdata)
         if (!guid)
         {
             xmlFree (qof_type);
+            g_list_free (resolved);
             return FALSE;
         }
 
         /* The referenced entity must already exist in the book at this
-         * point: accounts (the only entity type any current producer of
-         * this format links -- see gnc-fincosys-sync.cpp) are always
-         * written before business objects in the XML file (see
-         * write_book() in io-gncxml-v2.cpp), and the sixtp parser
-         * processes elements in file order, so by the time this handler
-         * runs the entity has already been created. A reference that
-         * still can't be resolved (e.g. a hand-edited or corrupt file) is
-         * logged and skipped rather than aborting the whole organization
-         * parse. */
+         * point: gnc_organization_xml_initialize() is registered last in
+         * business_core_xml_init() (see gnc-backend-xml.cpp) specifically
+         * so that every other business object type -- and Account, which
+         * is written/read even earlier, before the whole backend_registry
+         * loop (see write_book() in io-gncxml-v2.cpp) -- is already
+         * present in the book by the time this handler runs, regardless
+         * of which entity type an organization references. A reference
+         * that still can't be resolved (e.g. a hand-edited or corrupt
+         * file) is logged and skipped rather than aborting the whole
+         * organization parse. */
         col = qof_book_get_collection (pdata->book, (const char*) qof_type);
         entity = col ? qof_collection_lookup_entity (col, guid) : NULL;
         if (entity)
-            gncOrganizationAddEntity (pdata->organization, entity);
+            resolved = g_list_prepend (resolved, entity);
         else
             PWARN ("organization entity reference not found: type=%s",
                   (const char*) qof_type);
@@ -339,6 +349,18 @@ organization_entities_handler (xmlNodePtr node, gpointer organization_pdata)
         guid_free (guid);
         xmlFree (qof_type);
     }
+
+    /* gncOrganizationAddEntity() prepends to org->entities (see
+     * gncOrganization.c), so adding in file order would reverse the
+     * membership list on every save/load round trip. `resolved` was just
+     * built by prepending as each entity was resolved in file order, so
+     * it is now already in *reverse* file order -- iterating it forwards
+     * and prepending via AddEntity restores the original file order. */
+    for (GList* n = resolved; n; n = n->next)
+        gncOrganizationAddEntity (pdata->organization,
+                                  static_cast<QofInstance*> (n->data));
+    g_list_free (resolved);
+
     return TRUE;
 }
 

@@ -178,10 +178,19 @@ business_core_xml_init (void)
     gnc_invoice_xml_initialize ();
     gnc_job_xml_initialize ();
     gnc_order_xml_initialize ();
-    gnc_organization_xml_initialize ();
     gnc_owner_xml_initialize ();
     gnc_taxtable_xml_initialize ();
     gnc_vendor_xml_initialize ();
+    /* gnc_organization_xml_initialize() must be registered last: a
+     * GncOrganization's member-entity references (see
+     * organization_entities_handler() in gnc-organization-xml-v2.cpp) can
+     * point at any business object type above, not just Account (which is
+     * always written/read before this whole backend_registry loop -- see
+     * write_book() in io-gncxml-v2.cpp). The sixtp parser processes
+     * elements in file order, which follows this registration order, so
+     * an organization referencing e.g. a GncVendor would silently fail to
+     * resolve that membership on load if organization were parsed first. */
+    gnc_organization_xml_initialize ();
 }
 
 #ifndef GNC_NO_LOADABLE_MODULES
