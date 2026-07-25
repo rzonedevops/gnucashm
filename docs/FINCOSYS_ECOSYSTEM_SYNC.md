@@ -126,15 +126,82 @@ in the same file already did this correctly, which is what made the
 omission obvious. Rebuilt and reran the gtest suite after the fix -- still
 25/25.
 
-**Known remaining gap (real, not yet closed)**: `GncOrganization` itself
-has no XML backend module registered (unlike `GncVendor`/`GncCustomer`,
-which each have their own `gnc-*-xml-v2.cpp`), so organization-level
-metadata -- code, name, `notes` (which carries the round-tripped
-`evidence_refs`/`legal_categories`) -- has no persistence path in the XML
-book format yet. Only the organization's *accounts* now survive a save;
-the `GncOrganization` record itself does not. Building that backend module
-is a real feature addition (see `gnc-*-xml-v2.cpp` for the pattern to
-follow), not a bug fix, and remains open follow-up work.
+**Known remaining gap -- closed and verified (2026-07-25)**: `GncOrganization`
+now has its own XML backend module,
+`libgnucash/backend/xml/gnc-organization-xml-v2.{h,cpp}`, built following the
+exact `gnc-vendor-xml-v2.cpp` / `gnc-customer-xml-v2.cpp` pattern (dom-tree
+writer, sixtp-based parser, `gnc_organization_xml_initialize()` registered
+from `business_core_xml_init()` in `gnc-backend-xml.cpp`, source wired into
+`libgnucash/backend/xml/CMakeLists.txt`). It persists id, name, notes
+(carrying the round-tripped `evidence_refs`/`legal_categories`), address,
+currency, the active flag, and the GUIDs of member entities (written with a
+`qof-type` attribute per entity so they can be resolved back through
+`qof_book_get_collection()`/`qof_collection_lookup_entity()` on load,
+without assuming every member is an `Account` -- though that is the only
+entity type any current producer of this data, `gnc-fincosys-sync.cpp`,
+ever links).
+
+This also required two small, necessary dependencies that were missing
+before this change, not scope creep: (1) `gncOrganizationRegister()` was
+never called anywhere in the engine (`libgnucash/engine/cashobjects.cpp`'s
+`business_core_init()` registers every other business object but had no
+call for organizations) -- without it, `qof_object_foreach()` cannot find
+the `gncOrganization` QOF type at all, so the new writer's `get_count`/
+`write` functions (which follow the vendor pattern of using
+`qof_object_foreach_sorted()`) would have silently persisted zero
+organizations even though the module was registered; this is now fixed by
+adding the one missing `gncOrganizationRegister ();` call, mirroring every
+sibling type. (2) a `gncOrganizationSetGUID` macro was added to
+`gncOrganizationP.h`, mirroring the identical macro every other business
+object's private header already defines, needed for the parser's
+guid-handler to attach a GUID read from a file to a freshly-created
+in-memory organization before it's committed.
+
+**Build + test verification actually performed**: configured and built with
+`cmake -DWITH_AQBANKING=OFF -DWITH_OFX=OFF -DWITH_SQL=OFF -DWITH_GNUCASH=OFF`
+(the last flag additionally needed this session because `webkit2gtk-4.1`'s
+dev package isn't installed in this environment and `WITH_GNUCASH` is what
+gates that dependency; it only excludes the `gnucash/` GUI subdirectory --
+`libgnucash`, its XML backend, and all of `libgnucash/*/test/` still build
+and run normally). A full `make -j4` of everything under that configuration
+completed with no errors. The new round-trip test,
+`libgnucash/backend/xml/test/gtest-organization-xml-round-trip.cpp`
+(registered in that directory's `CMakeLists.txt` as
+`test-organization-xml-round-trip`), creates a `GncOrganization` with
+evidence/legal-category-bearing notes (in the same tagged-line format
+`gnc-fincosys-sync.cpp` writes), an address, a ZAR currency, and one member
+`Account`; saves the book through a real `QofSession` to a temp XML file;
+reloads it into a completely fresh `QofBook`/`QofSession`; and asserts the
+organization's id, name, notes, guid, currency, address fields, and member
+entity (by guid and name) all survived -- **actually run, 1/1 passed**:
+
+```
+[ RUN      ] OrganizationXmlRoundTrip.SurvivesSaveAndReload
+[       OK ] OrganizationXmlRoundTrip.SurvivesSaveAndReload (7 ms)
+[  PASSED  ] 1 test.
+```
+
+Also re-ran (not just rebuilt) the pre-existing suites this change touches,
+all still green, no regressions: `test-fincosys-sync` 25/25, `test-vendor`
+28/28, `test-customer` 34/34, `test-address` 27/27, `test-business` (all
+pass, no failure output), `test-xml-account` 42/42, `test-xml-commodity`
+40/40. `test-qof-multi-entity` -- previously documented above
+(`ORGANIZATION_ENHANCEMENTS.md`) as 11/13 pre-existing failures on a clean
+checkout of this branch -- now passes **13/13**; the `gncOrganizationRegister()`
+fix above is the most likely explanation (those tests exercise
+`QofMultiEntityCollection` behaviour over `GncOrganization` that depends on
+the type being registered with QOF), but that was not independently
+isolated/bisected in this session, so treat it as an observed side effect
+worth a confirming look, not a claimed fix.
+
+Not built or run this session: `gnucash-cli` itself and the full GUI/GTK
+target (blocked by the same missing `webkit2gtk-4.1` dev package noted
+above) -- unlike the 2026-07-23 verification of the account-persistence
+fix, this change was verified at the `libgnucash` engine/XML-backend layer
+via the gtest suite above, not via a `gnucash-cli --import-fincosys-sync`
+run. The writer/parser pair is exercised directly by the test, which is the
+same layer `gnucash-cli`'s import path ultimately calls into, but the
+CLI-level, end-to-end path itself was not re-run for this specific change.
 
 ## Why helix's contribution is not treated as financial data
 

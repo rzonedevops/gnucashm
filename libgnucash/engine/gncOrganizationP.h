@@ -68,6 +68,8 @@ void gncOrganizationBeginEdit (GncOrganization *organization);
 void gncOrganizationCommitEdit (GncOrganization *organization);
 void gncOrganizationFree (GncOrganization *organization);
 
+#define gncOrganizationSetGUID(O,G) qof_instance_set_guid(QOF_INSTANCE(O),(G))
+
 #define SET_STR(obj, member, str) { \
         const char * tmp; \
         \

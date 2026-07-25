@@ -90,6 +90,7 @@
 #include "gnc-invoice-xml-v2.h"
 #include "gnc-job-xml-v2.h"
 #include "gnc-order-xml-v2.h"
+#include "gnc-organization-xml-v2.h"
 #include "gnc-owner-xml-v2.h"
 #include "gnc-tax-table-xml-v2.h"
 #include "gnc-vendor-xml-v2.h"
@@ -177,6 +178,7 @@ business_core_xml_init (void)
     gnc_invoice_xml_initialize ();
     gnc_job_xml_initialize ();
     gnc_order_xml_initialize ();
+    gnc_organization_xml_initialize ();
     gnc_owner_xml_initialize ();
     gnc_taxtable_xml_initialize ();
     gnc_vendor_xml_initialize ();
