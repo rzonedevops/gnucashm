@@ -592,6 +592,7 @@ libgnucash/backend/xml/gnc-invoice-xml-v2.cpp
 libgnucash/backend/xml/gnc-job-xml-v2.cpp
 libgnucash/backend/xml/gnc-lot-xml-v2.cpp
 libgnucash/backend/xml/gnc-order-xml-v2.cpp
+libgnucash/backend/xml/gnc-organization-xml-v2.cpp
 libgnucash/backend/xml/gnc-owner-xml-v2.cpp
 libgnucash/backend/xml/gnc-pricedb-xml-v2.cpp
 libgnucash/backend/xml/gnc-recurrence-xml-v2.cpp

@@ -159,6 +159,17 @@ here (this change only adds new files plus the `gncOrganizationGetEntities`
 read path already exercised in `gnc-fincosys-sync.cpp`'s own passing test
 suite) but is worth a follow-up investigation.
 
+**Update (2026-07-25)**: the `GncOrganization` XML backend module added in
+this session (see the "Known remaining gap" note in
+[docs/FINCOSYS_ECOSYSTEM_SYNC.md](docs/FINCOSYS_ECOSYSTEM_SYNC.md))
+required adding a missing `gncOrganizationRegister ()` call to
+`cashobjects.cpp` (it was never called anywhere in the engine before).
+Re-running `test-qof-multi-entity` after that fix now shows **13/13
+passing**, not 11/13 failing. That connection was observed, not
+independently bisected/confirmed in this session -- worth a follow-up
+check, but the registration gap is a plausible root cause for exactly the
+kind of QOF-type-lookup failures that suite exercises.
+
 ## Conclusion
 
 These enhancements significantly expand GnuCash's capability to handle complex organizational structures while maintaining backward compatibility. The multi-entity aggregation system now provides a robust foundation for enterprise-level financial management and reporting, enabling users to efficiently manage and analyze data across multiple business entities within organizational contexts.

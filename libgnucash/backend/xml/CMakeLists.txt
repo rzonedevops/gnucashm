@@ -14,6 +14,7 @@ set (backend_xml_utils_noinst_HEADERS
   gnc-invoice-xml-v2.h
   gnc-job-xml-v2.h
   gnc-order-xml-v2.h
+  gnc-organization-xml-v2.h
   gnc-owner-xml-v2.h
   gnc-tax-table-xml-v2.h
   gnc-vendor-xml-v2.h
@@ -48,6 +49,7 @@ set (backend_xml_utils_SOURCES
   gnc-job-xml-v2.cpp
   gnc-lot-xml-v2.cpp
   gnc-order-xml-v2.cpp
+  gnc-organization-xml-v2.cpp
   gnc-owner-xml-v2.cpp
   gnc-pricedb-xml-v2.cpp
   gnc-recurrence-xml-v2.cpp
