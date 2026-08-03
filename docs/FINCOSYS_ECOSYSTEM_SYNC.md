@@ -33,6 +33,16 @@ the result to `data/fincosys_sync/gnucashm_ecosystem_sync.json` — a real,
 schema-conformant document ready for `gnc_organizations_from_fincosys_json()`
 to import into a `QofBook`.
 
+**Update (2026-08-03)**: the `gnucash_ecosystem` preset now also enables
+`include_transaction_index`, which loads fincosys's canonical, balance-
+hash-verified `data/transaction_index.json` ledger (22K+ reconciled
+transactions across all entities) via `TransactionIndexLoader` — additive
+alongside the per-statement `include_transactions` extract loader already
+in use, with a disjoint node-ID namespace (`TXI_<txid>` vs.
+`TX_<account>_<stmt>_<index>`), so both can and do run together. No flag
+change is needed on this side to pick it up; it flows through automatically
+via `gnucash_ecosystem_config()`.
+
 `.github/workflows/sync-fincosys-ecosystem.yml` runs that script on manual
 dispatch: dry-run by default (build + validate + print counts only), or
 `write: true` to persist a snapshot and open a draft PR for review. It
@@ -76,14 +86,13 @@ exporter output today.
 
 ## What is still missing (follow-up)
 
-`gnc_organizations_from_fincosys_json()` itself is not yet reachable from
-any CLI, Scheme report, or menu action in a built gnucashm — it is only
-called from the gtest suite. Wiring it up (e.g. a `--import-fincosys-sync
-<path>` flag on the `gnucash-cli` binary, or a Scheme procedure exposed via
-SWIG bindings) requires building and testing the full GnuCash engine, which
-this change does not attempt. Until that lands, the file this script
-produces is a staged artifact for manual/future import, not an
-automatically-applied one — no book is modified by running it.
+**Superseded — see "CLI entry point" below.** This section originally said
+`gnc_organizations_from_fincosys_json()` was reachable only from the gtest
+suite, with no CLI/Scheme/menu wiring. That gap was closed and verified
+end-to-end in a later change (`gnucash-cli --import-fincosys-sync`, see
+below); this note is kept only so the history of the gap is visible, not as
+a current status.
+
 ## CLI entry point
 
 `gnucash-cli --import-fincosys-sync <path> <accounts.gnucash>` (see
