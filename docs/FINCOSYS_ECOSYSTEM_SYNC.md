@@ -84,6 +84,45 @@ C++-bridge status below — it verifies the independent Python `--feed`
 path, which is the one with the shortest path to actually consuming real
 exporter output today.
 
+## Sync workflow status (2026-08-12)
+
+Both existing runs of `.github/workflows/sync-fincosys-ecosystem.yml`
+(2026-07-23, IDs 29995696001 and 30003177851 -- the latter *after* the
+token-fallback fixes in PRs #28/#29) fail at the same step, "Checkout
+fincosys-atomspace-builder", with the same error:
+
+```
+Retrieving the default branch name
+Not Found - https://docs.github.com/rest/repos/repos#get-a-repository
+```
+
+This is not the bug those two PRs fixed (a missing `github.token` fallback
+when `ECOSYSTEM_SYNC_TOKEN` isn't set at all) -- the fallback logic itself
+now works correctly; the token it falls back to just doesn't have read
+access to `RegimA-Zone/fincosys-atomspace-builder`, a private cross-org
+repo. `github.token` (the default `GITHUB_TOKEN`) is scoped to the
+repository the workflow runs in and cannot read a different org's private
+repo no matter how the fallback is wired -- this requires an actual
+`ECOSYSTEM_SYNC_TOKEN` secret (a PAT with read access to `RegimA-Zone`)
+configured in this repo's settings, which does not appear to be set. The
+workflow's own inline comment already says this correctly ("Sibling repos
+are private and cross-repo -- this requires a personal access token with
+read access to them, stored as `ECOSYSTEM_SYNC_TOKEN`"); this note just
+confirms, from an actual failed run, that the described prerequisite is
+the live blocker, not a hypothetical one. No further workflow-YAML change
+is being attempted here: two prior sessions already iterated on the token
+fallback logic itself and it is not the remaining problem, so a third
+YAML edit without the ability to test it against a real secret would be
+guessing, not a fix.
+
+**Follow-up (owner action)**: create a PAT with read access to
+`RegimA-Zone/fincosys-atomspace-builder` (and, since the same token is
+reused for all four cross-org checkouts, ideally also `cogpy/fincosys`,
+`fincosys/helix`, `cogpy/revstream1`) and store it as the
+`ECOSYSTEM_SYNC_TOKEN` secret in this repository. After that, re-run the
+workflow with `write: false` first (dry run) to confirm the checkout and
+build succeed before ever setting `write: true`.
+
 ## What is still missing (follow-up)
 
 **Superseded — see "CLI entry point" below.** This section originally said
