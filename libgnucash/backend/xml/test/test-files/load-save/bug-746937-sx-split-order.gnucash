@@ -28,7 +28,8 @@
      xmlns:owner="http://www.gnucash.org/XML/owner"
      xmlns:taxtable="http://www.gnucash.org/XML/taxtable"
      xmlns:tte="http://www.gnucash.org/XML/tte"
-     xmlns:vendor="http://www.gnucash.org/XML/vendor">
+     xmlns:vendor="http://www.gnucash.org/XML/vendor"
+     xmlns:organization="http://www.gnucash.org/XML/organization">
 <gnc:count-data cd:type="book">1</gnc:count-data>
 <gnc:book version="2.0.0">
 <book:id type="guid">78552b4ebbba9bf429f6a1f4b861b538</book:id>
