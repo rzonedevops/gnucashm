@@ -57,7 +57,7 @@ GnuCash book                               Account (Fincosys Import >
 (`atomspace_builder/exporters/gnucash_exporter.py`) now exists and emits
 `gnucash_sync_feed.json` in exactly this shape -- prefer `--feed <path>`
 pointed at its output over the `--data-dir` fallback loader below when a
-sibling `fincosys-atomspace-builder` checkout is available. The two are
+sibling `accospace` checkout is available. The two are
 cross-verified: `tests/fixtures/atomspace_builder_sync_feed.json` is a real
 document captured from that exporter's own test fixture (see
 `tests/fixtures/README.md` for provenance/regeneration), and
@@ -243,3 +243,67 @@ through that package on the way to `fincosys_sync/tests/`, importing it
 as a side effect and failing wherever the compiled `gnucash` module isn't
 available -- exactly the environment `--plan-only` and its tests are
 supposed to work in.
+
+## Commerce records (QuickBooks Online / Shopify)
+
+`commerce_import.py` is a second, independent input path. It reads
+`fincosys-commerce-sync/v1` documents — the QuickBooks and Shopify records
+written into the fincosys entity repositories (`fincosys/entity-rzl`, …)
+under each repo's `accounting/<source>/` canonical paths — and emits the same
+account/transaction shapes `sync_fincosys.py` already plans and applies. The
+schema is specified in `fincosys/accospace`,
+`docs/COMMERCE_SYNC_SCHEMA.md`.
+
+```bash
+# Report only:
+python3 commerce_import.py ../../../../entity-rzl/accounting/shopify/raw-json/*.json
+
+# Write a feed, then plan it with the existing machinery:
+python3 commerce_import.py \
+    ../../../../entity-rzl/accounting/shopify/raw-json/*.json \
+    ../../../../entity-rzl/accounting/qbo/reports/*.json \
+    --out commerce_feed.json
+python3 sync_fincosys.py --feed commerce_feed.json --plan-only
+```
+
+### Why it books differently from the bank-statement path
+
+The bank-statement corpus is **single-sided**: a statement line says money
+moved and the source data holds no counterpart, which is why that path
+invents `Imbalance-<entity>-<category>` placeholder accounts to make each
+transaction balance.
+
+Commerce records are not like that. A sales order or invoice already carries
+its own decomposition, and those components sum to the document total. So
+this path books real double-entry against named accounts, with no
+placeholder and no plug:
+
+```
+Dr  COMM-<entity>-AR          total
+    Cr  COMM-<entity>-REVENUE     subtotal
+    Cr  COMM-<entity>-SHIPPING    shipping
+    Cr  COMM-<entity>-TAX         tax
+```
+
+The identity `total == subtotal + shipping + tax` is **checked per record**,
+not assumed. A record that fails it is not booked and not plugged to zero —
+it is reported with its discrepancy, because a document whose components
+don't reconcile to its own total is a data problem to surface. That check has
+already earned its keep: it caught six real Shopify orders whose shipping was
+recorded at the quoted rate rather than the discounted (waived) amount.
+
+`sales_period` and `product_sales_summary` records are deliberately **not**
+booked. They restate the same revenue as the order records, sliced by month
+and by product; booking them alongside would double- and triple-count every
+sale. They are skipped with a reported count, so the skip is visible rather
+than looking like data loss.
+
+Transaction ids are namespaced `COMMERCE:<record_id>`, so they cannot collide
+with bank-feed txids and re-importing the same document is a no-op under the
+same idempotency rule described above.
+
+`tests/test_commerce_import.py` covers the above and ends with two cross-repo
+contract tests that run real captured Shopify records
+(`tests/fixtures/commerce_shopify_rzl.json`) through `convert()` and
+`build_plan()`, asserting the resulting plan is clean and that booked
+receivable equals the sum of the documents' own totals.

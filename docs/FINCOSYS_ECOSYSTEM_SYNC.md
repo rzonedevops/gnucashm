@@ -1,8 +1,16 @@
 # Fincosys Ecosystem Sync — Status
 
 This documents how gnucashm connects to the wider fincosys financial
-ecosystem: `RegimA-Zone/fincosys-atomspace-builder`, `cogpy/fincosys`,
-`fincosys/helix`, `cogpy/revstream1`, and `cogpy/ad-res-j7`.
+ecosystem: `fincosys/accospace`, `cogpy/fincosys`, `fincosys/helix`,
+`cogpy/revstream1`, and `cogpy/ad-res-j7`.
+
+> **Repository move.** The AtomSpace builder is now `fincosys/accospace`. It
+> was `RegimA-Zone/fincosys-atomspace-builder`, and older sections below
+> still name it that where they describe events from that time. The pip
+> package and import name are unchanged --
+> `fincosys-atomspace-builder` / `atomspace_builder` -- so only checkout
+> paths and repository references move. `scripts/sync_fincosys_ecosystem.py`
+> accepts a sibling checkout under either directory name.
 
 ## What already exists
 
@@ -51,7 +59,7 @@ never runs on a schedule and never commits without an explicit run.
 ```bash
 # Local usage, with sibling checkouts of the repos above:
 python scripts/sync_fincosys_ecosystem.py \
-    --atomspace-builder-dir ../fincosys-atomspace-builder \
+    --atomspace-builder-dir ../accospace \
     --fincosys-data-dir ../fincosys/data \
     --helix-manifest ../helix/ecosystem/related_artifacts.json \
     --revstream1-data-dir ../revstream1/data_models \
@@ -116,12 +124,34 @@ YAML edit without the ability to test it against a real secret would be
 guessing, not a fix.
 
 **Follow-up (owner action)**: create a PAT with read access to
-`RegimA-Zone/fincosys-atomspace-builder` (and, since the same token is
+`fincosys/accospace` (and, since the same token is
 reused for all four cross-org checkouts, ideally also `cogpy/fincosys`,
 `fincosys/helix`, `cogpy/revstream1`) and store it as the
 `ECOSYSTEM_SYNC_TOKEN` secret in this repository. After that, re-run the
 workflow with `write: false` first (dry run) to confirm the checkout and
 build succeed before ever setting `write: true`.
+
+## Builder repository moved to `fincosys/accospace` (2026-09-06)
+
+The AtomSpace builder that `.github/workflows/sync-fincosys-ecosystem.yml`
+checks out has moved from `RegimA-Zone/fincosys-atomspace-builder` to
+`fincosys/accospace`. The workflow, `scripts/sync_fincosys_ecosystem.py` and
+the docs here now target the new location; the script also still accepts a
+sibling checkout named `fincosys-atomspace-builder`, so an existing local
+clone keeps working.
+
+**This does not, on its own, unblock the workflow.** The failure recorded
+above is a token-scope problem, and it stays one: gnucashm lives in
+`rzonedevops`, so `fincosys/accospace` is still a private cross-org checkout
+that `github.token` cannot read. What changes is only *which* org the
+`ECOSYSTEM_SYNC_TOKEN` PAT needs read access to -- `fincosys` rather than
+`RegimA-Zone`. Since `fincosys/helix` was already on that list, a PAT scoped
+to the `fincosys` org now covers two of the four cross-org checkouts instead
+of one.
+
+The workflow has not been re-run as part of this change: without the secret
+configured it would fail at the same step for the same reason, and a run
+that cannot succeed proves nothing.
 
 ## What is still missing (follow-up)
 
