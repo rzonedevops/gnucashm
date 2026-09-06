@@ -13,10 +13,11 @@ suite actually builds a "fincosys-ecosystem-sync/v1" document. This script
 drives the external accospace package (fincosys/accospace, formerly
 RegimA-Zone/fincosys-atomspace-builder; the pip package and import name are
 still fincosys-atomspace-builder / atomspace_builder -- only the repository
-moved). It is the documented producer/consumer counterpart, see its README's
-"GnuCash Ecosystem Sync" section, and to build the combined "gnucash_ecosystem" AtomSpace from fincosys's
-master data plus helix's ecosystem manifest and revstream1's case-evidence
-records, then writes out the shared sync document as a staged input for
+moved) -- the documented producer/consumer counterpart, see its README's
+"GnuCash Ecosystem Sync" section -- to build the combined
+"gnucash_ecosystem" AtomSpace from fincosys's master data plus helix's
+ecosystem manifest and revstream1's case-evidence records, then writes out
+the shared sync document as a staged input for
 gnc_organizations_from_fincosys_json().
 
 This script does not build or launch gnucashm itself. See
