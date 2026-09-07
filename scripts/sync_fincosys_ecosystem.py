@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Sync gnucashm's multi-entity organizations into/out of the shared
-fincosys ecosystem (fincosys-atomspace-builder + fincosys + helix +
+fincosys ecosystem (accospace + fincosys + helix +
 revstream1/ad-res-j7 case evidence).
 
 This is the operational piece that was missing from the integration
@@ -10,11 +10,14 @@ gnc_organizations_to_fincosys_json() / gnc_organizations_from_fincosys_json()
 are C library functions exercised only by
 libgnucash/engine/test/gtest-fincosys-sync.cpp -- nothing outside the test
 suite actually builds a "fincosys-ecosystem-sync/v1" document. This script
-drives the external fincosys-atomspace-builder package (the documented
-producer/consumer counterpart, see its README's "GnuCash Ecosystem Sync"
-section) to build the combined "gnucash_ecosystem" AtomSpace from fincosys's
-master data plus helix's ecosystem manifest and revstream1's case-evidence
-records, then writes out the shared sync document as a staged input for
+drives the external accospace package (fincosys/accospace, formerly
+RegimA-Zone/fincosys-atomspace-builder; the pip package and import name are
+still fincosys-atomspace-builder / atomspace_builder -- only the repository
+moved) -- the documented producer/consumer counterpart, see its README's
+"GnuCash Ecosystem Sync" section -- to build the combined
+"gnucash_ecosystem" AtomSpace from fincosys's master data plus helix's
+ecosystem manifest and revstream1's case-evidence records, then writes out
+the shared sync document as a staged input for
 gnc_organizations_from_fincosys_json().
 
 This script does not build or launch gnucashm itself. See
@@ -43,13 +46,43 @@ DEFAULT_ATOMSPACE_JSON = "data/fincosys_sync/gnucashm_ecosystem_atomspace.json"
 SOURCE_LABEL = "gnucashm"
 
 
-def _add_atomspace_builder_to_path(atomspace_builder_dir: str) -> None:
-    path = Path(atomspace_builder_dir).resolve()
-    if not path.exists():
+#: Sibling-checkout directory names tried when --atomspace-builder-dir is
+#: left at its default. "accospace" is the repository's current name;
+#: "fincosys-atomspace-builder" is what it was called before the move to the
+#: fincosys org, and existing checkouts still use it.
+ATOMSPACE_BUILDER_DIRS = ("../accospace", "../fincosys-atomspace-builder")
+
+
+def _resolve_atomspace_builder_dir(atomspace_builder_dir):
+    """Return the accospace checkout to use, or None to try the defaults.
+
+    An explicit --atomspace-builder-dir is honoured as given. Otherwise both
+    the current and the former sibling directory names are tried, so a
+    checkout made before the repository moved keeps working.
+    """
+    if atomspace_builder_dir is not None:
+        return Path(atomspace_builder_dir).resolve()
+    for candidate in ATOMSPACE_BUILDER_DIRS:
+        path = Path(candidate).resolve()
+        if path.exists():
+            return path
+    return None
+
+
+def _add_atomspace_builder_to_path(atomspace_builder_dir) -> None:
+    path = _resolve_atomspace_builder_dir(atomspace_builder_dir)
+    if path is None or not path.exists():
+        tried = (
+            str(path)
+            if path is not None
+            else " or ".join(str(Path(d).resolve()) for d in ATOMSPACE_BUILDER_DIRS)
+        )
         raise SystemExit(
-            f"fincosys-atomspace-builder checkout not found at {path}. "
-            "Clone https://github.com/RegimA-Zone/fincosys-atomspace-builder "
-            "as a sibling directory, or pass --atomspace-builder-dir."
+            f"accospace checkout not found at {tried}. "
+            "Clone https://github.com/fincosys/accospace as a sibling "
+            "directory, or pass --atomspace-builder-dir. (The repository was "
+            "formerly RegimA-Zone/fincosys-atomspace-builder; a checkout "
+            "under that name is still accepted.)"
         )
     sys.path.insert(0, str(path))
 
@@ -86,8 +119,11 @@ def main(argv=None) -> int:
     )
     parser.add_argument(
         "--atomspace-builder-dir",
-        default="../fincosys-atomspace-builder",
-        help="Path to a fincosys-atomspace-builder checkout (default: %(default)s)",
+        default=None,
+        help="Path to an accospace (fincosys/accospace) checkout. Default: "
+        "the first of "
+        + ", ".join(ATOMSPACE_BUILDER_DIRS)
+        + " that exists -- the latter being the repository's former name.",
     )
     parser.add_argument(
         "--fincosys-data-dir",

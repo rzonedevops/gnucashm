@@ -125,13 +125,15 @@ used across the wider financial-ecosystem tooling:
   (`"source": "gnucashm"`) with `organizations[].accounts[]` entries.
 - `gnc_organizations_from_fincosys_json(QofBook *book, const gchar *json)`
   parses a document in the same schema (e.g. produced by
-  `fincosys-atomspace-builder`'s `EcosystemSyncExporter`, or by fincosys
+  `accospace`'s `EcosystemSyncExporter`, or by fincosys
   itself) and creates a `GncOrganization` plus placeholder `Account` entries
   per organization.
 
 The consumer/producer side of this bridge lives in the
-[`fincosys-atomspace-builder`](https://github.com/RegimA-Zone/fincosys-atomspace-builder)
-repository: `atomspace_builder/loaders/gnucashm.py` reads gnucashm's export
+[`accospace`](https://github.com/fincosys/accospace) repository (formerly
+`RegimA-Zone/fincosys-atomspace-builder`; the pip package and import name are
+unchanged -- `fincosys-atomspace-builder` / `atomspace_builder` -- only the
+repository moved): `atomspace_builder/loaders/gnucashm.py` reads gnucashm's export
 and merges it into a built AtomSpace hypergraph (updating existing
 entity/account nodes loaded from fincosys's `MASTER_ENTITIES.json` rather
 than duplicating them), and `EcosystemSyncExporter` produces documents this

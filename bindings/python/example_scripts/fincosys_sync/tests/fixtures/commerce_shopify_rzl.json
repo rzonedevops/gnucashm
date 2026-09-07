@@ -1,0 +1,2981 @@
+{
+  "schema": "fincosys-commerce-sync/v1",
+  "source": "shopify",
+  "generated_at": "2026-09-06T00:00:00Z",
+  "entity": {
+    "code": "RZL",
+    "legal_name": "Regima Zone Ltd",
+    "repository": "fincosys/entity-rzl"
+  },
+  "provider": {
+    "name": "shopify",
+    "shop_domain": "regima-zone.myshopify.com",
+    "storefront_domain": "regimastore.co.uk",
+    "plan": "Shopify Plus",
+    "account_email": "regimauk@gmail.com",
+    "currency": "GBP",
+    "country": "GB",
+    "timezone": "BST"
+  },
+  "window": {
+    "from": "2026-08-01",
+    "to": "2026-09-04",
+    "basis": "created_at",
+    "complete": true
+  },
+  "records": [
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10318",
+      "record_type": "sales_order",
+      "external_id": "13317005050230",
+      "document_number": "#10318",
+      "issued_at": "2026-08-01T11:36:15Z",
+      "processed_at": "2026-08-01T11:36:14Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7554686779459",
+        "name": "Kat Buckley",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "329.5",
+        "discounts": "44.0",
+        "shipping": "17.05",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "0.00",
+        "tax": "65.9",
+        "total": "412.45",
+        "refunded": "0.0",
+        "net_payment": "412.45"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10319",
+      "record_type": "sales_order",
+      "external_id": "13322787750262",
+      "document_number": "#10319",
+      "issued_at": "2026-08-03T08:30:07Z",
+      "processed_at": "2026-08-03T08:30:06Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6181102944323",
+        "name": "Brigita Gasiuniene",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "136.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "27.2",
+        "total": "169.33",
+        "refunded": "0.0",
+        "net_payment": "169.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10320",
+      "record_type": "sales_order",
+      "external_id": "13323118313846",
+      "document_number": "#10320",
+      "issued_at": "2026-08-03T10:13:49Z",
+      "processed_at": "2026-08-03T10:13:49Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251422316",
+        "name": "Jodie Mykaels",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "192.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "38.5",
+        "total": "237.13",
+        "refunded": "0.0",
+        "net_payment": "237.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10321",
+      "record_type": "sales_order",
+      "external_id": "13323130929526",
+      "document_number": "#10321",
+      "issued_at": "2026-08-03T10:17:48Z",
+      "processed_at": "2026-08-03T10:17:48Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6219123818563",
+        "name": "Marli Hawks",
+        "country": "US"
+      },
+      "amounts": {
+        "subtotal": "282.5",
+        "discounts": "0.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "0.0",
+        "total": "282.5",
+        "refunded": "0.0",
+        "net_payment": "282.5"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10322",
+      "record_type": "sales_order",
+      "external_id": "13323636605302",
+      "document_number": "#10322",
+      "issued_at": "2026-08-03T12:40:29Z",
+      "processed_at": "2026-08-03T12:40:29Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649252110444",
+        "name": "Yioula Panteli",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "110.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "22.1",
+        "total": "138.73",
+        "refunded": "0.0",
+        "net_payment": "138.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10323",
+      "record_type": "sales_order",
+      "external_id": "13324181340534",
+      "document_number": "#10323",
+      "issued_at": "2026-08-03T15:17:52Z",
+      "processed_at": "2026-08-03T15:17:51Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5298490638403",
+        "name": "Veronica Pereira",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "99.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "19.8",
+        "total": "124.93",
+        "refunded": "0.0",
+        "net_payment": "124.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10324",
+      "record_type": "sales_order",
+      "external_id": "13324212568438",
+      "document_number": "#10324",
+      "issued_at": "2026-08-03T15:27:23Z",
+      "processed_at": "2026-08-03T15:27:22Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5295528509507",
+        "name": "Louise  Coulson",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "308.5",
+        "discounts": "46.5",
+        "shipping": "17.05",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "0.00",
+        "tax": "61.7",
+        "total": "387.25",
+        "refunded": "0.0",
+        "net_payment": "387.25"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10325",
+      "record_type": "sales_order",
+      "external_id": "13325107036534",
+      "document_number": "#10325",
+      "issued_at": "2026-08-03T20:39:43Z",
+      "processed_at": "2026-08-03T20:39:41Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251586156",
+        "name": "Kelly Davis",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "168.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "33.6",
+        "total": "207.73",
+        "refunded": "0.0",
+        "net_payment": "207.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10326",
+      "record_type": "sales_order",
+      "external_id": "13325876068726",
+      "document_number": "#10326",
+      "issued_at": "2026-08-04T06:54:15Z",
+      "processed_at": "2026-08-04T06:54:13Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23879872872822",
+        "name": "Lyndsey Forster",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "169.0",
+        "discounts": "126.3",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "33.8",
+        "total": "208.93",
+        "refunded": "0.0",
+        "net_payment": "208.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10327",
+      "record_type": "sales_order",
+      "external_id": "13326329381238",
+      "document_number": "#10327",
+      "issued_at": "2026-08-04T09:39:50Z",
+      "processed_at": "2026-08-04T09:39:50Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "86.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "17.2",
+        "total": "109.33",
+        "refunded": "0.0",
+        "net_payment": "109.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10328",
+      "record_type": "sales_order",
+      "external_id": "13327230665078",
+      "document_number": "#10328",
+      "issued_at": "2026-08-04T13:26:20Z",
+      "processed_at": "2026-08-04T13:26:19Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251717228",
+        "name": "Jamie Leigh",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "225.95",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "45.19",
+        "total": "277.27",
+        "refunded": "0.0",
+        "net_payment": "277.27"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10329",
+      "record_type": "sales_order",
+      "external_id": "13329617977718",
+      "document_number": "#10329",
+      "issued_at": "2026-08-05T09:15:27Z",
+      "processed_at": "2026-08-05T09:15:26Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251848300",
+        "name": "Sade Cullen",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "809.5",
+        "discounts": "91.5",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "161.9",
+        "total": "971.4",
+        "refunded": "0.0",
+        "net_payment": "971.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10330",
+      "record_type": "sales_order",
+      "external_id": "13329634296182",
+      "document_number": "#10330",
+      "issued_at": "2026-08-05T09:20:42Z",
+      "processed_at": "2026-08-05T09:20:41Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251520620",
+        "name": "Sammi Hutter",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "116.5",
+        "discounts": "38.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.3",
+        "total": "145.93",
+        "refunded": "0.0",
+        "net_payment": "145.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10331",
+      "record_type": "sales_order",
+      "external_id": "13330120671606",
+      "document_number": "#10331",
+      "issued_at": "2026-08-05T11:45:57Z",
+      "processed_at": "2026-08-05T11:45:56Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250898028",
+        "name": "Pembe Colak",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "38.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "7.7",
+        "total": "52.33",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10332",
+      "record_type": "sales_order",
+      "external_id": "13330730320246",
+      "document_number": "#10332",
+      "issued_at": "2026-08-05T14:40:56Z",
+      "processed_at": "2026-08-05T14:40:53Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7393484537923",
+        "name": "Ella O'Doherty",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "429.45",
+        "discounts": "66.55",
+        "shipping": "0.00",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "85.89",
+        "total": "515.34",
+        "refunded": "0.0",
+        "net_payment": "515.34"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10333",
+      "record_type": "sales_order",
+      "external_id": "13331584582006",
+      "document_number": "#10333",
+      "issued_at": "2026-08-05T17:39:19Z",
+      "processed_at": "2026-08-05T17:39:18Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "24759608017270",
+        "name": "Sophie Papworth",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "273.0",
+        "discounts": "111.4",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "54.6",
+        "total": "333.73",
+        "refunded": "0.0",
+        "net_payment": "333.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10334",
+      "record_type": "sales_order",
+      "external_id": "13333057667446",
+      "document_number": "#10334",
+      "issued_at": "2026-08-06T08:42:16Z",
+      "processed_at": "2026-08-06T08:42:15Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250209900",
+        "name": "Sophie Hyde",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "141.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "28.3",
+        "total": "175.93",
+        "refunded": "0.0",
+        "net_payment": "175.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10335",
+      "record_type": "sales_order",
+      "external_id": "13333217870198",
+      "document_number": "#10335",
+      "issued_at": "2026-08-06T09:38:15Z",
+      "processed_at": "2026-08-06T09:38:14Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250046060",
+        "name": "Rebeca Emerson",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "38.5",
+        "discounts": "9.6",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "7.7",
+        "total": "52.33",
+        "refunded": "0.0",
+        "net_payment": "52.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10336",
+      "record_type": "sales_order",
+      "external_id": "13333360181622",
+      "document_number": "#10336",
+      "issued_at": "2026-08-06T10:23:32Z",
+      "processed_at": "2026-08-06T10:23:31Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23286229729654",
+        "name": "Nina Beni",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "76.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "15.2",
+        "total": "97.33",
+        "refunded": "0.0",
+        "net_payment": "97.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10337",
+      "record_type": "sales_order",
+      "external_id": "13333532737910",
+      "document_number": "#10337",
+      "issued_at": "2026-08-06T11:17:54Z",
+      "processed_at": "2026-08-06T11:17:53Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5421181042755",
+        "name": "Harriet Sacco",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "247.0",
+        "discounts": "6.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "49.4",
+        "total": "302.53",
+        "refunded": "0.0",
+        "net_payment": "302.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10338",
+      "record_type": "sales_order",
+      "external_id": "13333577433462",
+      "document_number": "#10338",
+      "issued_at": "2026-08-06T11:31:22Z",
+      "processed_at": "2026-08-06T11:31:21Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "3276774932547",
+        "name": "JoAnn Lebby",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "226.0",
+        "discounts": "53.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "45.2",
+        "total": "277.33",
+        "refunded": "0.0",
+        "net_payment": "277.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10339",
+      "record_type": "sales_order",
+      "external_id": "13333608825206",
+      "document_number": "#10339",
+      "issued_at": "2026-08-06T11:40:53Z",
+      "processed_at": "2026-08-06T11:40:53Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "119.9",
+        "discounts": "46.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.98",
+        "total": "150.01",
+        "refunded": "0.0",
+        "net_payment": "150.01"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10340",
+      "record_type": "sales_order",
+      "external_id": "13333811396982",
+      "document_number": "#10340",
+      "issued_at": "2026-08-06T12:41:12Z",
+      "processed_at": "2026-08-06T12:41:12Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1230077755459",
+        "name": "Claire Chandler",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "0.0",
+        "discounts": "137.5",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "0.0",
+        "total": "0.0",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10341",
+      "record_type": "sales_order",
+      "external_id": "13334936289654",
+      "document_number": "#10341",
+      "issued_at": "2026-08-06T18:57:55Z",
+      "processed_at": "2026-08-06T18:57:54Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251127404",
+        "name": "Diane Nivern",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "718.95",
+        "discounts": "79.6",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "143.79",
+        "total": "862.74",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10342",
+      "record_type": "sales_order",
+      "external_id": "13336331780470",
+      "document_number": "#10342",
+      "issued_at": "2026-08-07T09:33:03Z",
+      "processed_at": "2026-08-07T09:33:01Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25072104374646",
+        "name": "Jodie Fitzpatrick",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "22.0",
+        "discounts": "19.3",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "4.4",
+        "total": "32.53",
+        "refunded": "0.0",
+        "net_payment": "32.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10343",
+      "record_type": "sales_order",
+      "external_id": "13336384242038",
+      "document_number": "#10343",
+      "issued_at": "2026-08-07T09:49:10Z",
+      "processed_at": "2026-08-07T09:49:09Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5421181042755",
+        "name": "Harriet Sacco",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "247.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "49.4",
+        "total": "302.53",
+        "refunded": "0.0",
+        "net_payment": "302.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10344",
+      "record_type": "sales_order",
+      "external_id": "13336457609590",
+      "document_number": "#10344",
+      "issued_at": "2026-08-07T10:10:36Z",
+      "processed_at": "2026-08-07T10:10:35Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649252470892",
+        "name": "Sara Lancaster",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "181.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "36.2",
+        "total": "223.33",
+        "refunded": "0.0",
+        "net_payment": "223.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10345",
+      "record_type": "sales_order",
+      "external_id": "13336574296438",
+      "document_number": "#10345",
+      "issued_at": "2026-08-07T10:45:50Z",
+      "processed_at": "2026-08-07T10:45:50Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250898028",
+        "name": "Pembe Colak",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "81.45",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "16.29",
+        "total": "103.87",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10346",
+      "record_type": "sales_order",
+      "external_id": "13336886575478",
+      "document_number": "#10346",
+      "issued_at": "2026-08-07T12:16:12Z",
+      "processed_at": "2026-08-07T12:16:11Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23286229729654",
+        "name": "Nina Beni",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "24.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "4.8",
+        "total": "34.93",
+        "refunded": "0.0",
+        "net_payment": "34.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10347",
+      "record_type": "sales_order",
+      "external_id": "13336963514742",
+      "document_number": "#10347",
+      "issued_at": "2026-08-07T12:38:10Z",
+      "processed_at": "2026-08-07T12:38:10Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5917307076675",
+        "name": "Hayley Fryers",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "143.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "28.6",
+        "total": "177.73",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10348",
+      "record_type": "sales_order",
+      "external_id": "13341271949686",
+      "document_number": "#10348",
+      "issued_at": "2026-08-08T21:28:34Z",
+      "processed_at": "2026-08-08T21:28:33Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23119910666614",
+        "name": "Danielle Wilcock (NWTC)",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "99.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "19.9",
+        "total": "125.53",
+        "refunded": "0.0",
+        "net_payment": "125.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10349",
+      "record_type": "sales_order",
+      "external_id": "13345563672950",
+      "document_number": "#10349",
+      "issued_at": "2026-08-10T12:35:10Z",
+      "processed_at": "2026-08-10T12:35:10Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25672031043958",
+        "name": "Nicole Keenan",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "77.0",
+        "discounts": "91.5",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "15.4",
+        "total": "92.4",
+        "refunded": "0.0",
+        "net_payment": "92.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10350",
+      "record_type": "sales_order",
+      "external_id": "13345771061622",
+      "document_number": "#10350",
+      "issued_at": "2026-08-10T13:36:39Z",
+      "processed_at": "2026-08-10T13:36:39Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250078828",
+        "name": "Rena Wahiwala",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "385.0",
+        "discounts": "46.5",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "77.0",
+        "total": "462.0",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10351",
+      "record_type": "sales_order",
+      "external_id": "13345828766070",
+      "document_number": "#10351",
+      "issued_at": "2026-08-10T13:53:14Z",
+      "processed_at": "2026-08-10T13:53:14Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249161324",
+        "name": "Faye Lazarides",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "535.35",
+        "discounts": "46.5",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "107.07",
+        "total": "642.42",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10352",
+      "record_type": "sales_order",
+      "external_id": "13348309041526",
+      "document_number": "#10352",
+      "issued_at": "2026-08-11T09:45:26Z",
+      "processed_at": "2026-08-11T09:45:26Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251979372",
+        "name": "Sophie Tester",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "44.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "8.8",
+        "total": "58.93",
+        "refunded": "0.0",
+        "net_payment": "58.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10353",
+      "record_type": "sales_order",
+      "external_id": "13348549525878",
+      "document_number": "#10353",
+      "issued_at": "2026-08-11T10:39:17Z",
+      "processed_at": "2026-08-11T10:39:16Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1231468724291",
+        "name": "Andrea Mappourdis",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "67.5",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "13.5",
+        "total": "87.13",
+        "refunded": "0.0",
+        "net_payment": "87.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10354",
+      "record_type": "sales_order",
+      "external_id": "13348777853302",
+      "document_number": "#10354",
+      "issued_at": "2026-08-11T11:28:54Z",
+      "processed_at": "2026-08-11T11:28:53Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "2746112639043",
+        "name": "Sue  Hinton",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "184.0",
+        "discounts": "46.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "36.8",
+        "total": "226.93",
+        "refunded": "0.0",
+        "net_payment": "226.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10355",
+      "record_type": "sales_order",
+      "external_id": "13351534231926",
+      "document_number": "#10355",
+      "issued_at": "2026-08-11T20:42:34Z",
+      "processed_at": "2026-08-11T20:42:33Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1230077755459",
+        "name": "Claire Chandler",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "117.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.4",
+        "total": "146.53",
+        "refunded": "0.0",
+        "net_payment": "146.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10356",
+      "record_type": "sales_order",
+      "external_id": "13352575762806",
+      "document_number": "#10356",
+      "issued_at": "2026-08-12T06:50:31Z",
+      "processed_at": "2026-08-12T06:50:30Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "22821133123958",
+        "name": "Kayleigh Rimmer",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "54.5",
+        "discounts": "52.46",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "10.9",
+        "total": "71.53",
+        "refunded": "0.0",
+        "net_payment": "71.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10357",
+      "record_type": "sales_order",
+      "external_id": "13353389654390",
+      "document_number": "#10357",
+      "issued_at": "2026-08-12T11:31:40Z",
+      "processed_at": "2026-08-12T11:31:39Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249357932",
+        "name": "Janine Creswell",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "138.0",
+        "discounts": "55.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "27.6",
+        "total": "171.73",
+        "refunded": "0.0",
+        "net_payment": "171.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10358",
+      "record_type": "sales_order",
+      "external_id": "13353630335350",
+      "document_number": "#10358",
+      "issued_at": "2026-08-12T12:44:48Z",
+      "processed_at": "2026-08-12T12:44:46Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1325829881923",
+        "name": "Michelle Johnys",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "29.0",
+        "discounts": "39.98",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "5.8",
+        "total": "40.93",
+        "refunded": "0.0",
+        "net_payment": "40.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10359",
+      "record_type": "sales_order",
+      "external_id": "13353769468278",
+      "document_number": "#10359",
+      "issued_at": "2026-08-12T13:27:27Z",
+      "processed_at": "2026-08-12T13:27:26Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6546412732483",
+        "name": "Paul Guntrip",
+        "country": "IE"
+      },
+      "amounts": {
+        "subtotal": "3114.8",
+        "discounts": "0.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "0.0",
+        "total": "3114.8",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10360",
+      "record_type": "sales_order",
+      "external_id": "13355127243126",
+      "document_number": "#10360",
+      "issued_at": "2026-08-12T21:02:45Z",
+      "processed_at": "2026-08-12T21:02:45Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6847641026627",
+        "name": "Elle Benson",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "77.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "15.4",
+        "total": "98.53",
+        "refunded": "0.0",
+        "net_payment": "98.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10361",
+      "record_type": "sales_order",
+      "external_id": "13356086690166",
+      "document_number": "#10361",
+      "issued_at": "2026-08-13T09:22:43Z",
+      "processed_at": "2026-08-13T09:22:42Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649926443116",
+        "name": "Natasha Wengraf-Hewelet",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "269.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "53.8",
+        "total": "328.93",
+        "refunded": "0.0",
+        "net_payment": "328.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10362",
+      "record_type": "sales_order",
+      "external_id": "13356179816822",
+      "document_number": "#10362",
+      "issued_at": "2026-08-13T09:45:12Z",
+      "processed_at": "2026-08-13T09:45:11Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25905541448054",
+        "name": "Laura George",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "502.0",
+        "discounts": "34.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "100.4",
+        "total": "602.4",
+        "refunded": "0.0",
+        "net_payment": "602.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10363",
+      "record_type": "sales_order",
+      "external_id": "13356345983350",
+      "document_number": "#10363",
+      "issued_at": "2026-08-13T10:37:53Z",
+      "processed_at": "2026-08-13T10:37:52Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "24759608017270",
+        "name": "Sophie Papworth",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "42.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "8.4",
+        "total": "56.53",
+        "refunded": "0.0",
+        "net_payment": "56.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10364",
+      "record_type": "sales_order",
+      "external_id": "13356782354806",
+      "document_number": "#10364",
+      "issued_at": "2026-08-13T12:16:48Z",
+      "processed_at": "2026-08-13T12:16:48Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7393484537923",
+        "name": "Ella O'Doherty",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "395.5",
+        "discounts": "34.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "79.1",
+        "total": "480.73",
+        "refunded": "0.0",
+        "net_payment": "364.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10365",
+      "record_type": "sales_order",
+      "external_id": "13357508493686",
+      "document_number": "#10365",
+      "issued_at": "2026-08-13T15:24:29Z",
+      "processed_at": "2026-08-13T15:24:29Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248997484",
+        "name": "Chris Hobbs",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "522.0",
+        "discounts": "0.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "104.4",
+        "total": "626.4",
+        "refunded": "0.0",
+        "net_payment": "626.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10366",
+      "record_type": "sales_order",
+      "external_id": "13360744661366",
+      "document_number": "#10366",
+      "issued_at": "2026-08-14T11:14:32Z",
+      "processed_at": "2026-08-14T11:14:31Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250963564",
+        "name": "Daniela Magee",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "211.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "42.3",
+        "total": "259.93",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10367",
+      "record_type": "sales_order",
+      "external_id": "13368753553782",
+      "document_number": "#10367",
+      "issued_at": "2026-08-16T20:54:34Z",
+      "processed_at": "2026-08-16T20:54:34Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6625328660547",
+        "name": "Laura Schwulst",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "63.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "12.6",
+        "total": "81.73",
+        "refunded": "0.0",
+        "net_payment": "81.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10368",
+      "record_type": "sales_order",
+      "external_id": "13370371309942",
+      "document_number": "#10368",
+      "issued_at": "2026-08-17T10:23:19Z",
+      "processed_at": "2026-08-17T10:23:19Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "3490979086403",
+        "name": "Mozhgan Taheri",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "245.4",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "49.08",
+        "total": "300.61",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10369",
+      "record_type": "sales_order",
+      "external_id": "13370533839222",
+      "document_number": "#10369",
+      "issued_at": "2026-08-17T11:07:38Z",
+      "processed_at": "2026-08-17T11:07:37Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1231468888131",
+        "name": "Finola Macadorey",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "501.5",
+        "discounts": "70.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "100.3",
+        "total": "601.8",
+        "refunded": "0.0",
+        "net_payment": "601.8"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10370",
+      "record_type": "sales_order",
+      "external_id": "13370570375542",
+      "document_number": "#10370",
+      "issued_at": "2026-08-17T11:18:56Z",
+      "processed_at": "2026-08-17T11:18:55Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249914988",
+        "name": "Nazleen Hunjan",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "154.0",
+        "discounts": "27.5",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "30.8",
+        "total": "190.93",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10371",
+      "record_type": "sales_order",
+      "external_id": "13370642956662",
+      "document_number": "#10371",
+      "issued_at": "2026-08-17T11:41:06Z",
+      "processed_at": "2026-08-17T11:41:04Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6624053559363",
+        "name": "Fern McNamara",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "167.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "33.4",
+        "total": "206.53",
+        "refunded": "0.0",
+        "net_payment": "206.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10372",
+      "record_type": "sales_order",
+      "external_id": "13370835304822",
+      "document_number": "#10372",
+      "issued_at": "2026-08-17T12:40:04Z",
+      "processed_at": "2026-08-17T12:40:03Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6624053559363",
+        "name": "Fern McNamara",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "26.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "5.3",
+        "total": "37.93",
+        "refunded": "0.0",
+        "net_payment": "37.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10373",
+      "record_type": "sales_order",
+      "external_id": "13371037286774",
+      "document_number": "#10373",
+      "issued_at": "2026-08-17T13:21:27Z",
+      "processed_at": "2026-08-17T13:21:27Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25672031043958",
+        "name": "Nicole Keenan",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "22.0",
+        "discounts": "75.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "4.4",
+        "total": "26.4",
+        "refunded": "0.0",
+        "net_payment": "26.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10374",
+      "record_type": "sales_order",
+      "external_id": "13372284043638",
+      "document_number": "#10374",
+      "issued_at": "2026-08-17T19:07:06Z",
+      "processed_at": "2026-08-17T19:07:04Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23448554668406",
+        "name": "Sheree Reece",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "446.35",
+        "discounts": "113.55",
+        "shipping": "0.00",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "89.27",
+        "total": "535.62",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10375",
+      "record_type": "sales_order",
+      "external_id": "13373992665462",
+      "document_number": "#10375",
+      "issued_at": "2026-08-18T10:58:06Z",
+      "processed_at": "2026-08-18T10:58:06Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "664367595628",
+        "name": "Manjit Kaur",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "179.8",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "35.96",
+        "total": "221.89",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10376",
+      "record_type": "sales_order",
+      "external_id": "13374276665718",
+      "document_number": "#10376",
+      "issued_at": "2026-08-18T12:18:56Z",
+      "processed_at": "2026-08-18T12:18:55Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1231468724291",
+        "name": "Andrea Mappourdis",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "454.15",
+        "discounts": "79.5",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "90.83",
+        "total": "544.98",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10377",
+      "record_type": "sales_order",
+      "external_id": "13374279352694",
+      "document_number": "#10377",
+      "issued_at": "2026-08-18T12:19:39Z",
+      "processed_at": "2026-08-18T12:19:38Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5757049700419",
+        "name": "Charlie Beech",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "132.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "26.4",
+        "total": "164.53",
+        "refunded": "0.0",
+        "net_payment": "164.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10378",
+      "record_type": "sales_order",
+      "external_id": "13376757465462",
+      "document_number": "#10378",
+      "issued_at": "2026-08-19T08:25:21Z",
+      "processed_at": "2026-08-19T08:25:20Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6263235870787",
+        "name": "Louise Oatley",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "26.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "5.3",
+        "total": "37.93",
+        "refunded": "0.0",
+        "net_payment": "37.93"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10379",
+      "record_type": "sales_order",
+      "external_id": "13377003094390",
+      "document_number": "#10379",
+      "issued_at": "2026-08-19T09:50:33Z",
+      "processed_at": "2026-08-19T09:50:32Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "24090152567158",
+        "name": "Sarah Daley",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "77.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "15.4",
+        "total": "98.53",
+        "refunded": "0.0",
+        "net_payment": "98.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10380",
+      "record_type": "sales_order",
+      "external_id": "13377005584758",
+      "document_number": "#10380",
+      "issued_at": "2026-08-19T09:51:20Z",
+      "processed_at": "2026-08-19T09:51:20Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "22998832546166",
+        "name": "Anastasija Orlova",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "137.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "27.5",
+        "total": "171.13",
+        "refunded": "0.0",
+        "net_payment": "171.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10381",
+      "record_type": "sales_order",
+      "external_id": "13377099202934",
+      "document_number": "#10381",
+      "issued_at": "2026-08-19T10:21:28Z",
+      "processed_at": "2026-08-19T10:21:27Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "210.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "42.0",
+        "total": "258.13",
+        "refunded": "0.0",
+        "net_payment": "258.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10382",
+      "record_type": "sales_order",
+      "external_id": "13377410302326",
+      "document_number": "#10382",
+      "issued_at": "2026-08-19T11:50:07Z",
+      "processed_at": "2026-08-19T11:50:05Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23883957207414",
+        "name": "Katherine Hickey",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "116.75",
+        "discounts": "9.2",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.35",
+        "total": "146.23",
+        "refunded": "0.0",
+        "net_payment": "146.23"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10383",
+      "record_type": "sales_order",
+      "external_id": "13377800569206",
+      "document_number": "#10383",
+      "issued_at": "2026-08-19T13:37:04Z",
+      "processed_at": "2026-08-19T13:37:03Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "2746112639043",
+        "name": "Sue  Hinton",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "123.4",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "24.68",
+        "total": "154.21",
+        "refunded": "0.0",
+        "net_payment": "154.21"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10384",
+      "record_type": "sales_order",
+      "external_id": "13380490822006",
+      "document_number": "#10384",
+      "issued_at": "2026-08-20T06:33:43Z",
+      "processed_at": "2026-08-20T06:33:42Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7374027161667",
+        "name": "Andrea Hutchings",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "57.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "11.5",
+        "total": "75.13",
+        "refunded": "0.0",
+        "net_payment": "75.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10385",
+      "record_type": "sales_order",
+      "external_id": "13381275418998",
+      "document_number": "#10385",
+      "issued_at": "2026-08-20T10:45:50Z",
+      "processed_at": "2026-08-20T10:45:49Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5421181042755",
+        "name": "Harriet Sacco",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "814.9",
+        "discounts": "0.0",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "162.98",
+        "total": "977.88",
+        "refunded": "0.0",
+        "net_payment": "977.88"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10386",
+      "record_type": "sales_order",
+      "external_id": "13383683015030",
+      "document_number": "#10386",
+      "issued_at": "2026-08-20T20:43:27Z",
+      "processed_at": "2026-08-20T20:43:25Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6181102944323",
+        "name": "Brigita Gasiuniene",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "244.8",
+        "discounts": "20.2",
+        "shipping": "17.05",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "0.00",
+        "tax": "48.96",
+        "total": "310.81",
+        "refunded": "0.0",
+        "net_payment": "310.81"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10387",
+      "record_type": "sales_order",
+      "external_id": "13386256843126",
+      "document_number": "#10387",
+      "issued_at": "2026-08-21T10:15:46Z",
+      "processed_at": "2026-08-21T10:15:45Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6625328660547",
+        "name": "Laura Schwulst",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "118.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.7",
+        "total": "148.33",
+        "refunded": "0.0",
+        "net_payment": "148.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10388",
+      "record_type": "sales_order",
+      "external_id": "13390470840694",
+      "document_number": "#10388",
+      "issued_at": "2026-08-22T13:53:57Z",
+      "processed_at": "2026-08-22T13:53:56Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5120956104771",
+        "name": "Emma Stitt",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "233.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "46.6",
+        "total": "285.73",
+        "refunded": "0.0",
+        "net_payment": "285.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10389",
+      "record_type": "sales_order",
+      "external_id": "13395907707254",
+      "document_number": "#10389",
+      "issued_at": "2026-08-24T08:46:06Z",
+      "processed_at": "2026-08-24T08:46:06Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5295528509507",
+        "name": "Louise  Coulson",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "558.45",
+        "discounts": "0.0",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "111.69",
+        "total": "670.14",
+        "refunded": "0.0",
+        "net_payment": "670.14"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10390",
+      "record_type": "sales_order",
+      "external_id": "13395982811510",
+      "document_number": "#10390",
+      "issued_at": "2026-08-24T09:06:29Z",
+      "processed_at": "2026-08-24T09:06:28Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251324012",
+        "name": "Kelly Murgatroyd",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "712.3",
+        "discounts": "0.0",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "142.46",
+        "total": "854.76",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10391",
+      "record_type": "sales_order",
+      "external_id": "13396164870518",
+      "document_number": "#10391",
+      "issued_at": "2026-08-24T10:07:33Z",
+      "processed_at": "2026-08-24T10:07:32Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "277.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "55.5",
+        "total": "339.13",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10392",
+      "record_type": "sales_order",
+      "external_id": "13398481764726",
+      "document_number": "#10392",
+      "issued_at": "2026-08-25T00:10:37Z",
+      "processed_at": "2026-08-25T00:10:36Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7083348688963",
+        "name": "Freya Malik",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "74.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "14.9",
+        "total": "95.53",
+        "refunded": "0.0",
+        "net_payment": "95.53"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10393",
+      "record_type": "sales_order",
+      "external_id": "13399153279350",
+      "document_number": "#10393",
+      "issued_at": "2026-08-25T08:57:29Z",
+      "processed_at": "2026-08-25T08:57:28Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6354788122691",
+        "name": "Kayla Rickaby",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "213.6",
+        "discounts": "19.2",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "42.72",
+        "total": "262.45",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10394",
+      "record_type": "sales_order",
+      "external_id": "13399580279158",
+      "document_number": "#10394",
+      "issued_at": "2026-08-25T11:05:59Z",
+      "processed_at": "2026-08-25T11:05:59Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250209900",
+        "name": "Sophie Hyde",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "152.5",
+        "discounts": "23.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "30.5",
+        "total": "189.13",
+        "refunded": "0.0",
+        "net_payment": "189.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10395",
+      "record_type": "sales_order",
+      "external_id": "13400138416502",
+      "document_number": "#10395",
+      "issued_at": "2026-08-25T13:41:05Z",
+      "processed_at": "2026-08-25T13:41:05Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "22244609032566",
+        "name": "Rachael Morgan",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "36.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "7.2",
+        "total": "49.33",
+        "refunded": "0.0",
+        "net_payment": "49.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10396",
+      "record_type": "sales_order",
+      "external_id": "13401084723574",
+      "document_number": "#10396",
+      "issued_at": "2026-08-25T18:49:16Z",
+      "processed_at": "2026-08-25T18:49:14Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5124468801603",
+        "name": "Georgia  Hughes",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "508.4",
+        "discounts": "17.05",
+        "shipping": "0.00",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "101.68",
+        "total": "610.08",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10397",
+      "record_type": "sales_order",
+      "external_id": "13401206489462",
+      "document_number": "#10397",
+      "issued_at": "2026-08-25T19:16:04Z",
+      "processed_at": "2026-08-25T19:16:02Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6624053559363",
+        "name": "Fern McNamara",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "67.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "13.5",
+        "total": "87.13",
+        "refunded": "0.0",
+        "net_payment": "87.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10398",
+      "record_type": "sales_order",
+      "external_id": "13402256376182",
+      "document_number": "#10398",
+      "issued_at": "2026-08-26T07:57:18Z",
+      "processed_at": "2026-08-26T07:57:17Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249161324",
+        "name": "Faye Lazarides",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "383.45",
+        "discounts": "23.0",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "76.69",
+        "total": "460.14",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10399",
+      "record_type": "sales_order",
+      "external_id": "13403535278454",
+      "document_number": "#10399",
+      "issued_at": "2026-08-26T11:31:02Z",
+      "processed_at": "2026-08-26T11:31:01Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251291244",
+        "name": "Melanie Whittaker",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "363.0",
+        "discounts": "0.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "72.6",
+        "total": "435.6",
+        "refunded": "0.0",
+        "net_payment": "435.6"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10400",
+      "record_type": "sales_order",
+      "external_id": "13403850637686",
+      "document_number": "#10400",
+      "issued_at": "2026-08-26T13:02:19Z",
+      "processed_at": "2026-08-26T13:02:17Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7393484537923",
+        "name": "Ella O'Doherty",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "449.5",
+        "discounts": "29.55",
+        "shipping": "0.0",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "89.9",
+        "total": "539.4",
+        "refunded": "0.0",
+        "net_payment": "539.4"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10401",
+      "record_type": "sales_order",
+      "external_id": "13404067398006",
+      "document_number": "#10401",
+      "issued_at": "2026-08-26T13:54:55Z",
+      "processed_at": "2026-08-26T13:54:55Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23399052509558",
+        "name": "Drita Lowe",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "217.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "43.5",
+        "total": "267.13",
+        "refunded": "0.0",
+        "net_payment": "267.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10402",
+      "record_type": "sales_order",
+      "external_id": "13404907700598",
+      "document_number": "#10402",
+      "issued_at": "2026-08-26T17:55:49Z",
+      "processed_at": "2026-08-26T17:55:48Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23448554668406",
+        "name": "Sheree Reece",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "325.55",
+        "discounts": "19.3",
+        "shipping": "17.05",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "0.00",
+        "tax": "65.11",
+        "total": "407.71",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10403",
+      "record_type": "sales_order",
+      "external_id": "13406354571638",
+      "document_number": "#10403",
+      "issued_at": "2026-08-27T07:47:13Z",
+      "processed_at": "2026-08-27T07:47:13Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249521772",
+        "name": "Julie Mutton",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "269.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "53.9",
+        "total": "329.53",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10404",
+      "record_type": "sales_order",
+      "external_id": "13406513234294",
+      "document_number": "#10404",
+      "issued_at": "2026-08-27T08:50:20Z",
+      "processed_at": "2026-08-27T08:50:20Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251913836",
+        "name": "Lorna Huang",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "67.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "13.5",
+        "total": "87.13",
+        "refunded": "0.0",
+        "net_payment": "87.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10405",
+      "record_type": "sales_order",
+      "external_id": "13407577375094",
+      "document_number": "#10405",
+      "issued_at": "2026-08-27T13:33:43Z",
+      "processed_at": "2026-08-27T13:33:41Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7174907232323",
+        "name": "Katy Gross",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "381.45",
+        "discounts": "17.05",
+        "shipping": "0.00",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "76.29",
+        "total": "457.74",
+        "refunded": "0.0",
+        "net_payment": "457.74"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10406",
+      "record_type": "sales_order",
+      "external_id": "13409818739062",
+      "document_number": "#10406",
+      "issued_at": "2026-08-28T07:17:09Z",
+      "processed_at": "2026-08-28T07:17:08Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1305712459843",
+        "name": "Alex Heavens",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "465.0",
+        "discounts": "30.6",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "93.0",
+        "total": "558.0",
+        "refunded": "0.0",
+        "net_payment": "558.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10407",
+      "record_type": "sales_order",
+      "external_id": "13410168013174",
+      "document_number": "#10407",
+      "issued_at": "2026-08-28T09:14:34Z",
+      "processed_at": "2026-08-28T09:14:32Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1232964649027",
+        "name": "Leianne Murray",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "198.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "39.7",
+        "total": "244.33",
+        "refunded": "0.0",
+        "net_payment": "244.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10408",
+      "record_type": "sales_order",
+      "external_id": "13411480994166",
+      "document_number": "#10408",
+      "issued_at": "2026-08-28T13:52:00Z",
+      "processed_at": "2026-08-28T13:51:59Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25154465169782",
+        "name": "Leander Bond",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "63.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "12.6",
+        "total": "81.73",
+        "refunded": "0.0",
+        "net_payment": "81.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10409",
+      "record_type": "sales_order",
+      "external_id": "13411512254838",
+      "document_number": "#10409",
+      "issued_at": "2026-08-28T14:00:10Z",
+      "processed_at": "2026-08-28T14:00:09Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5186340552771",
+        "name": "Morgan Lawson",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "41.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "8.2",
+        "total": "55.33",
+        "refunded": "0.0",
+        "net_payment": "55.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10410",
+      "record_type": "sales_order",
+      "external_id": "13413301453174",
+      "document_number": "#10410",
+      "issued_at": "2026-08-29T00:01:09Z",
+      "processed_at": "2026-08-29T00:01:08Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6181102944323",
+        "name": "Brigita Gasiuniene",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "117.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "23.5",
+        "total": "147.13",
+        "refunded": "0.0",
+        "net_payment": "147.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10411",
+      "record_type": "sales_order",
+      "external_id": "13415096025462",
+      "document_number": "#10411",
+      "issued_at": "2026-08-29T13:40:33Z",
+      "processed_at": "2026-08-29T13:40:32Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "7160821121091",
+        "name": "Sarah Bews",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "33.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "6.6",
+        "total": "45.73",
+        "refunded": "0.0",
+        "net_payment": "45.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10412",
+      "record_type": "sales_order",
+      "external_id": "13425005199734",
+      "document_number": "#10412",
+      "issued_at": "2026-09-01T07:57:58Z",
+      "processed_at": "2026-09-01T07:57:58Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649252044908",
+        "name": "Jess Wooliscroft",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "554.95",
+        "discounts": "128.0",
+        "shipping": "0.00",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.00",
+        "tax": "110.99",
+        "total": "665.94",
+        "refunded": "0.0",
+        "net_payment": "665.94"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10413",
+      "record_type": "sales_order",
+      "external_id": "13425009492342",
+      "document_number": "#10413",
+      "issued_at": "2026-09-01T07:59:46Z",
+      "processed_at": "2026-09-01T07:59:46Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6641388191811",
+        "name": "Louise Daws",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "178.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "35.7",
+        "total": "220.33",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10414",
+      "record_type": "sales_order",
+      "external_id": "13425314464118",
+      "document_number": "#10414",
+      "issued_at": "2026-09-01T09:45:22Z",
+      "processed_at": "2026-09-01T09:45:21Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649252503660",
+        "name": "Karen Morris",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "44.0",
+        "discounts": "173.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "8.8",
+        "total": "52.8",
+        "refunded": "0.0",
+        "net_payment": "52.8"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10415",
+      "record_type": "sales_order",
+      "external_id": "13425370890614",
+      "document_number": "#10415",
+      "issued_at": "2026-09-01T10:02:06Z",
+      "processed_at": "2026-09-01T10:02:05Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "190.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "38.1",
+        "total": "234.73",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10416",
+      "record_type": "sales_order",
+      "external_id": "13425682776438",
+      "document_number": "#10416",
+      "issued_at": "2026-09-01T11:34:37Z",
+      "processed_at": "2026-09-01T11:34:37Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "5124468801603",
+        "name": "Georgia  Hughes",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "111.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "22.2",
+        "total": "139.33",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10417",
+      "record_type": "sales_order",
+      "external_id": "13426141004150",
+      "document_number": "#10417",
+      "issued_at": "2026-09-01T13:12:50Z",
+      "processed_at": "2026-09-01T13:12:46Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "23448554668406",
+        "name": "Sheree Reece",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "352.95",
+        "discounts": "17.05",
+        "shipping": "0.00",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "17.05",
+        "tax": "70.59",
+        "total": "423.54",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10418",
+      "record_type": "sales_order",
+      "external_id": "13426243928438",
+      "document_number": "#10418",
+      "issued_at": "2026-09-01T13:43:19Z",
+      "processed_at": "2026-09-01T13:43:18Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "25368378605942",
+        "name": "Kate Newman",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "15.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "3.1",
+        "total": "24.73",
+        "refunded": "0.0",
+        "net_payment": "24.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10419",
+      "record_type": "sales_order",
+      "external_id": "13429816066422",
+      "document_number": "#10419",
+      "issued_at": "2026-09-02T09:39:27Z",
+      "processed_at": "2026-09-02T09:39:26Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649252110444",
+        "name": "Yioula Panteli",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "111.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "22.3",
+        "total": "139.93",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10420",
+      "record_type": "sales_order",
+      "external_id": "13429983379830",
+      "document_number": "#10420",
+      "issued_at": "2026-09-02T09:55:10Z",
+      "processed_at": "2026-09-02T09:55:10Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649250209900",
+        "name": "Sophie Hyde",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "198.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "39.7",
+        "total": "244.33",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10421",
+      "record_type": "sales_order",
+      "external_id": "13431811703158",
+      "document_number": "#10421",
+      "issued_at": "2026-09-02T13:08:51Z",
+      "processed_at": "2026-09-02T13:08:50Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649249292396",
+        "name": "Helen Spackmen",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "72.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "14.5",
+        "total": "93.13",
+        "refunded": "0.0",
+        "net_payment": "93.13"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10422",
+      "record_type": "sales_order",
+      "external_id": "13435542274422",
+      "document_number": "#10422",
+      "issued_at": "2026-09-03T11:11:27Z",
+      "processed_at": "2026-09-03T11:11:26Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6226617860163",
+        "name": "Jennifer Kenny",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "364.0",
+        "discounts": "121.0",
+        "shipping": "0.0",
+        "shipping_gross": "0.0",
+        "shipping_discounts": "0.0",
+        "tax": "72.8",
+        "total": "436.8",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10423",
+      "record_type": "sales_order",
+      "external_id": "13435758903670",
+      "document_number": "#10423",
+      "issued_at": "2026-09-03T11:56:28Z",
+      "processed_at": "2026-09-03T11:56:27Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "1325829881923",
+        "name": "Michelle Johnys",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "38.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "7.7",
+        "total": "52.33",
+        "refunded": "0.0",
+        "net_payment": "52.33"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10424",
+      "record_type": "sales_order",
+      "external_id": "13435841216886",
+      "document_number": "#10424",
+      "issued_at": "2026-09-03T12:21:30Z",
+      "processed_at": "2026-09-03T12:21:30Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649248866412",
+        "name": "Barbara Uniejewska",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "130.0",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "26.0",
+        "total": "162.13",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10425",
+      "record_type": "sales_order",
+      "external_id": "13437037674870",
+      "document_number": "#10425",
+      "issued_at": "2026-09-03T18:21:56Z",
+      "processed_at": "2026-09-03T18:21:54Z",
+      "financial_status": "PAID",
+      "fulfillment_status": "FULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "6282821238851",
+        "name": "Aliesha Jheeta",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "230.5",
+        "discounts": "0.0",
+        "shipping": "6.13",
+        "shipping_gross": "6.13",
+        "shipping_discounts": "0.00",
+        "tax": "46.1",
+        "total": "282.73",
+        "refunded": "0.0",
+        "net_payment": "282.73"
+      }
+    },
+    {
+      "record_id": "SHOPIFY_RZL_ORDER_10426",
+      "record_type": "sales_order",
+      "external_id": "13439683658102",
+      "document_number": "#10426",
+      "issued_at": "2026-09-04T13:29:53Z",
+      "processed_at": "2026-09-04T13:29:53Z",
+      "financial_status": "PENDING",
+      "fulfillment_status": "UNFULFILLED",
+      "currency": "GBP",
+      "counterparty": {
+        "external_id": "649251717228",
+        "name": "Jamie Leigh",
+        "country": "GB"
+      },
+      "amounts": {
+        "subtotal": "234.0",
+        "discounts": "0.0",
+        "shipping": "17.05",
+        "shipping_gross": "17.05",
+        "shipping_discounts": "0.00",
+        "tax": "46.8",
+        "total": "297.85",
+        "refunded": "0.0",
+        "net_payment": "0.0"
+      }
+    }
+  ],
+  "totals": {
+    "subtotal": "26260.00",
+    "discounts": "2499.94",
+    "shipping": "551.13",
+    "tax": "4572.54",
+    "total": "31383.67",
+    "refunded": "0.0",
+    "net_payment": "18234.65"
+  },
+  "record_count": 109
+}
