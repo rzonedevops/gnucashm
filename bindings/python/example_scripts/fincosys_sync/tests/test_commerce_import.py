@@ -228,6 +228,85 @@ def test_a_record_whose_components_do_not_reconcile_is_rejected_not_plugged():
     assert rejection["discrepancy"] == pytest.approx(889.0)
 
 
+def _splits_by_suffix(transaction):
+    return {
+        split["account_code"].rsplit("-", 1)[-1]: split["amount"]
+        for split in transaction["splits"]
+    }
+
+
+def test_a_vat_inclusive_record_is_booked_not_rejected():
+    """#1004's shape: total == subtotal + shipping, VAT inside the subtotal."""
+    order = _order(
+        record_id="SHOPIFY_RZL_ORDER_1004",
+        tax_basis="inclusive",
+        amounts={
+            "subtotal": "22.42", "shipping": "10.0", "tax": "1.24", "total": "32.42",
+        },
+    )
+    _, transactions, report = ci.convert(_document([order]))
+
+    assert report["rejected"] == []
+    assert len(transactions) == 1
+
+
+def test_a_vat_inclusive_record_books_revenue_net_of_the_contained_tax():
+    order = _order(
+        tax_basis="inclusive",
+        amounts={
+            "subtotal": "22.42", "shipping": "10.0", "tax": "1.24", "total": "32.42",
+        },
+    )
+    _, transactions, _ = ci.convert(_document([order]))
+    splits = _splits_by_suffix(transactions[0])
+
+    # 22.42 stated, of which 1.24 is VAT -> 21.18 of revenue.
+    assert splits["REVENUE"] == pytest.approx(-21.18)
+    assert splits["TAX"] == pytest.approx(-1.24)
+    assert splits["SHIPPING"] == pytest.approx(-10.0)
+    assert splits["AR"] == pytest.approx(32.42)
+
+
+def test_a_vat_inclusive_record_still_balances():
+    order = _order(
+        tax_basis="inclusive",
+        amounts={
+            "subtotal": "22.42", "shipping": "10.0", "tax": "1.24", "total": "32.42",
+        },
+    )
+    _, transactions, _ = ci.convert(_document([order]))
+
+    assert sum(split["amount"] for split in transactions[0]["splits"]) == pytest.approx(0.0)
+
+
+def test_an_absent_tax_basis_is_treated_as_exclusive():
+    """Every document written before the basis existed omits the field."""
+    order = _order(amounts={
+        "subtotal": "100.0", "shipping": "0.0", "tax": "20.0", "total": "120.0",
+    })
+    order.pop("tax_basis", None)
+    _, transactions, report = ci.convert(_document([order]))
+    splits = _splits_by_suffix(transactions[0])
+
+    assert report["rejected"] == []
+    assert splits["REVENUE"] == pytest.approx(-100.0)
+
+
+def test_an_inclusive_record_that_still_does_not_reconcile_is_rejected():
+    """The basis explains a specific shape, and must not excuse every gap."""
+    broken = _order(
+        tax_basis="inclusive",
+        amounts={
+            "subtotal": "22.42", "shipping": "10.0", "tax": "1.24", "total": "999.0",
+        },
+    )
+    _, transactions, report = ci.convert(_document([broken]))
+
+    assert transactions == []
+    assert len(report["rejected"]) == 1
+    assert "reconcile" in report["rejected"][0]["reason"]
+
+
 def test_per_line_tax_rounding_is_tolerated():
     """Sources round tax per line; an exact equality test would reject
     records that are correct as issued."""

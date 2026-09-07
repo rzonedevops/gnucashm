@@ -34,6 +34,22 @@
 # reconcile to its own total is a data problem to surface, not to paper
 # over.
 #
+# VAT-inclusive records state the identity differently
+# -----------------------------------------------------
+# A record may carry "tax_basis": "inclusive", meaning the tax is contained
+# in the subtotal rather than added to it, so the identity it satisfies is
+# total == subtotal + shipping. The RegimA Zone store priced this way until
+# 2018. Such a record books revenue net of the contained tax:
+#
+#     Dr  Accounts Receivable      total
+#         Cr  Sales Revenue            subtotal - tax
+#         Cr  Shipping Income          shipping
+#         Cr  Tax Payable              tax
+#
+# Treating an inclusive record as exclusive would reject it as unreconciled
+# -- which is what happened when the store's full history first reached this
+# importer, and is how the basis came to be recorded at all.
+#
 # Aggregate record types are deliberately not booked
 # ---------------------------------------------------
 # A commerce document also carries "sales_period" and
@@ -133,12 +149,20 @@ def build_accounts(entity_code, currency):
     ]
 
 
-def _splits_for(entity_code, amounts):
+def _splits_for(entity_code, amounts, tax_basis="exclusive"):
     """Return (splits, total, components) for one bookable record.
 
     Zero-valued components are omitted rather than booked as empty splits;
     a GBP 0.00 shipping split carries no information and clutters every
     transaction in a book.
+
+    ``tax_basis`` says how the record states tax. On the default
+    ``"exclusive"`` basis tax is added to the subtotal. On the
+    ``"inclusive"`` basis -- VAT-inclusive pricing, which the RegimA Zone
+    store used until 2018 -- the tax is *contained in* the subtotal, so the
+    identity is ``total == subtotal + shipping``. Revenue is then the
+    subtotal net of that tax; booking the stated subtotal as revenue *and*
+    the tax as a liability would credit more than the customer was charged.
     """
     total = _amount(amounts, "total")
     subtotal = _amount(amounts, "subtotal")
@@ -150,6 +174,10 @@ def _splits_for(entity_code, amounts):
         # The net is the residual, which is exactly the figure that would
         # otherwise be missing from revenue.
         subtotal = total - tax - shipping
+    elif tax_basis == "inclusive":
+        # The VAT is already inside the subtotal. Lift it out so revenue is
+        # net and the tax still reaches the liability account.
+        subtotal = subtotal - tax
 
     splits = [{
         "account_code": account_code(entity_code, "AR"),
@@ -209,7 +237,9 @@ def convert(document, source_path=""):
         currency = record.get("currency") or "GBP"
         currencies[currency] = True
 
-        splits, total, components = _splits_for(entity_code, record.get("amounts"))
+        splits, total, components = _splits_for(
+            entity_code, record.get("amounts"), record.get("tax_basis") or "exclusive"
+        )
         discrepancy = total - components
         if abs(discrepancy) > RECONCILE_TOLERANCE:
             rejected.append({
