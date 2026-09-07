@@ -131,6 +131,30 @@ reused for all four cross-org checkouts, ideally also `cogpy/fincosys`,
 workflow with `write: false` first (dry run) to confirm the checkout and
 build succeed before ever setting `write: true`.
 
+## Snapshot freshness (2026-08-17)
+
+The committed `data/fincosys_sync/gnucashm_ecosystem_sync.json` /
+`gnucashm_ecosystem_atomspace.json` had not been regenerated since
+2026-07-23 — three weeks stale, and from *before*
+`fincosys-atomspace-builder`'s 2026-08-03 `TransactionIndexLoader` change
+landed (see "What this change adds" above). Despite that section's text
+already describing the transaction-index merge as automatic, the checked-in
+snapshot never actually reflected it: it held 379 nodes / 21 organizations,
+none of them transaction-index-derived.
+
+Since the required sibling checkouts (`fincosys-atomspace-builder`,
+`fincosys`, `helix`, `revstream1`) are all available locally in this
+environment, this refresh ran the documented local-usage command directly
+(no `ECOSYSTEM_SYNC_TOKEN` needed — that secret only gates the GitHub
+Actions workflow's cross-org checkout step, not a local run against
+existing sibling working copies) and re-committed the output. The new
+snapshot: **24,035 nodes / 5,348 edges / 5 inferred rules**, 777
+organizations (21 fincosys entities + counterparty pseudo-organizations
+newly surfaced by the transaction-index merge, prefixed `CP_`), picking up
+`cogpy/fincosys`'s 2026-08-12+ `MASTER_ACCOUNTS.json` refinement-tooling
+changes and `cogpy/revstream1`'s subsequent case-evidence-model sync. This
+is a data refresh only — no loader/exporter/bridge code changed.
+
 ## Builder repository moved to `fincosys/accospace` (2026-09-06)
 
 The AtomSpace builder that `.github/workflows/sync-fincosys-ecosystem.yml`
