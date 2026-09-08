@@ -735,7 +735,7 @@ gnc_html_encode_string(const char * str)
     static gchar *safe = "$-._!*(),"; /* RFC 1738 */
     unsigned pos      = 0;
     GString *encoded  = g_string_new ("");
-    static const size_t buf_size = 5;
+    enum { buf_size = 5 };
     gchar buffer[buf_size], *ptr;
     guchar c;
 
