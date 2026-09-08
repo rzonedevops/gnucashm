@@ -41,6 +41,28 @@
 # order records, sliced by month and by product. Booking them alongside the
 # orders would double- and triple-count every sale. They are skipped, with a
 # count reported, so the skip is visible rather than looking like data loss.
+#
+# Tax basis: what "subtotal" means depends on how the record states tax
+# -------------------------------------------------------------------
+# A record may declare tax_basis "exclusive" (the default, and what is
+# assumed when the field is absent) or "inclusive". The two put the tax in
+# different places, so they cannot share one booking:
+#
+#   exclusive   total == subtotal + shipping + tax   revenue = subtotal
+#   inclusive   total == subtotal + shipping         revenue = subtotal - tax
+#
+# On an inclusive record the tax is already *contained in* the stated
+# subtotal. Crediting that subtotal to revenue and the tax to the liability
+# as well would over-credit the transaction by the tax and it would not
+# balance against the receivable. Netting the contained tax out of revenue
+# keeps the credits summing to what the customer was actually charged.
+#
+# This matters for real records, not just in principle: accospace's Shopify
+# normalizer stamps tax_basis "inclusive" on the RegimA Zone orders that
+# predate its 2018 switch to exclusive pricing. Read as exclusive, each of
+# those fails the reconciling identity by exactly its own tax and is
+# rejected -- so the orders would go missing from the book rather than
+# booking wrong, which is quieter and no better.
 
 import argparse
 import json
@@ -61,6 +83,15 @@ BOOKABLE_RECORD_TYPES = ("sales_order", "sales_invoice")
 #: record_type values that restate bookable records in aggregate. Booking
 #: these as well would double-count revenue.
 AGGREGATE_RECORD_TYPES = ("sales_period", "product_sales_summary")
+
+#: How a record may state its tax. See the header comment for the two
+#: identities. A record that declares anything else is rejected rather than
+#: guessed at: the two bases differ by the whole tax amount, so a wrong
+#: guess is a wrong ledger.
+TAX_BASES = ("exclusive", "inclusive")
+
+#: Documents written before tax_basis existed omit it and were exclusive.
+DEFAULT_TAX_BASIS = "exclusive"
 
 # Per-entity account codes. Suffixes are stable; the entity code makes them
 # unique across a multi-entity book, matching sync_fincosys.py's convention
@@ -133,13 +164,21 @@ def build_accounts(entity_code, currency):
     ]
 
 
-def _splits_for(entity_code, amounts):
-    """Return (splits, total, components) for one bookable record.
+def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS):
+    """Return (splits, total, components, revenue) for one bookable record.
+
+    ``components`` is the sum the record's own total must equal under its
+    declared tax basis -- subtotal + shipping + tax when tax is added to the
+    subtotal, subtotal + shipping when it is already contained in it.
+    ``revenue`` is what actually reaches the revenue account, which is the
+    subtotal less any tax contained in it.
 
     Zero-valued components are omitted rather than booked as empty splits;
     a GBP 0.00 shipping split carries no information and clutters every
     transaction in a book.
     """
+    inclusive = tax_basis == "inclusive"
+
     total = _amount(amounts, "total")
     subtotal = _amount(amounts, "subtotal")
     shipping = _amount(amounts, "shipping")
@@ -148,15 +187,22 @@ def _splits_for(entity_code, amounts):
     if not subtotal and total:
         # QuickBooks invoices state a total and its tax, but no subtotal.
         # The net is the residual, which is exactly the figure that would
-        # otherwise be missing from revenue.
-        subtotal = total - tax - shipping
+        # otherwise be missing from revenue. On an inclusive record the tax
+        # is not added on top, so it is not part of that residual.
+        subtotal = total - shipping if inclusive else total - tax - shipping
+
+    # The tax on an inclusive record is a slice of the subtotal, not an
+    # addition to it, so revenue is the subtotal net of it. Booking the
+    # stated subtotal *and* the tax would over-credit by the tax.
+    revenue = subtotal - tax if inclusive else subtotal
+    components = subtotal + shipping if inclusive else subtotal + shipping + tax
 
     splits = [{
         "account_code": account_code(entity_code, "AR"),
         "amount": total,
         "memo": "",
     }]
-    for value, suffix in ((subtotal, "REVENUE"), (shipping, "SHIPPING"), (tax, "TAX")):
+    for value, suffix in ((revenue, "REVENUE"), (shipping, "SHIPPING"), (tax, "TAX")):
         if value:
             splits.append({
                 "account_code": account_code(entity_code, suffix),
@@ -164,7 +210,7 @@ def _splits_for(entity_code, amounts):
                 "memo": "",
             })
 
-    return splits, total, subtotal + shipping + tax
+    return splits, total, components, revenue
 
 
 def convert(document, source_path=""):
@@ -183,6 +229,7 @@ def convert(document, source_path=""):
     rejected = []
     skipped_aggregates = 0
     currencies = OrderedDict()
+    tax_bases = OrderedDict((basis, 0) for basis in TAX_BASES)
 
     for record in document.get("records", []):
         record_type = record.get("record_type")
@@ -206,20 +253,49 @@ def convert(document, source_path=""):
             })
             continue
 
+        tax_basis = record.get("tax_basis") or DEFAULT_TAX_BASIS
+        if tax_basis not in TAX_BASES:
+            rejected.append({
+                "record_id": record_id,
+                "reason": "unrecognized tax_basis {!r}; expected one of "
+                          "{}".format(tax_basis, ", ".join(TAX_BASES)),
+            })
+            continue
+
         currency = record.get("currency") or "GBP"
         currencies[currency] = True
 
-        splits, total, components = _splits_for(entity_code, record.get("amounts"))
+        splits, total, components, revenue = _splits_for(
+            entity_code, record.get("amounts"), tax_basis
+        )
         discrepancy = total - components
         if abs(discrepancy) > RECONCILE_TOLERANCE:
             rejected.append({
                 "record_id": record_id,
-                "reason": "components do not reconcile to the document total",
+                "reason": "components do not reconcile to the document total "
+                          "on its {} tax basis".format(tax_basis),
+                "tax_basis": tax_basis,
                 "total": total,
                 "components": components,
                 "discrepancy": discrepancy,
             })
             continue
+
+        if revenue < -RECONCILE_TOLERANCE:
+            # Only reachable on an inclusive record whose tax exceeds the
+            # subtotal containing it. That is not a sale with negative
+            # revenue, it is a mis-stated record -- book it and the entity's
+            # revenue goes down when it makes a sale.
+            rejected.append({
+                "record_id": record_id,
+                "reason": "tax exceeds the tax-inclusive subtotal that "
+                          "contains it, so revenue would book negative",
+                "tax_basis": tax_basis,
+                "revenue": revenue,
+            })
+            continue
+
+        tax_bases[tax_basis] += 1
 
         counterparty = record.get("counterparty") or {}
         transactions.append({
@@ -237,6 +313,10 @@ def convert(document, source_path=""):
             "metadata": {
                 "commerce_source": source,
                 "record_type": record_type,
+                # Kept on the transaction because the split amounts alone
+                # no longer say which identity produced them: an inclusive
+                # record's revenue split is its subtotal less the tax.
+                "tax_basis": tax_basis,
                 "external_id": record.get("external_id"),
                 "document_number": record.get("document_number"),
                 "financial_status": record.get("financial_status"),
@@ -262,6 +342,7 @@ def convert(document, source_path=""):
         "skipped_aggregates": skipped_aggregates,
         "rejected": rejected,
         "currencies": sorted(currencies),
+        "tax_bases": {basis: count for basis, count in tax_bases.items() if count},
         "window": {k: window.get(k) for k in ("from", "to", "basis")},
     }
     if len(currencies) > 1:
@@ -306,6 +387,11 @@ def print_report(reports):
             window.get("from"), window.get("to"), window.get("basis")))
         print("  records          : {}".format(report["records_total"]))
         print("  booked           : {}".format(report["booked"]))
+        if report.get("tax_bases"):
+            print("  tax basis        : {}".format(", ".join(
+                "{} {}".format(count, basis)
+                for basis, count in report["tax_bases"].items()
+            )))
         print("  skipped aggregates: {}  (period/product totals restate the "
               "orders; booking them would double-count)".format(
                   report["skipped_aggregates"]))
