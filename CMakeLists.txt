@@ -625,6 +625,14 @@ if (MINGW)
 endif()
 
 if (APPLE)
+  # Upstream GnuCash carries this same line in this same block. clang folds
+  # the const-bounded arrays in fin.c and gnc-html.c to constant arrays and
+  # diagnoses the fold, which the -Werror above makes fatal. Suppressing it
+  # keeps those two files byte-identical to upstream, so merges from it stay
+  # clean; declaring their bounds as enum constants would fix the underlying
+  # VLAs instead, but upstream has not, and diverging here costs more than it
+  # buys.
+  set( CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-gnu-folding-constant")
   execute_process(COMMAND clang --print-file-name=libclang_rt.asan_osx_dynamic.dylib
     OUTPUT_VARIABLE ASAN_DYNAMIC_LIB
     OUTPUT_STRIP_TRAILING_WHITESPACE)
