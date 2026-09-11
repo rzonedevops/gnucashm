@@ -292,6 +292,32 @@ don't reconcile to its own total is a data problem to surface. That check has
 already earned its keep: it caught six real Shopify orders whose shipping was
 recorded at the quoted rate rather than the discounted (waived) amount.
 
+### Tax basis
+
+Which identity applies depends on the record's `tax_basis` field:
+
+| `tax_basis` | Identity checked | Credited to revenue |
+|---|---|---|
+| `exclusive` (default, and what an absent field means) | `total == subtotal + shipping + tax` | `subtotal` |
+| `inclusive` | `total == subtotal + shipping` | `subtotal - tax` |
+
+On an inclusive record the tax is already **contained in** the stated
+subtotal. Crediting that subtotal to revenue *and* the tax to the liability
+would over-credit by the tax and the transaction would not balance, so the
+contained tax is netted out of revenue and the credits still sum to what the
+customer was charged.
+
+This is not hypothetical: accospace's Shopify normalizer stamps `inclusive`
+on the RegimA Zone orders predating its 2018 switch to exclusive pricing.
+Read as exclusive, each of those misses its own total by exactly its tax and
+is rejected — the orders go missing from the book rather than booking wrong,
+which is quieter and no better.
+
+A record declaring any other basis is rejected rather than guessed at: the
+two differ by the whole tax amount, so a wrong guess is a wrong ledger. Each
+booked transaction carries its basis in `metadata.tax_basis`, and the run
+report counts records by basis.
+
 `sales_period` and `product_sales_summary` records are deliberately **not**
 booked. They restate the same revenue as the order records, sliced by month
 and by product; booking them alongside would double- and triple-count every

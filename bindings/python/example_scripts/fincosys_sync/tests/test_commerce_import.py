@@ -182,6 +182,130 @@ def test_txids_are_namespaced_so_they_cannot_collide_with_bank_feeds():
     assert transactions[0]["txid"].startswith("COMMERCE:")
 
 
+# -- tax basis --------------------------------------------------------------
+
+
+def _inclusive_order(**overrides):
+    """A VAT-inclusive order: the tax sits inside the stated subtotal.
+
+    120.00 of goods containing 20.00 of VAT, plus 10.00 of shipping, is a
+    132.00 (not 152.00) document. Modelled on the pre-2018 RegimA Zone
+    orders that accospace's Shopify normalizer stamps as inclusive.
+    """
+    return _order(
+        tax_basis="inclusive",
+        amounts={
+            "subtotal": "120.00",
+            "shipping": "12.00",
+            "tax": "20.00",
+            "total": "132.00",
+        },
+        **overrides
+    )
+
+
+def test_an_inclusive_record_books_revenue_net_of_the_tax_it_contains():
+    _, transactions, report = ci.convert(_document([_inclusive_order()]))
+
+    assert report["rejected"] == []
+    txn = transactions[0]
+    by_account = {s["account_code"]: s["amount"] for s in txn["splits"]}
+    assert by_account["COMM-RZL-AR"] == pytest.approx(132.0)
+    # 120.00 subtotal less the 20.00 VAT it contains.
+    assert by_account["COMM-RZL-REVENUE"] == pytest.approx(-100.0)
+    assert by_account["COMM-RZL-SHIPPING"] == pytest.approx(-12.0)
+    assert by_account["COMM-RZL-TAX"] == pytest.approx(-20.0)
+    assert abs(sum(s["amount"] for s in txn["splits"])) < sf.BALANCE_TOLERANCE
+
+
+def test_an_inclusive_record_is_not_rejected_by_the_exclusive_identity():
+    """The regression this basis support exists for.
+
+    Read as exclusive, an inclusive record misses its own total by exactly
+    the contained tax and is rejected -- the order goes missing from the
+    book rather than booking wrong.
+    """
+    _, transactions, report = ci.convert(_document([_inclusive_order()]))
+
+    assert len(transactions) == 1
+    assert report["booked"] == 1
+
+
+def test_an_inclusive_invoice_without_a_subtotal_derives_it_from_the_total():
+    """QBO states no subtotal; on an inclusive record the tax is not added
+    on top, so it is not deducted to get the residual either."""
+    invoice = {
+        "record_id": "QBO_RZL_INVOICE_991",
+        "record_type": "sales_invoice",
+        "issued_at": "2017-06-01",
+        "currency": "GBP",
+        "tax_basis": "inclusive",
+        "amounts": {"total": "120.00", "tax": "20.00", "balance": "0.00"},
+    }
+    _, transactions, report = ci.convert(_document([invoice], source="quickbooks"))
+
+    assert report["rejected"] == []
+    by_account = {s["account_code"]: s["amount"] for s in transactions[0]["splits"]}
+    assert by_account["COMM-RZL-AR"] == pytest.approx(120.0)
+    assert by_account["COMM-RZL-REVENUE"] == pytest.approx(-100.0)
+    assert by_account["COMM-RZL-TAX"] == pytest.approx(-20.0)
+
+
+def test_an_absent_tax_basis_is_read_as_exclusive():
+    """Documents written before the field existed omit it, and were
+    exclusive. Nothing about how they book may change."""
+    _, transactions, report = ci.convert(_document())
+
+    assert "tax_basis" not in _order()
+    assert report["tax_bases"] == {"exclusive": 1}
+    by_account = {s["account_code"]: s["amount"] for s in transactions[0]["splits"]}
+    assert by_account["COMM-RZL-REVENUE"] == pytest.approx(-329.5)
+
+
+def test_the_report_counts_records_by_tax_basis():
+    inclusive = _inclusive_order(record_id="SHOPIFY_RZL_ORDER_9001")
+    _, _, report = ci.convert(_document([_order(), inclusive]))
+
+    assert report["tax_bases"] == {"exclusive": 1, "inclusive": 1}
+
+
+def test_metadata_carries_the_tax_basis_a_transaction_was_booked_on():
+    _, transactions, _ = ci.convert(_document([_inclusive_order()]))
+
+    assert transactions[0]["metadata"]["tax_basis"] == "inclusive"
+
+
+def test_an_unrecognized_tax_basis_is_rejected_not_guessed():
+    """The two bases differ by the whole tax, so a guess is a wrong ledger."""
+    order = _order(tax_basis="net_of_vat")
+    _, transactions, report = ci.convert(_document([order]))
+
+    assert transactions == []
+    assert "unrecognized tax_basis" in report["rejected"][0]["reason"]
+
+
+def test_an_inclusive_record_whose_tax_exceeds_its_subtotal_is_rejected():
+    order = _order(tax_basis="inclusive", amounts={
+        "subtotal": "20.00", "shipping": "0.0", "tax": "50.00", "total": "20.00",
+    })
+    _, transactions, report = ci.convert(_document([order]))
+
+    assert transactions == []
+    assert "negative" in report["rejected"][0]["reason"]
+
+
+def test_an_exclusive_record_mislabelled_inclusive_still_has_to_reconcile():
+    """Mislabelling is not silently absorbed: the stated total no longer
+    matches the components under the declared basis, so it is reported."""
+    order = _order(tax_basis="inclusive")  # totals state tax on top
+    _, transactions, report = ci.convert(_document([order]))
+
+    assert transactions == []
+    rejection = report["rejected"][0]
+    assert "inclusive tax basis" in rejection["reason"]
+    assert rejection["discrepancy"] == pytest.approx(65.9)
+
+
 # -- what must not be booked ------------------------------------------------
 
 
