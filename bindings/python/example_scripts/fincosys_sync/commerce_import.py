@@ -50,6 +50,12 @@
 # -- which is what happened when the store's full history first reached this
 # importer, and is how the basis came to be recorded at all.
 #
+# Two malformed cases are rejected rather than booked. A record declaring
+# any other basis is not read as exclusive: the two differ by the whole tax
+# amount, so guessing is guessing at the ledger. And an inclusive record
+# whose tax exceeds the subtotal containing it is mis-stated, not a sale
+# with negative revenue -- booking it would send revenue down on a sale.
+#
 # Aggregate record types are deliberately not booked
 # ---------------------------------------------------
 # A commerce document also carries "sales_period" and
@@ -57,28 +63,6 @@
 # order records, sliced by month and by product. Booking them alongside the
 # orders would double- and triple-count every sale. They are skipped, with a
 # count reported, so the skip is visible rather than looking like data loss.
-#
-# Tax basis: what "subtotal" means depends on how the record states tax
-# -------------------------------------------------------------------
-# A record may declare tax_basis "exclusive" (the default, and what is
-# assumed when the field is absent) or "inclusive". The two put the tax in
-# different places, so they cannot share one booking:
-#
-#   exclusive   total == subtotal + shipping + tax   revenue = subtotal
-#   inclusive   total == subtotal + shipping         revenue = subtotal - tax
-#
-# On an inclusive record the tax is already *contained in* the stated
-# subtotal. Crediting that subtotal to revenue and the tax to the liability
-# as well would over-credit the transaction by the tax and it would not
-# balance against the receivable. Netting the contained tax out of revenue
-# keeps the credits summing to what the customer was actually charged.
-#
-# This matters for real records, not just in principle: accospace's Shopify
-# normalizer stamps tax_basis "inclusive" on the RegimA Zone orders that
-# predate its 2018 switch to exclusive pricing. Read as exclusive, each of
-# those fails the reconciling identity by exactly its own tax and is
-# rejected -- so the orders would go missing from the book rather than
-# booking wrong, which is quieter and no better.
 
 import argparse
 import json
