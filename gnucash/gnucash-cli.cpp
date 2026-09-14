@@ -68,6 +68,7 @@ namespace Gnucash {
         boost::optional <std::string> m_output_file;
 
         boost::optional <std::string> m_import_fincosys_sync;
+        boost::optional <std::string> m_export_fincosys_sync;
     };
 
 }
@@ -133,7 +134,12 @@ may be specified to describe some saved options.\n"
        "gnucashm's own scripts/sync_fincosys_ecosystem.py) into the given "
        "GnuCash datafile. Accepts either the Fincosys Ecosystem Sync Schema "
        "v1 (organizations/accounts) or the GnuCash sync-feed schema "
-       "(accounts/transactions) -- see docs/FINCOSYS_ECOSYSTEM_SYNC.md.\n"));
+       "(accounts/transactions) -- see docs/FINCOSYS_ECOSYSTEM_SYNC.md.\n"))
+    ("export-fincosys-sync", bpo::value (&m_export_fincosys_sync),
+     _("Export the given GnuCash datafile's organizations and their accounts "
+       "to this path, as a Fincosys Ecosystem Sync Schema v1 document. This "
+       "is what fincosys/accospace's loaders/gnucashm.py reads as "
+       "gnucashm_export.json. The datafile is opened read-only.\n"));
     m_opt_desc_display->add (fincosys_options);
     m_opt_desc_all.add (fincosys_options);
 }
@@ -238,6 +244,17 @@ Gnucash::GnucashCli::start ([[maybe_unused]] int argc, [[maybe_unused]] char **a
             return 1;
         }
         return Gnucash::import_fincosys_sync (m_file_to_load, m_import_fincosys_sync);
+    }
+
+    if (m_export_fincosys_sync)
+    {
+        if (!m_file_to_load || m_file_to_load->empty())
+        {
+            std::cerr << _("Missing data file parameter") << "\n\n"
+                      << *m_opt_desc_display.get() << std::endl;
+            return 1;
+        }
+        return Gnucash::export_fincosys_sync (m_file_to_load, m_export_fincosys_sync);
     }
 
     std::cerr << _("Missing command or option") << "\n\n"

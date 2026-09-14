@@ -1,0 +1,527 @@
+{
+  "schema": "fincosys-commerce-sync/v1",
+  "source": "quickbooks",
+  "generated_at": "2026-09-14T00:00:00Z",
+  "entity": {
+    "code": "RDH",
+    "legal_name": "Regima @ Dr H Ltd",
+    "repository": "fincosys/entity-regima-dr-h-uk"
+  },
+  "provider": {
+    "name": "quickbooks",
+    "environment": "production",
+    "realm_id": "1366568670",
+    "company_name": "RegimA @ Dr H Ltd",
+    "industry_code": "5415",
+    "home_currency": "GBP"
+  },
+  "window": {
+    "from": "2014-12-03",
+    "to": "2026-08-31",
+    "basis": "txn_date",
+    "complete": false
+  },
+  "tax_derivation": {
+    "stated": false,
+    "method": "total - (line sum - discount)",
+    "why": "The connector's invoice endpoint states an invoice total, its lines and a discount, but no tax total, so tax here is a residual and the total == subtotal + shipping + tax identity holds by construction rather than as evidence. It is cross-checked independently against 20 percent of the net in the sync manifest: do not read a reconciling identity on these records as a confirmation that the tax is right."
+  },
+  "note": "A subset of the 2026-09-14 RegimA @ Dr H Ltd QuickBooks capture, kept as a cross-repo contract fixture. window.complete is false because this is a subset, not the whole ledger -- the full document it came from is complete. Chosen to cover what the full capture actually contains: standard-rated and zero-rated invoices, a discounted invoice, and every EUR document in the ledger, so the mixed-currency path is exercised against real records rather than a constructed one.",
+  "record_count": 19,
+  "records": [
+    {
+      "record_id": "QBO_RDH_INVOICE_2221",
+      "record_type": "sales_invoice",
+      "external_id": "2221",
+      "document_number": "DRH4187",
+      "issued_at": "2014-12-03",
+      "due_at": "2015-01-02",
+      "financial_status": "PAID",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "55",
+        "name": "Hayley Burrey",
+        "email": ""
+      },
+      "amounts": {
+        "subtotal": "81.38",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "16.28",
+        "total": "97.66",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 4
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_5048",
+      "record_type": "sales_invoice",
+      "external_id": "5048",
+      "document_number": "RG1607PZ",
+      "issued_at": "2014-12-19",
+      "due_at": "2014-01-19",
+      "financial_status": "PAID",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "169",
+        "name": "LUCINDA",
+        "email": ""
+      },
+      "amounts": {
+        "subtotal": "500.0",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.0",
+        "total": "500.0",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_2202",
+      "record_type": "sales_invoice",
+      "external_id": "2202",
+      "document_number": "RG1520Z",
+      "issued_at": "2015-02-28",
+      "due_at": "2015-03-30",
+      "financial_status": "PAID",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "8829.99",
+        "discounts": "3784.28",
+        "shipping": "0",
+        "tax": "1766.01",
+        "total": "10596.0",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 97
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10193",
+      "record_type": "sales_invoice",
+      "external_id": "10193",
+      "document_number": "RG2006CMS",
+      "issued_at": "2020-05-26",
+      "due_at": "2020-06-25",
+      "financial_status": "PAID",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "295",
+        "name": "CMS Bella",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "11785.84",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "11785.84",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 47
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10194",
+      "record_type": "sales_invoice",
+      "external_id": "10194",
+      "document_number": "RG2006EU",
+      "issued_at": "2020-06-12",
+      "due_at": "2020-07-12",
+      "financial_status": "PAID",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "15869.82",
+        "discounts": "770.63",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "15869.82",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 17
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10293",
+      "record_type": "sales_invoice",
+      "external_id": "10293",
+      "document_number": "RG2009EU",
+      "issued_at": "2020-09-14",
+      "due_at": "2020-09-14",
+      "financial_status": "PAID",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "16925.24",
+        "discounts": "810.16",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "16925.24",
+        "balance": "0",
+        "refunded": "0"
+      },
+      "line_count": 29
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10565",
+      "record_type": "sales_invoice",
+      "external_id": "10565",
+      "document_number": "SIN30477",
+      "issued_at": "2020-10-30",
+      "due_at": "2020-10-30",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "295",
+        "name": "CMS Bella",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "15332.58",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "15332.58",
+        "balance": "15332.58",
+        "refunded": "0"
+      },
+      "line_count": 57
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10605",
+      "record_type": "sales_invoice",
+      "external_id": "10605",
+      "document_number": "SIN30483",
+      "issued_at": "2020-11-23",
+      "due_at": "2020-11-23",
+      "financial_status": "PARTIAL",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "13670.89",
+        "discounts": "719.49",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "13670.89",
+        "balance": "12262.39",
+        "refunded": "0"
+      },
+      "line_count": 19
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10566",
+      "record_type": "sales_invoice",
+      "external_id": "10566",
+      "document_number": "SIN30500",
+      "issued_at": "2021-01-26",
+      "due_at": "2021-01-26",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "295",
+        "name": "CMS Bella",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "4999.04",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "4999.04",
+        "balance": "4999.04",
+        "refunded": "0"
+      },
+      "line_count": 25
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10606",
+      "record_type": "sales_invoice",
+      "external_id": "10606",
+      "document_number": "SIN30502",
+      "issued_at": "2021-02-08",
+      "due_at": "2021-02-08",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "963.17",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "963.17",
+        "balance": "963.17",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10607",
+      "record_type": "sales_invoice",
+      "external_id": "10607",
+      "document_number": "SIN30533",
+      "issued_at": "2021-06-29",
+      "due_at": "2021-06-29",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "5144.5",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.0",
+        "total": "5144.5",
+        "balance": "5144.5",
+        "refunded": "0"
+      },
+      "line_count": 10
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10564",
+      "record_type": "sales_invoice",
+      "external_id": "10564",
+      "document_number": "IN304108",
+      "issued_at": "2021-07-15",
+      "due_at": "2021-07-31",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "295",
+        "name": "CMS Bella",
+        "email": "d@rzo.io"
+      },
+      "amounts": {
+        "subtotal": "8580.63",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "8580.63",
+        "balance": "8580.63",
+        "refunded": "0"
+      },
+      "line_count": 31
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_10674",
+      "record_type": "sales_invoice",
+      "external_id": "10674",
+      "document_number": "18910 4",
+      "issued_at": "2021-11-08",
+      "due_at": "2021-11-08",
+      "financial_status": "OPEN",
+      "currency": "EUR",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "296",
+        "name": "RegimA Europe BVBA",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "116.28",
+        "discounts": "0",
+        "shipping": "0",
+        "tax": "0.00",
+        "total": "116.28",
+        "balance": "116.28",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12342",
+      "record_type": "sales_invoice",
+      "external_id": "12342",
+      "document_number": "RG2603PZ",
+      "issued_at": "2026-03-31",
+      "due_at": "2026-04-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "14626.32",
+        "discounts": "14626.32",
+        "shipping": "0",
+        "tax": "2925.27",
+        "total": "17551.59",
+        "balance": "17551.59",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12373",
+      "record_type": "sales_invoice",
+      "external_id": "12373",
+      "document_number": "RG2604PZ",
+      "issued_at": "2026-04-30",
+      "due_at": "2026-05-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "13279.47",
+        "discounts": "13279.48",
+        "shipping": "0",
+        "tax": "2655.90",
+        "total": "15935.37",
+        "balance": "15935.37",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12415",
+      "record_type": "sales_invoice",
+      "external_id": "12415",
+      "document_number": "RG2605PZ",
+      "issued_at": "2026-05-31",
+      "due_at": "2026-06-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "13757.22",
+        "discounts": "13757.22",
+        "shipping": "0",
+        "tax": "2751.45",
+        "total": "16508.67",
+        "balance": "16508.67",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12456",
+      "record_type": "sales_invoice",
+      "external_id": "12456",
+      "document_number": "RG2606PZ",
+      "issued_at": "2026-06-30",
+      "due_at": "2026-07-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "12911.97",
+        "discounts": "12911.98",
+        "shipping": "0",
+        "tax": "2582.40",
+        "total": "15494.37",
+        "balance": "15494.37",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12483",
+      "record_type": "sales_invoice",
+      "external_id": "12483",
+      "document_number": "RG2607PZ",
+      "issued_at": "2026-07-31",
+      "due_at": "2026-08-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "10563.97",
+        "discounts": "10563.98",
+        "shipping": "0",
+        "tax": "2112.80",
+        "total": "12676.77",
+        "balance": "12676.77",
+        "refunded": "0"
+      },
+      "line_count": 1
+    },
+    {
+      "record_id": "QBO_RDH_INVOICE_12530",
+      "record_type": "sales_invoice",
+      "external_id": "12530",
+      "document_number": "RG2608PZ",
+      "issued_at": "2026-08-31",
+      "due_at": "2026-09-15",
+      "financial_status": "OPEN",
+      "currency": "GBP",
+      "tax_basis": "exclusive",
+      "counterparty": {
+        "external_id": "1",
+        "name": "RegimA Zone Ltd",
+        "email": "uk@regima.zone"
+      },
+      "amounts": {
+        "subtotal": "12171.28",
+        "discounts": "12171.28",
+        "shipping": "0",
+        "tax": "2434.26",
+        "total": "14605.54",
+        "balance": "14605.54",
+        "refunded": "0"
+      },
+      "line_count": 1
+    }
+  ]
+}

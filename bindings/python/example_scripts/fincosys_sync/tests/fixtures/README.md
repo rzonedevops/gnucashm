@@ -87,3 +87,43 @@ copying the current version of that file from an `entity-rzl` checkout.
 Customer display names are present because they are part of the order record
 and the entity repositories are private; no addresses, emails or payment
 details are carried.
+
+## `commerce_quickbooks_rdh.json`
+
+A real `fincosys-commerce-sync/v1` document from the *other* source: 19
+QuickBooks Online invoice records for Regima @ Dr H Ltd (RDH), realm
+`1366568670`, taken from the 2026-09-14 capture committed to
+`fincosys/entity-regima-dr-h-uk` at
+`accounting/qbo/raw-json/2026-09-14_invoices_2014-12-03_2026-08-31.json`.
+
+It is a **subset** of that capture (which holds all 267 invoices), so its
+`window.complete` is `false` while the source document's is `true`. The
+subset was chosen to cover what the full ledger actually contains:
+standard-rated and zero-rated invoices, a discounted invoice, and every one
+of the ledger's ten EUR documents alongside GBP ones.
+
+That last part is why this fixture exists beside the Shopify one. The
+Shopify capture is single-currency, so nothing in the suite exercised a
+document stating two currencies against real records -- and commerce
+accounts are single-currency, which is exactly the case where booking
+naively puts a EUR total into a GBP receivable. `tests/test_commerce_import.py`
+uses this fixture to check both halves of that behaviour: rejection by
+default, and correct per-currency booking under `--per-currency-accounts`.
+
+Two conventions in it are worth knowing when reading the records:
+
+- **Tax is derived, not stated.** The QuickBooks connector's invoice
+  endpoint returns a total, the lines and a discount, but no tax total, so
+  `tax` is `total - (line sum - discount)`. The `tax_derivation` block in
+  the source document says so, and the sync manifest cross-checks every
+  residual against 20 percent of its own net. The `total == subtotal +
+  shipping + tax` identity therefore holds by construction on these
+  records, and must not be read as evidence that the tax is right.
+- **`record_id` is keyed on the QuickBooks invoice id, not the document
+  number.** That ledger contains two distinct invoices both numbered
+  `DRH4194`, three years and GBP 974 apart.
+
+Regenerate by re-deriving the subset from the current capture in an
+`entity-regima-dr-h-uk` checkout. Customer display names and emails are
+present because they are part of the invoice record and the entity
+repositories are private; no addresses or payment details are carried.
