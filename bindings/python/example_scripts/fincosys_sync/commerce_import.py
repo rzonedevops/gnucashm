@@ -63,6 +63,24 @@
 # order records, sliced by month and by product. Booking them alongside the
 # orders would double- and triple-count every sale. They are skipped, with a
 # count reported, so the skip is visible rather than looking like data loss.
+#
+# A record in a currency the accounts are not in is rejected
+# -----------------------------------------------------------
+# The four accounts below are single-currency, so a document carrying more
+# than one currency has no single right answer. Booking a EUR invoice into a
+# GBP receivable is not a rounding problem, it is a wrong number in the
+# ledger -- EUR 15,869.82 becomes GBP 15,869.82 -- and no later
+# reconciliation can tell it apart from a real GBP balance.
+#
+# So records outside the document's own primary currency (the first one its
+# bookable records state) are rejected by default, like any other record
+# that cannot be booked correctly. Pass --per-currency-accounts to book them
+# instead into accounts scoped by currency -- COMM-<entity>-<CCY>-AR
+# alongside COMM-<entity>-AR -- which is correct but changes the account
+# codes a book is keyed on, so it is opt-in rather than the default.
+#
+# QuickBooks Online's RegimA @ Dr H Ltd ledger is the case in point: 257 GBP
+# invoices and 10 EUR ones in the same export.
 
 import argparse
 import json
@@ -108,7 +126,17 @@ ACCOUNT_SPECS = (
 )
 
 
-def account_code(entity_code, suffix):
+def account_code(entity_code, suffix, currency=None):
+    """The account code one commerce component books to.
+
+    ``currency`` is omitted for the document's primary currency, so a
+    single-currency document produces exactly the codes it always has and an
+    existing book keeps matching. It is included only for the additional
+    currencies --per-currency-accounts admits, which have no prior codes to
+    stay compatible with.
+    """
+    if currency:
+        return "COMM-{}-{}-{}".format(entity_code, currency, suffix)
     return "COMM-{}-{}".format(entity_code, suffix)
 
 
@@ -148,12 +176,18 @@ def load_commerce_document(path):
     return document
 
 
-def build_accounts(entity_code, currency):
-    """The four accounts a commerce document books against."""
+def build_accounts(entity_code, currency, scoped=False):
+    """The four accounts a commerce document books against, in one currency.
+
+    ``scoped`` puts the currency in the code and the name, for the secondary
+    currencies of a multi-currency document; the primary currency's accounts
+    keep the unscoped codes.
+    """
     return [
         {
-            "code": account_code(entity_code, suffix),
-            "name": name,
+            "code": account_code(entity_code, suffix,
+                                 currency if scoped else None),
+            "name": "{} ({})".format(name, currency) if scoped else name,
             "parent_code": None,
             "account_type": account_type,
             "entity_code": entity_code,
@@ -164,7 +198,8 @@ def build_accounts(entity_code, currency):
     ]
 
 
-def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS):
+def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS,
+                currency_scope=None):
     """Return (splits, total, components, revenue) for one bookable record.
 
     ``components`` is the sum the record's own total must equal under its
@@ -206,14 +241,14 @@ def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS):
     components = subtotal + shipping if inclusive else subtotal + shipping + tax
 
     splits = [{
-        "account_code": account_code(entity_code, "AR"),
+        "account_code": account_code(entity_code, "AR", currency_scope),
         "amount": total,
         "memo": "",
     }]
     for value, suffix in ((revenue, "REVENUE"), (shipping, "SHIPPING"), (tax, "TAX")):
         if value:
             splits.append({
-                "account_code": account_code(entity_code, suffix),
+                "account_code": account_code(entity_code, suffix, currency_scope),
                 "amount": -value,
                 "memo": "",
             })
@@ -221,12 +256,17 @@ def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS):
     return splits, total, components, revenue
 
 
-def convert(document, source_path=""):
+def convert(document, source_path="", per_currency_accounts=False):
     """Convert one commerce document into (accounts, transactions, report).
 
     The returned shapes match sync_fincosys.py's ``build_plan`` inputs, so
     the resulting plan can be validated and applied by the existing
     machinery without it knowing commerce records exist.
+
+    ``per_currency_accounts`` admits records outside the document's primary
+    currency by booking them into currency-scoped accounts. Without it such
+    records are rejected rather than booked into an account of the wrong
+    currency -- see the header comment.
     """
     entity_code = document["entity"]["code"]
     source = document.get("source", "unknown")
@@ -237,6 +277,10 @@ def convert(document, source_path=""):
     rejected = []
     skipped_aggregates = 0
     currencies = OrderedDict()
+    #: Only the currencies of records that were actually booked. Accounts
+    #: are built from these, so a rejected foreign-currency record does not
+    #: leave an empty account behind in the plan.
+    booked_currencies = OrderedDict()
     tax_bases = OrderedDict((basis, 0) for basis in TAX_BASES)
 
     for record in document.get("records", []):
@@ -273,8 +317,29 @@ def convert(document, source_path=""):
         currency = record.get("currency") or "GBP"
         currencies[currency] = True
 
+        # The first currency a bookable record states is the document's
+        # primary one, and keeps the unscoped account codes.
+        primary_currency = next(iter(currencies))
+        if currency != primary_currency:
+            if not per_currency_accounts:
+                rejected.append({
+                    "record_id": record_id,
+                    "reason": "record is in {} but the document's accounts are "
+                              "in {}; booking it would put a {} amount in a {} "
+                              "account. Re-run with --per-currency-accounts to "
+                              "book it into {}-scoped accounts.".format(
+                                  currency, primary_currency, currency,
+                                  primary_currency, currency),
+                    "currency": currency,
+                    "primary_currency": primary_currency,
+                })
+                continue
+            currency_scope = currency
+        else:
+            currency_scope = None
+
         splits, total, components, revenue = _splits_for(
-            entity_code, record.get("amounts"), tax_basis
+            entity_code, record.get("amounts"), tax_basis, currency_scope
         )
         discrepancy = total - components
         if abs(discrepancy) > RECONCILE_TOLERANCE:
@@ -304,6 +369,7 @@ def convert(document, source_path=""):
             continue
 
         tax_bases[tax_basis] += 1
+        booked_currencies[currency] = True
 
         counterparty = record.get("counterparty") or {}
         transactions.append({
@@ -338,8 +404,9 @@ def convert(document, source_path=""):
             },
         })
 
-    currency = next(iter(currencies), "GBP")
-    accounts = build_accounts(entity_code, currency) if transactions else []
+    accounts = []
+    for index, booked in enumerate(booked_currencies):
+        accounts.extend(build_accounts(entity_code, booked, scoped=index > 0))
 
     report = {
         "entity_code": entity_code,
@@ -350,21 +417,34 @@ def convert(document, source_path=""):
         "skipped_aggregates": skipped_aggregates,
         "rejected": rejected,
         "currencies": sorted(currencies),
+        "booked_currencies": sorted(booked_currencies),
+        "per_currency_accounts": bool(per_currency_accounts),
         "tax_bases": {basis: count for basis, count in tax_bases.items() if count},
         "window": {k: window.get(k) for k in ("from", "to", "basis")},
     }
     if len(currencies) > 1:
-        # Every account here is single-currency, so a mixed-currency
-        # document would book foreign amounts into the wrong account.
-        report["warnings"] = [
-            "document mixes currencies {}; accounts were created in {} "
-            "only".format(sorted(currencies), currency)
-        ]
+        # Every account is single-currency, so a mixed-currency document
+        # either splits across per-currency accounts or leaves its foreign
+        # records unbooked. Either way, say which happened.
+        primary = next(iter(currencies))
+        if per_currency_accounts:
+            report["warnings"] = [
+                "document mixes currencies {}; {} kept the unscoped account "
+                "codes and the rest were booked into currency-scoped ones"
+                .format(sorted(currencies), primary)
+            ]
+        else:
+            report["warnings"] = [
+                "document mixes currencies {}; only the {} records were "
+                "booked. The rest are in the rejection list -- re-run with "
+                "--per-currency-accounts to book them too."
+                .format(sorted(currencies), primary)
+            ]
 
     return accounts, transactions, report
 
 
-def convert_paths(paths):
+def convert_paths(paths, per_currency_accounts=False):
     """Convert several commerce documents, merging their accounts."""
     accounts_by_code = OrderedDict()
     transactions = []
@@ -372,7 +452,10 @@ def convert_paths(paths):
 
     for path in paths:
         document = load_commerce_document(path)
-        accounts, txns, report = convert(document, source_path=path)
+        accounts, txns, report = convert(
+            document, source_path=path,
+            per_currency_accounts=per_currency_accounts,
+        )
         report["path"] = path
         for account in accounts:
             accounts_by_code.setdefault(account["code"], account)
@@ -395,6 +478,10 @@ def print_report(reports):
             window.get("from"), window.get("to"), window.get("basis")))
         print("  records          : {}".format(report["records_total"]))
         print("  booked           : {}".format(report["booked"]))
+        if len(report["currencies"]) > 1:
+            print("  currencies       : {} stated, booked in {}".format(
+                ", ".join(report["currencies"]),
+                ", ".join(report["booked_currencies"]) or "none"))
         if report.get("tax_bases"):
             print("  tax basis        : {}".format(", ".join(
                 "{} {}".format(count, basis)
@@ -431,6 +518,13 @@ def build_arg_parser():
         help="Write a sync feed (the shape sync_fincosys.py --feed reads) "
              "to this path. Without it, only the report is printed.",
     )
+    parser.add_argument(
+        "--per-currency-accounts", action="store_true",
+        help="Book records outside the document's primary currency into "
+             "currency-scoped accounts (COMM-<entity>-<CCY>-AR) instead of "
+             "rejecting them. The primary currency keeps its existing "
+             "unscoped codes, so books already imported are unaffected.",
+    )
     return parser
 
 
@@ -438,7 +532,8 @@ def main(argv=None):
     args = build_arg_parser().parse_args(argv)
 
     try:
-        accounts, transactions, reports = convert_paths(args.documents)
+        accounts, transactions, reports = convert_paths(
+            args.documents, per_currency_accounts=args.per_currency_accounts)
     except (OSError, ValueError) as exc:
         sys.stderr.write("error: {}\n".format(exc))
         return 1

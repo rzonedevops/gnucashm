@@ -41,9 +41,11 @@
 #include <gnc-fincosys-sync.h>
 
 #include <boost/locale.hpp>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
+#include <vector>
 #include <gnc-report.h>
 #include <gnc-quotes.hpp>
 
@@ -528,4 +530,114 @@ Gnucash::import_fincosys_sync (const bo_str& file_to_load, const bo_str& sync_fi
     qof_session_destroy (session);
     qof_event_resume ();
     return 0;
+}
+
+namespace {
+
+/* qof_collection_foreach() hands each GncOrganization to this; the list is
+ * sorted by code afterwards so two exports of the same book compare equal.
+ * The collection's own iteration order is a hash order and is not stable. */
+void
+collect_organization_cb (QofInstance *inst, gpointer user_data)
+{
+    auto *orgs = static_cast<std::vector<GncOrganization *> *> (user_data);
+    if (inst)
+        orgs->push_back (GNC_ORGANIZATION (inst));
+}
+
+} // namespace
+
+int
+Gnucash::export_fincosys_sync (const bo_str& file_to_load, const bo_str& sync_file)
+{
+    if (!file_to_load || file_to_load->empty ())
+    {
+        std::cerr << _("Missing data file parameter") << std::endl;
+        return 1;
+    }
+    if (!sync_file || sync_file->empty ())
+    {
+        std::cerr << _("Missing --export-fincosys-sync file parameter") << std::endl;
+        return 1;
+    }
+
+    gnc_prefs_init ();
+    qof_event_suspend ();
+
+    auto session = gnc_get_current_session ();
+    if (!session)
+    {
+        qof_event_resume ();
+        return 1;
+    }
+
+    /* Read-only: an export must not be able to modify the book it reads. */
+    qof_session_begin (session, file_to_load->c_str (), SESSION_READ_ONLY);
+    if (qof_session_get_error (session) != ERR_BACKEND_NO_ERR)
+        return cleanup_and_exit_with_failure (session);
+
+    qof_session_load (session, nullptr);
+    if (qof_session_get_error (session) != ERR_BACKEND_NO_ERR)
+        return cleanup_and_exit_with_failure (session);
+
+    auto book = qof_session_get_book (session);
+    std::vector<GncOrganization *> orgs;
+    qof_collection_foreach (qof_book_get_collection (book, GNC_ID_ORGANIZATION),
+                            collect_organization_cb, &orgs);
+    std::sort (orgs.begin (), orgs.end (),
+               [] (const GncOrganization *a, const GncOrganization *b)
+               {
+                   const char *ia = gncOrganizationGetID (a);
+                   const char *ib = gncOrganizationGetID (b);
+                   return g_strcmp0 (ia, ib) < 0;
+               });
+
+    if (orgs.empty ())
+    {
+        /* Not a crash, but not a success either: the flag's contract is to
+         * write a sync document, and there is none to write. Returning 0
+         * here would leave a script feeding the (absent, or stale) output
+         * file to the next stage as though a fresh export had happened. */
+        std::cerr << _("The book contains no organizations; no fincosys sync "
+            "document was written.") << std::endl;
+        qof_session_destroy (session);
+        qof_event_resume ();
+        return 1;
+    }
+
+    GList *org_list = nullptr;
+    for (auto it = orgs.rbegin (); it != orgs.rend (); ++it)
+        org_list = g_list_prepend (org_list, *it);
+
+    gchar *json = gnc_organizations_to_fincosys_json (org_list);
+    g_list_free (org_list);
+
+    if (json == nullptr)
+    {
+        std::cerr << _("Fincosys sync export failed unexpectedly.") << std::endl;
+        qof_session_destroy (session);
+        qof_event_resume ();
+        return 1;
+    }
+
+    int rv = 0;
+    GError *error = nullptr;
+    if (!g_file_set_contents (sync_file->c_str (), json, -1, &error))
+    {
+        std::cerr << bl::format (bl::translate ("Failed to write {1}: {2}"))
+                      % *sync_file % (error ? error->message : "unknown error")
+                  << std::endl;
+        if (error)
+            g_error_free (error);
+        rv = 1;
+    }
+    else
+        std::cout << bl::format (bl::translate (
+            "Exported {1} organization(s) to {2}."))
+                      % orgs.size () % *sync_file << std::endl;
+
+    g_free (json);
+    qof_session_destroy (session);
+    qof_event_resume ();
+    return rv;
 }

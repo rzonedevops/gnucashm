@@ -48,5 +48,7 @@ namespace Gnucash {
                      const bo_str& run_report);
     int import_fincosys_sync (const bo_str& file_to_load,
                               const bo_str& sync_file);
+    int export_fincosys_sync (const bo_str& file_to_load,
+                              const bo_str& sync_file);
 }
 #endif
