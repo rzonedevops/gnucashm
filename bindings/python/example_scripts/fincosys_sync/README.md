@@ -328,8 +328,49 @@ Transaction ids are namespaced `COMMERCE:<record_id>`, so they cannot collide
 with bank-feed txids and re-importing the same document is a no-op under the
 same idempotency rule described above.
 
-`tests/test_commerce_import.py` covers the above and ends with two cross-repo
-contract tests that run real captured Shopify records
-(`tests/fixtures/commerce_shopify_rzl.json`) through `convert()` and
-`build_plan()`, asserting the resulting plan is clean and that booked
-receivable equals the sum of the documents' own totals.
+### Documents stating more than one currency
+
+Every account above is single-currency. A document stating two therefore has
+no single right set of accounts, and this is not a corner case: RegimA @ Dr H
+Ltd's QuickBooks ledger holds 257 GBP invoices and 10 EUR ones in one export.
+
+Booking a EUR total into a GBP receivable is worse than an unbooked record.
+The transaction still balances, so nothing downstream flags it; EUR 15,869.82
+simply becomes GBP 15,869.82 in the ledger, indistinguishable from a real GBP
+balance.
+
+So a record outside the document's **primary currency** — the first one its
+bookable records state — is rejected, with its own currency and the
+document's named in the rejection, exactly as a record whose components don't
+reconcile is rejected.
+
+`--per-currency-accounts` books them properly instead, into accounts scoped
+by currency:
+
+```bash
+python3 commerce_import.py \
+    ../../../../entity-regima-dr-h-uk/accounting/qbo/raw-json/*.json \
+    --per-currency-accounts --out commerce_feed.json
+```
+
+```
+Dr  COMM-RDH-EUR-AR          total        # EUR invoices
+    Cr  COMM-RDH-EUR-REVENUE     subtotal
+Dr  COMM-RDH-AR              total        # GBP invoices, unchanged codes
+    Cr  COMM-RDH-REVENUE         subtotal
+```
+
+The primary currency keeps its unscoped codes under both modes. That is what
+makes the flag safe to turn on: a book already imported from a
+single-currency document sees the same account codes and the same txids, so
+re-importing stays a no-op rather than duplicating every account.
+
+`tests/test_commerce_import.py` covers the above and ends with four
+cross-repo contract tests over real captured records. The Shopify ones
+(`tests/fixtures/commerce_shopify_rzl.json`) run `convert()` into
+`build_plan()` and assert the plan is clean and that booked receivable equals
+the sum of the documents' own totals. The QuickBooks ones
+(`tests/fixtures/commerce_quickbooks_rdh.json`, a real GBP+EUR ledger subset)
+do the same and additionally assert that each currency's receivable equals
+that currency's own stated totals — a cross-currency leak would still balance
+per transaction, so only the per-currency comparison catches it.

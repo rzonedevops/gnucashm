@@ -30,6 +30,12 @@ FIXTURE_PATH = os.path.join(
     "commerce_shopify_rzl.json",
 )
 
+QBO_FIXTURE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "fixtures",
+    "commerce_quickbooks_rdh.json",
+)
+
 
 def _order(**overrides):
     record = {
@@ -631,6 +637,33 @@ def _ecosystem_record(**overrides):
     return record
 
 
+# -- mixed currencies -------------------------------------------------------
+#
+# Every account commerce_import creates is single-currency, so a document
+# stating more than one has no single right set of accounts. The default is
+# to book only the primary currency and reject the rest, because the
+# alternative -- booking a EUR total into a GBP receivable -- puts a wrong
+# number in the ledger that no later reconciliation can distinguish from a
+# real balance.
+
+
+def _eur_order(**overrides):
+    record = _order(
+        record_id="SHOPIFY_RZL_ORDER_10319",
+        document_number="#10319",
+        currency="EUR",
+        amounts={
+            "subtotal": "100.0",
+            "discounts": "0.0",
+            "shipping": "10.0",
+            "tax": "20.0",
+            "total": "130.0",
+        },
+    )
+    record.update(overrides)
+    return record
+
+
 def test_ecosystem_sync_expands_into_one_document_per_entity():
     documents = ci.documents_from_ecosystem_sync(
         _ecosystem_document(
@@ -1083,3 +1116,114 @@ def test_a_genuinely_unknown_record_type_is_still_rejected():
 
     assert len(report["rejected"]) == 1
     assert "unrecognized record_type" in report["rejected"][0]["reason"]
+
+
+def test_a_foreign_currency_record_is_rejected_rather_than_misbooked():
+    _, transactions, report = ci.convert(_document([_order(), _eur_order()]))
+
+    assert [t["txid"] for t in transactions] == ["COMMERCE:SHOPIFY_RZL_ORDER_10318"]
+    assert len(report["rejected"]) == 1
+    rejection = report["rejected"][0]
+    assert rejection["record_id"] == "SHOPIFY_RZL_ORDER_10319"
+    assert rejection["currency"] == "EUR"
+    assert rejection["primary_currency"] == "GBP"
+    assert report["booked_currencies"] == ["GBP"]
+
+
+def test_no_foreign_currency_account_is_created_when_the_record_is_rejected():
+    """A rejected record must not leave an empty account behind in the plan."""
+    accounts, _, _ = ci.convert(_document([_order(), _eur_order()]))
+
+    assert all("EUR" not in a["code"] for a in accounts)
+    assert {a["currency"] for a in accounts} == {"GBP"}
+
+
+def test_per_currency_accounts_books_the_foreign_record_into_its_own_accounts():
+    accounts, transactions, report = ci.convert(
+        _document([_order(), _eur_order()]), per_currency_accounts=True
+    )
+
+    assert report["rejected"] == []
+    assert report["booked"] == 2
+    assert report["booked_currencies"] == ["EUR", "GBP"]
+
+    by_code = {a["code"]: a for a in accounts}
+    # The primary currency keeps the codes it always had, so a book already
+    # imported from a single-currency document still matches.
+    assert by_code["COMM-RZL-AR"]["currency"] == "GBP"
+    assert by_code["COMM-RZL-EUR-AR"]["currency"] == "EUR"
+
+    eur_txn = next(t for t in transactions if t["currency"] == "EUR")
+    assert all(s["account_code"].startswith("COMM-RZL-EUR-")
+               for s in eur_txn["splits"])
+    gbp_txn = next(t for t in transactions if t["currency"] == "GBP")
+    assert all("EUR" not in s["account_code"] for s in gbp_txn["splits"])
+
+
+def test_a_single_currency_document_is_unaffected_by_the_flag():
+    """--per-currency-accounts must not rename a single-currency document's
+    accounts, or re-importing one would duplicate every account in the book."""
+    plain = ci.convert(_document())
+    scoped = ci.convert(_document(), per_currency_accounts=True)
+
+    assert [a["code"] for a in plain[0]] == [a["code"] for a in scoped[0]]
+    assert [t["splits"] for t in plain[1]] == [t["splits"] for t in scoped[1]]
+
+
+# -- real QuickBooks records ------------------------------------------------
+
+
+@pytest.mark.skipif(
+    not os.path.exists(QBO_FIXTURE_PATH), reason="quickbooks fixture not present"
+)
+def test_real_quickbooks_records_produce_a_clean_sync_plan():
+    """The cross-repo contract test for the QuickBooks side.
+
+    The Shopify fixture above is single-currency; this one is the real
+    RegimA @ Dr H Ltd ledger, which states GBP and EUR in one document, so
+    it is what exercises the mixed-currency path end to end.
+    """
+    document = ci.load_commerce_document(QBO_FIXTURE_PATH)
+    accounts, transactions, report = ci.convert(
+        document, source_path=QBO_FIXTURE_PATH, per_currency_accounts=True
+    )
+
+    assert report["rejected"] == []
+    assert report["booked"] == report["records_total"]
+    assert report["booked_currencies"] == ["EUR", "GBP"]
+
+    plan = sf.build_plan(accounts, transactions, source="commerce-qbo-fixture")
+
+    assert plan["validation"]["is_clean"], plan["validation"]
+    assert plan["validation"]["unbalanced_transactions"] == []
+    assert plan["validation"]["unknown_account_refs"] == []
+    assert plan["validation"]["duplicate_txids"] == []
+    assert plan["validation"]["ok_transaction_count"] == len(transactions)
+
+
+@pytest.mark.skipif(
+    not os.path.exists(QBO_FIXTURE_PATH), reason="quickbooks fixture not present"
+)
+def test_real_quickbooks_records_keep_each_currency_in_its_own_accounts():
+    """Each currency's receivable must equal that currency's own totals.
+
+    A cross-currency leak would still balance per transaction, so only this
+    per-currency comparison catches it.
+    """
+    document = ci.load_commerce_document(QBO_FIXTURE_PATH)
+    _, transactions, _ = ci.convert(document, per_currency_accounts=True)
+
+    for currency, code in (("GBP", "COMM-RDH-AR"), ("EUR", "COMM-RDH-EUR-AR")):
+        booked = sum(
+            s["amount"]
+            for t in transactions
+            for s in t["splits"]
+            if s["account_code"] == code
+        )
+        stated = sum(
+            float(r["amounts"]["total"])
+            for r in document["records"]
+            if r["currency"] == currency
+            and r["record_type"] in ci.BOOKABLE_RECORD_TYPES
+        )
+        assert booked == pytest.approx(stated, abs=0.01), currency

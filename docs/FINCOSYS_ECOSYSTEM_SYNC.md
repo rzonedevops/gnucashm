@@ -321,6 +321,78 @@ consuming its output, and do not cite `helix_self_reported` figures as
 verified case evidence.
 
 
+## Exporting back to accospace (2026-09-14)
+
+Until now this repository could only be a *consumer* of the ecosystem sync
+schema. `gnc_organizations_to_fincosys_json()` had existed since the bridge
+was written, and `fincosys/accospace`'s `loaders/gnucashm.py` was written to
+read what it produces -- as `gnucashm_export.json` -- but nothing in
+gnucashm could actually call it outside `gtest-fincosys-sync.cpp`. The
+documented `config.gnucashm_export_path` on the accospace side pointed at a
+file no gnucashm command could write, so the loop
+`accospace -> gnucashm -> accospace` was open at the return leg.
+
+`gnucash-cli --export-fincosys-sync <out> <accounts.gnucash>` closes it
+(`Gnucash::export_fincosys_sync()` in `gnucash/gnucash-commands.cpp`, wired
+into `gnucash-cli.cpp`). It opens the datafile **read-only**, collects every
+`GncOrganization` in the book's `GNC_ID_ORGANIZATION` collection, sorts them
+by code, and writes the resulting `fincosys-ecosystem-sync/v1` document.
+
+The sort matters: `qof_collection_foreach()` visits in hash order, so
+without it two exports of an unchanged book would differ, and every sync
+would look like a change to whatever is diffing them.
+
+A book holding no organizations is reported and exits non-zero without
+writing a file, rather than exiting 0 having written nothing -- otherwise a
+pipeline would feed the previous run's stale file to the next stage as
+though it were fresh.
+
+```bash
+# accospace -> gnucashm -> accospace, the whole loop
+gnucash-cli --import-fincosys-sync data/fincosys_sync/gnucashm_ecosystem_sync.json book.gnucash
+gnucash-cli --export-fincosys-sync gnucashm_export.json book.gnucash
+```
+
+**Verified end-to-end (2026-09-14)**, built with
+`-DWITH_AQBANKING=OFF -DWITH_OFX=OFF -DWITH_SQL=OFF -DWITH_PYTHON=OFF`
+(a full `ninja`, no compile fixes needed):
+
+- Importing the committed `gnucashm_ecosystem_sync.json` into a fresh book
+  gives `Imported 777 organization(s)`; exporting that book back gives
+  `Exported 777 organization(s)`, a 160 KB `fincosys-ecosystem-sync/v1`
+  document with `"source": "gnucashm"`.
+- Two consecutive exports of the same book are **byte-identical**.
+- Feeding that export to accospace's `GncMultiEntityLoader`
+  (`include_gnucashm=True`, `gnucashm_export_path=...`) builds a hypergraph
+  of 870 nodes / 83 edges, of which **831 carry `gnucashm_*` attributes** --
+  the 777 organizations plus their 54 accounts. That is the cross-repo
+  contract actually exercised rather than asserted.
+- `test-fincosys-sync` still passes 25/25.
+
+## Commerce records in more than one currency (2026-09-14)
+
+Syncing RegimA @ Dr H Ltd's QuickBooks ledger (see
+`fincosys/entity-regima-dr-h-uk`) produced the first commerce document
+stating two currencies: 257 GBP invoices and 10 EUR ones. Every account
+`bindings/python/example_scripts/fincosys_sync/commerce_import.py` creates
+is single-currency, and it used to create them in whichever currency it saw
+first and book everything into them, emitting a warning. So a EUR 15,869.82
+invoice became GBP 15,869.82 in the receivable -- a wrong number that no
+later reconciliation can tell apart from a real GBP balance, since the
+transaction still balances.
+
+It now rejects such a record instead, through the same rejection report that
+already handles a record whose components don't reconcile: the same
+principle -- surface it, don't paper over it. `--per-currency-accounts`
+books them properly instead, into `COMM-<entity>-<CCY>-AR` and siblings. The
+document's primary currency keeps its existing unscoped codes under both
+modes, so a book already imported from a single-currency document is
+unaffected and re-imports idempotently.
+
+`tests/fixtures/commerce_quickbooks_rdh.json` is a real 19-record subset of
+that ledger (GBP and EUR, standard-rated, zero-rated and discounted
+invoices) and the suite checks both modes against it. 53 tests pass.
+
 ## Commerce records reach this repository through accospace (2026-09-22)
 
 Until now `commerce_import.py` took commerce documents by path only, so the
