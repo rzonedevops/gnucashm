@@ -319,3 +319,73 @@ truth value, and the manifest's raw numbers are namespaced under
 script inherits that behavior unchanged — do not strip the tagging when
 consuming its output, and do not cite `helix_self_reported` figures as
 verified case evidence.
+
+
+## Commerce records reach this repository through accospace (2026-09-22)
+
+Until now `commerce_import.py` took commerce documents by path only, so the
+ecosystem-sync path -- the one this document is about -- carried no sales at
+all. accospace's `EcosystemSyncExporter` serialized `organizations` and
+`atoms` and simply dropped every commerce record on the floor.
+
+Worse, it did not drop all of them. The commerce loader creates a
+counterparty as an `ENTITY` node and `organizations` was defined as "every
+`ENTITY` node", so Shopify **retail customers were exported as fincosys group
+organizations** and imported here by
+`gnc_organizations_from_fincosys_json()` as `GncOrganization` records. One
+month of RZL orders produces 78 of them.
+
+accospace now excludes them and carries the records in a `commerce` section
+instead (`fincosys/accospace`, `docs/COMMERCE_SYNC_SCHEMA.md`). This side
+consumes it:
+
+```bash
+# accospace's hypergraph export, commerce section and all
+python3 commerce_import.py ../accospace/out/ecosystem_sync.json --out feed.json
+
+# or scan a directory of entity-repository checkouts
+python3 commerce_import.py --repos-root ~/fincosys-repos --out feed.json
+
+python3 sync_fincosys.py --feed feed.json --plan-only
+```
+
+### What `--repos-root` had to learn from the real corpus
+
+Run against the 43 checked-out repositories it finds 15 record documents and
+books 23,135 transactions for DRH, DRHW and RZL into a clean plan. Three
+things were needed to get there, each from something the corpus actually
+contains:
+
+- **Report captures carry this schema too.** Four QuickBooks documents in
+  `entity-regima-dr-h-uk` declare `fincosys-commerce-sync/v1` but hold a
+  `report` or `items` block rather than `records` -- a balance sheet, a
+  product/service list, two sales summaries. They are not this script's
+  input and not errors; they are skipped and counted. A fifth,
+  `2026-09-08_ap_aging_detail.json`, *does* carry records but spells its
+  entity `entity.entity_code` instead of the schema's `entity.code`, so it
+  is reported as unreadable and the run exits non-zero. One malformed file
+  no longer stops the other fourteen.
+
+- **The corpus keeps superseded captures on purpose.** RZL holds both the
+  109-order Shopify window of 2026-09-06 and the 9,449-order history that
+  replaced it, and both the 1,000-row and 13,051-row QuickBooks invoice
+  exports. Feeding all of them produced 1,109 duplicate txids and an unclean
+  plan. Copies that agree are collapsed -- complete capture over partial,
+  then later `generated_at`, with more detail breaking the tie -- and the
+  supersession is reported, not silent.
+
+- **Differing detail is not differing figures.** The two QuickBooks exports
+  decompose the same invoices differently: the older states total, tax and
+  balance, the newer adds subtotal, shipping and discounts. All 1,000
+  overlapping invoices agree on every stated figure. So the test for a
+  conflict is the amount charged, not the whole decomposition; otherwise a
+  thousand real invoices go unbooked over a disagreement that does not
+  exist.
+
+Where two captures *do* disagree on the amount charged, neither is booked
+and both are named. Across the whole corpus exactly one record does:
+`QBO_RZL_INVOICE_52168` (#9592) reads 276.76 with 0.76 outstanding in the
+2026-09-06 export and 276.77 fully paid in the 2026-09-07 one. A penny of
+rounding and a 76p payment in between -- immaterial, and still not resolved
+here, because picking one would answer a question about the evidence
+silently.

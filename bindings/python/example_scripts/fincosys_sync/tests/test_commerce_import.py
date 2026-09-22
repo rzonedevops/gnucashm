@@ -103,11 +103,17 @@ def test_accounts_are_merged_across_documents(tmp_path):
         path.write_text(json.dumps(_document()))
         paths.append(str(path))
 
-    accounts, transactions, reports = ci.convert_paths(paths)
+    accounts, transactions, reports, _, duplicates = ci.convert_paths(paths)
 
     assert len(accounts) == 4
-    assert len(transactions) == 2
     assert len(reports) == 2
+    # The same record captured in two documents books once. Booking it twice
+    # double-counts the sale, and sync_fincosys would reject the plan for
+    # duplicate txids anyway -- the two copies agree, so the better capture
+    # is kept and the supersession is reported rather than being silent.
+    assert len(transactions) == 1
+    assert len(duplicates["superseded"]) == 1
+    assert duplicates["conflicts"] == []
 
 
 # -- booking ----------------------------------------------------------------
@@ -564,3 +570,516 @@ def test_real_records_book_revenue_matching_the_documents_own_totals():
     )
 
     assert booked_receivable == pytest.approx(document_totals, abs=0.01)
+
+
+# ---------------------------------------------------------------------------
+# Ecosystem-sync input: accospace's hypergraph export carries commerce records
+# in a `commerce` section. That is this repository's real integration surface
+# with accospace -- the same document already carries organizations and
+# cognitive atoms -- and until the section existed the ecosystem path carried
+# no sales at all.
+# ---------------------------------------------------------------------------
+
+
+def _ecosystem_document(records_by_entity=None, counterparties=None):
+    return {
+        "schema": "fincosys-ecosystem-sync/v1",
+        "source": "fincosys-atomspace-builder",
+        "generated_at": "2026-09-22T00:00:00Z",
+        "organizations": [],
+        "atoms": [],
+        "links": [],
+        "commerce": {
+            "record_schema": "fincosys-commerce-sync/v1",
+            "records_by_entity": records_by_entity
+            if records_by_entity is not None
+            else {"RZL": [_ecosystem_record()]},
+            "counterparties": counterparties
+            if counterparties is not None
+            else [
+                {
+                    "id": "COMM_PARTY_SHOPIFY_7554686779459",
+                    "name": "Kat Buckley",
+                    "external_id": "7554686779459",
+                    "country": "GB",
+                    "source": "shopify",
+                }
+            ],
+        },
+    }
+
+
+def _ecosystem_record(**overrides):
+    record = {
+        "record_id": "SHOPIFY_RZL_ORDER_10318",
+        "record_type": "sales_order",
+        "external_id": "13317005050230",
+        "document_number": "#10318",
+        "issued_at": "2026-08-01T11:36:15Z",
+        "currency": "GBP",
+        "source": "shopify",
+        "capture_status": "complete",
+        "counterparty_ref": "COMM_PARTY_SHOPIFY_7554686779459",
+        "amounts": {
+            "subtotal": "329.5",
+            "shipping": "17.05",
+            "tax": "65.9",
+            "total": "412.45",
+        },
+    }
+    record.update(overrides)
+    return record
+
+
+def test_ecosystem_sync_expands_into_one_document_per_entity():
+    documents = ci.documents_from_ecosystem_sync(
+        _ecosystem_document(
+            records_by_entity={
+                "RZL": [_ecosystem_record()],
+                "DRH": [
+                    _ecosystem_record(
+                        record_id="QBO_DRH_INVOICE_1",
+                        record_type="sales_invoice",
+                        counterparty_ref=None,
+                        source="quickbooks",
+                    )
+                ],
+            },
+            counterparties=[],
+        )
+    )
+
+    assert [d["entity"]["code"] for d in documents] == ["DRH", "RZL"]
+    assert all(d["schema"] == ci.SCHEMA for d in documents)
+    # The converter books per entity, so an entity's records must not be
+    # split across two documents.
+    assert [len(d["records"]) for d in documents] == [1, 1]
+
+
+def test_ecosystem_sync_rehydrates_the_referenced_counterparty():
+    """Counterparties are carried once and referenced, not inlined.
+
+    A customer appears on many documents; the reference has to be resolved
+    back onto each record or the booked transaction loses who it was with.
+    """
+    documents = ci.documents_from_ecosystem_sync(_ecosystem_document())
+
+    record = documents[0]["records"][0]
+    assert record["counterparty"]["name"] == "Kat Buckley"
+    assert record["counterparty"]["external_id"] == "7554686779459"
+    assert "counterparty_ref" not in record
+
+
+def test_ecosystem_sync_books_through_the_same_converter():
+    documents = ci.documents_from_ecosystem_sync(_ecosystem_document())
+    accounts, transactions, report = ci.convert(documents[0])
+
+    assert report["booked"] == 1
+    assert report["rejected"] == []
+    assert len(accounts) == 4
+    total = sum(round(float(s["amount"]), 2) for s in transactions[0]["splits"])
+    assert abs(total) <= sf.BALANCE_TOLERANCE
+
+
+def test_one_partial_record_makes_the_whole_rebuilt_document_partial():
+    """Capture status is per record there and per document here.
+
+    Marking the document complete because most of its records were would
+    state, of a set containing a known-partial capture, that it is the
+    entity's full ledger.
+    """
+    documents = ci.documents_from_ecosystem_sync(
+        _ecosystem_document(
+            records_by_entity={
+                "RZL": [
+                    _ecosystem_record(),
+                    _ecosystem_record(
+                        record_id="SHOPIFY_RZL_ORDER_10319",
+                        capture_status="partial",
+                    ),
+                ]
+            }
+        )
+    )
+
+    assert documents[0]["window"]["complete"] is False
+
+
+def test_tax_basis_survives_into_the_booking():
+    """A VAT-inclusive record read as exclusive is rejected, not booked.
+
+    accospace used to drop tax_basis when loading a record into the
+    hypergraph, so the three VAT-inclusive orders in the RegimA Zone store's
+    history came back out looking exclusive and failed the identity check.
+    """
+    documents = ci.documents_from_ecosystem_sync(
+        _ecosystem_document(
+            records_by_entity={
+                "RZL": [
+                    _ecosystem_record(
+                        record_id="SHOPIFY_RZL_ORDER_1004",
+                        tax_basis="inclusive",
+                        amounts={
+                            "subtotal": "24.21",
+                            "shipping": "0.0",
+                            "tax": "4.03",
+                            "total": "24.21",
+                        },
+                    )
+                ]
+            }
+        )
+    )
+    _, transactions, report = ci.convert(documents[0])
+
+    assert report["rejected"] == []
+    assert report["booked"] == 1
+    # Revenue is credited net of the tax the subtotal contains.
+    revenue = [
+        s for s in transactions[0]["splits"] if s["account_code"].endswith("REVENUE")
+    ][0]
+    assert round(float(revenue["amount"]), 2) == -20.18
+
+
+def test_an_empty_entity_code_is_refused_rather_than_attributed():
+    with pytest.raises(ValueError) as excinfo:
+        ci.documents_from_ecosystem_sync(
+            _ecosystem_document(records_by_entity={"": [_ecosystem_record()]})
+        )
+    assert "cannot be attributed" in str(excinfo.value)
+
+
+def test_a_document_with_no_commerce_section_yields_nothing():
+    """An older accospace export predates the section; that is not an error."""
+    assert ci.documents_from_ecosystem_sync({"schema": "fincosys-ecosystem-sync/v1"}) == []
+
+
+def test_load_documents_dispatches_on_schema(tmp_path):
+    eco = tmp_path / "eco.json"
+    eco.write_text(json.dumps(_ecosystem_document()))
+    loaded = ci.load_documents(str(eco))
+    assert len(loaded) == 1
+    document, label = loaded[0]
+    assert document["schema"] == ci.SCHEMA
+    # The label still names where the records came from.
+    assert label.endswith("#RZL")
+
+    commerce = tmp_path / "commerce.json"
+    commerce.write_text(json.dumps(_document()))
+    loaded = ci.load_documents(str(commerce))
+    assert len(loaded) == 1
+    assert loaded[0][1] == str(commerce)
+
+
+def test_a_malformed_commerce_document_still_names_its_file(tmp_path):
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"schema": "something-else/v1"}))
+    with pytest.raises(ValueError) as excinfo:
+        ci.load_documents(str(bad))
+    assert "bad.json" in str(excinfo.value)
+
+
+# ---------------------------------------------------------------------------
+# --repos-root discovery. The corpus is 40-odd repositories; a capture named
+# by hand is a capture that can be left out without anyone noticing.
+# ---------------------------------------------------------------------------
+
+
+def _entity_repo(root, name, relative, document):
+    path = root / name / os.path.dirname(relative)
+    path.mkdir(parents=True, exist_ok=True)
+    target = root / name / relative
+    target.write_text(json.dumps(document))
+    return target
+
+
+def test_discovery_finds_documents_across_entity_repos(tmp_path):
+    _entity_repo(tmp_path, "entity-rzl",
+                 "accounting/shopify/raw-json/orders.json", _document())
+    _entity_repo(tmp_path, "entity-rzl",
+                 "accounting/shopify/reports/ledger.json", _document())
+    _entity_repo(tmp_path, "entity-drh",
+                 "accounting/qbo/reports/invoices.json", _document())
+
+    found, skipped = ci.discover_documents(str(tmp_path))
+
+    assert len(found) == 3
+    assert skipped == []
+    assert any("entity-drh" in p for p in found)
+    assert any("reports" in p for p in found)
+
+
+def test_discovery_skips_files_that_are_not_this_scripts_input(tmp_path):
+    """The canonical paths also hold raw provider exports and manifests.
+
+    Those are not commerce documents and not errors either -- they are
+    simply not input, so they are skipped rather than reported as failures.
+    """
+    _entity_repo(tmp_path, "entity-rzl",
+                 "accounting/shopify/raw-json/orders.json", _document())
+    _entity_repo(tmp_path, "entity-rzl",
+                 "accounting/shopify/reports/manifest.json",
+                 {"schema": "fincosys-commerce-sync-manifest/v1"})
+    (tmp_path / "entity-rzl" / "accounting" / "shopify" / "raw-json"
+     / "notjson.json").write_text("{{{ not json")
+
+    found, _ = ci.discover_documents(str(tmp_path))
+
+    assert len(found) == 1
+    assert found[0].endswith("orders.json")
+
+
+def test_discovery_finds_an_ecosystem_sync_document_too(tmp_path):
+    _entity_repo(tmp_path, "entity-rzl",
+                 "accounting/shopify/reports/eco.json", _ecosystem_document())
+    found, _ = ci.discover_documents(str(tmp_path))
+    assert len(found) == 1
+
+
+def test_discovery_on_a_missing_root_is_an_error(tmp_path):
+    with pytest.raises(ValueError):
+        ci.discover_documents(str(tmp_path / "nope"))
+
+
+def test_convert_paths_reports_each_entity_separately(tmp_path):
+    eco = tmp_path / "eco.json"
+    eco.write_text(json.dumps(_ecosystem_document(
+        records_by_entity={
+            "RZL": [_ecosystem_record()],
+            "DRH": [_ecosystem_record(record_id="QBO_DRH_INVOICE_1",
+                                      record_type="sales_invoice",
+                                      counterparty_ref=None)],
+        },
+        counterparties=[],
+    )))
+
+    accounts, transactions, reports, failures, dups = ci.convert_paths([str(eco)])
+    assert failures == []
+    assert dups["conflicts"] == []
+
+    assert len(reports) == 2
+    assert {r["entity_code"] for r in reports} == {"RZL", "DRH"}
+    # Four accounts per entity, and they must not be merged across entities.
+    assert len(accounts) == 8
+    assert len(transactions) == 2
+
+
+# ---------------------------------------------------------------------------
+# Supersession. The corpus keeps dated captures side by side, so scanning it
+# finds the same record twice -- RZL's Shopify history holds both the
+# 109-order window of 2026-09-06 and the 9,449-order capture that superseded
+# it. Booking both double-counts the sale.
+# ---------------------------------------------------------------------------
+
+
+def _capture(tmp_path, name, *, complete, generated_at, subtotal="329.5"):
+    """One capture of one record.
+
+    The amounts are varied through `subtotal` and kept internally
+    reconciling, because a copy that fails the identity check is rejected
+    before it can ever become a competing transaction -- which is not the
+    situation these tests are about.
+    """
+    net = float(subtotal)
+    shipping, tax = 17.05, round(net * 0.2, 2)
+    document = _document(complete=complete)
+    document["generated_at"] = generated_at
+    document["records"][0]["amounts"] = {
+        "subtotal": "{:.2f}".format(net),
+        "shipping": "{:.2f}".format(shipping),
+        "tax": "{:.2f}".format(tax),
+        "total": "{:.2f}".format(net + shipping + tax),
+    }
+    path = tmp_path / name
+    path.write_text(json.dumps(document))
+    return str(path)
+
+
+def test_the_more_complete_capture_wins(tmp_path):
+    partial = _capture(tmp_path, "window.json", complete=False,
+                       generated_at="2026-09-22T00:00:00Z")
+    full = _capture(tmp_path, "history.json", complete=True,
+                    generated_at="2026-09-06T00:00:00Z")
+
+    _, transactions, _, _, duplicates = ci.convert_paths([partial, full])
+
+    assert len(transactions) == 1
+    # Complete beats partial even though the partial capture is newer: a
+    # window covering the entity's history is the better authority.
+    assert duplicates["superseded"][0]["kept"] == full
+    assert duplicates["superseded"][0]["dropped"] == [partial]
+
+
+def test_among_equal_captures_the_later_one_wins(tmp_path):
+    older = _capture(tmp_path, "older.json", complete=True,
+                     generated_at="2026-09-06T00:00:00Z")
+    newer = _capture(tmp_path, "newer.json", complete=True,
+                     generated_at="2026-09-22T00:00:00Z")
+
+    _, transactions, _, _, duplicates = ci.convert_paths([older, newer])
+
+    assert len(transactions) == 1
+    assert duplicates["superseded"][0]["kept"] == newer
+
+
+def test_two_captures_that_disagree_are_a_conflict_and_neither_books(tmp_path):
+    """Picking one would answer a question about the evidence silently.
+
+    This is the rule the statement corpus already follows: two extracts of
+    one statement whose figures disagree are left flagged, not filed away as
+    a duplicate.
+    """
+    a = _capture(tmp_path, "a.json", complete=True,
+                 generated_at="2026-09-06T00:00:00Z", subtotal="329.5")
+    b = _capture(tmp_path, "b.json", complete=True,
+                 generated_at="2026-09-22T00:00:00Z", subtotal="800.00")
+
+    _, transactions, _, _, duplicates = ci.convert_paths([a, b])
+
+    assert transactions == []
+    assert duplicates["superseded"] == []
+    assert len(duplicates["conflicts"]) == 1
+    assert duplicates["conflicts"][0]["sources"] == sorted([a, b])
+
+
+def test_a_conflict_is_not_resolved_by_preferring_the_newer_capture(tmp_path):
+    """A newer capture is a better *capture*, not a licence to overwrite.
+
+    Supersession applies where the copies agree. Where they disagree the
+    recency rule must not kick in, or a conflict silently becomes a
+    supersession and the disagreement is never seen.
+    """
+    old_complete = _capture(tmp_path, "old.json", complete=True,
+                            generated_at="2026-01-01T00:00:00Z",
+                            subtotal="100.00")
+    new_partial = _capture(tmp_path, "new.json", complete=False,
+                           generated_at="2026-09-22T00:00:00Z",
+                           subtotal="200.00")
+
+    _, transactions, _, _, duplicates = ci.convert_paths(
+        [old_complete, new_partial])
+
+    assert transactions == []
+    assert len(duplicates["conflicts"]) == 1
+
+
+def test_distinct_records_are_not_collapsed(tmp_path):
+    first = _document()
+    second = _document(records=[_order(record_id="SHOPIFY_RZL_ORDER_10319")])
+    paths = []
+    for name, document in (("a.json", first), ("b.json", second)):
+        path = tmp_path / name
+        path.write_text(json.dumps(document))
+        paths.append(str(path))
+
+    _, transactions, _, _, duplicates = ci.convert_paths(paths)
+
+    assert len(transactions) == 2
+    assert duplicates["superseded"] == []
+    assert duplicates["conflicts"] == []
+
+
+def test_same_amount_different_decomposition_is_supersession_not_conflict(tmp_path):
+    """Two captures of one invoice routinely differ in detail, not in figures.
+
+    RZL's QuickBooks invoices are held both ways in the corpus: the
+    2026-09-06 export states total, tax and balance only; the 2026-09-07 one
+    adds subtotal, shipping and discounts. All 1,000 overlapping invoices
+    agree on every stated figure. Treating the extra detail as a conflict
+    would refuse to book a thousand real invoices over a disagreement that
+    does not exist.
+    """
+    coarse = _document(complete=True)
+    coarse["generated_at"] = "2026-09-06T00:00:00Z"
+    coarse["records"][0]["amounts"] = {
+        "subtotal": "394.55", "shipping": "0.00", "tax": "17.90",
+        "total": "412.45",
+    }
+    fine = _document(complete=True)
+    fine["generated_at"] = "2026-09-07T00:00:00Z"
+    fine["records"][0]["amounts"] = {
+        "subtotal": "329.50", "shipping": "65.05", "tax": "17.90",
+        "total": "412.45",
+    }
+
+    paths = []
+    for name, document in (("coarse.json", coarse), ("fine.json", fine)):
+        path = tmp_path / name
+        path.write_text(json.dumps(document))
+        paths.append(str(path))
+
+    _, transactions, _, _, duplicates = ci.convert_paths(paths)
+
+    assert duplicates["conflicts"] == []
+    assert len(duplicates["superseded"]) == 1
+    assert len(transactions) == 1
+    # Both charge 412.45; that is what had to agree.
+    debit = sum(
+        round(float(s["amount"]), 2)
+        for s in transactions[0]["splits"]
+        if float(s["amount"]) > 0
+    )
+    assert debit == 412.45
+
+
+def test_the_better_decomposed_copy_wins_even_if_it_is_older(tmp_path):
+    """Detail breaks the tie before recency.
+
+    A sale booked across revenue, shipping and tax is a better record than
+    the same sale booked to one account, whatever the capture dates.
+    """
+    detailed_old = _document(complete=True)
+    detailed_old["generated_at"] = "2026-01-01T00:00:00Z"
+    detailed_old["records"][0]["amounts"] = {
+        "subtotal": "329.50", "shipping": "17.05", "tax": "65.90",
+        "total": "412.45",
+    }
+    coarse_new = _document(complete=True)
+    coarse_new["generated_at"] = "2026-09-22T00:00:00Z"
+    coarse_new["records"][0]["amounts"] = {
+        "subtotal": "412.45", "shipping": "0.00", "tax": "0.00",
+        "total": "412.45",
+    }
+
+    paths = []
+    for name, document in (("old.json", detailed_old), ("new.json", coarse_new)):
+        path = tmp_path / name
+        path.write_text(json.dumps(document))
+        paths.append(str(path))
+
+    _, transactions, _, _, duplicates = ci.convert_paths(paths)
+
+    assert len(transactions) == 1
+    assert duplicates["superseded"][0]["kept"].endswith("old.json")
+    assert len(transactions[0]["splits"]) == 4
+
+
+def test_an_estimate_is_skipped_as_a_quote_not_rejected_as_unrecognized():
+    """An estimate is a quote, not a sale, and not a broken record either.
+
+    Booking one credits revenue for a transaction that may never happen, and
+    if it does happen the invoice raised against it books the same revenue
+    again. Reporting it as an unrecognized record_type reads as a fault in
+    the capture; entity-rzl holds 38 perfectly good estimates.
+    """
+    document = _document(records=[
+        _order(record_id="QBO_RZL_ESTIMATE_1", record_type="sales_estimate")
+    ])
+
+    _, transactions, report = ci.convert(document)
+
+    assert transactions == []
+    assert report["rejected"] == []
+    assert report["skipped_not_bookable"] == 1
+    assert report["booked"] == 0
+
+
+def test_a_genuinely_unknown_record_type_is_still_rejected():
+    document = _document(records=[
+        _order(record_id="X", record_type="something_new")
+    ])
+
+    _, _, report = ci.convert(document)
+
+    assert len(report["rejected"]) == 1
+    assert "unrecognized record_type" in report["rejected"][0]["reason"]
