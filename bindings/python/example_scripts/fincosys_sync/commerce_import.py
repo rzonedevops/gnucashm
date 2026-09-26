@@ -9,6 +9,27 @@
 # accounting/<source>/ canonical paths. The schema is specified in
 # fincosys/accospace, docs/COMMERCE_SYNC_SCHEMA.md.
 #
+# Three ways in, all landing on the same converter
+# ------------------------------------------------
+# 1. A commerce document by path -- the original form.
+# 2. A "fincosys-ecosystem-sync/v1" document carrying a `commerce` section.
+#    That is accospace's export of a built hypergraph, and it is this
+#    repository's actual integration surface with accospace: the same
+#    document already carries organizations and cognitive atoms. Until the
+#    section existed, commerce records could only reach here by someone
+#    pointing this script at entity-repo files by hand, so the ecosystem
+#    path silently carried no sales at all.
+# 3. --repos-root <dir>, scanning a directory of entity-repo checkouts for
+#    accounting/*/{raw-json,reports}/*.json. The corpus is 40-odd
+#    repositories; naming each document on the command line is how a capture
+#    gets left out without anyone noticing.
+#
+# A note on (2): the ecosystem-sync `commerce` section groups records by
+# entity and carries counterparties once, referenced by id. It is expanded
+# back into one commerce document per entity here, because the converter
+# books per entity and an entity's records must not be split across two
+# reports.
+#
 # Why this is a separate loader from sync_fincosys.py's --feed path
 # ------------------------------------------------------------------
 # The bank-statement corpus that --feed carries is single-sided: a statement
@@ -87,8 +108,21 @@ import json
 import os
 import sys
 from collections import OrderedDict
+from pathlib import Path
 
 SCHEMA = "fincosys-commerce-sync/v1"
+
+#: accospace's export of a built hypergraph. Carries a `commerce` section
+#: since the commerce records stopped being exported as group organizations.
+ECOSYSTEM_SCHEMA = "fincosys-ecosystem-sync/v1"
+
+#: Where an entity repository keeps commerce documents, relative to its root.
+#: Both are scanned because a capture's orders and its period/product reports
+#: are written to different ones.
+ENTITY_REPO_GLOBS = (
+    "accounting/*/raw-json/*.json",
+    "accounting/*/reports/*.json",
+)
 
 # Components must reconcile to the document total within half a minor unit.
 # Commerce sources round tax per line, so an exact equality test would
@@ -101,6 +135,15 @@ BOOKABLE_RECORD_TYPES = ("sales_order", "sales_invoice")
 #: record_type values that restate bookable records in aggregate. Booking
 #: these as well would double-count revenue.
 AGGREGATE_RECORD_TYPES = ("sales_period", "product_sales_summary")
+
+#: Recognized, and deliberately not booked, for a different reason than the
+#: aggregates above: an estimate is a quote, not a sale. Booking one credits
+#: revenue for a transaction that may never happen, and if it does happen the
+#: invoice raised against it books the same revenue again. entity-rzl holds 38
+#: of these. They were previously reported as an "unrecognized record_type",
+#: which reads as a data problem in the capture rather than as this script
+#: declining to book a quote.
+NOT_BOOKABLE_RECORD_TYPES = ("sales_estimate",)
 
 #: How a record may state its tax. See the header comment for the two
 #: identities. A record that declares anything else is rejected rather than
@@ -174,6 +217,137 @@ def load_commerce_document(path):
         raise ValueError("{}: document declares no entity.code".format(path))
 
     return document
+
+
+def documents_from_ecosystem_sync(document, path=""):
+    """Expand an ecosystem-sync `commerce` section into commerce documents.
+
+    accospace groups the records by entity code and carries counterparties
+    once, referenced from each record by id; this rebuilds one
+    fincosys-commerce-sync/v1 document per entity so the converter sees
+    exactly what it sees from a file.
+
+    Capture status is per record there but per document here, and the two
+    are reconciled the conservative way: if any record in an entity's group
+    is a partial capture, the whole rebuilt document is marked incomplete.
+    Marking it complete because most records were would state, of a set that
+    contains a known-partial capture, that it is the entity's full ledger.
+    """
+    commerce = document.get("commerce") or {}
+    records_by_entity = commerce.get("records_by_entity") or {}
+    parties = {
+        party.get("id"): party for party in commerce.get("counterparties") or []
+    }
+
+    documents = []
+    for entity_code in sorted(records_by_entity):
+        records = records_by_entity[entity_code] or []
+        if not entity_code:
+            raise ValueError(
+                "{}: commerce.records_by_entity has an empty entity code; its "
+                "{} record(s) cannot be attributed".format(path, len(records))
+            )
+
+        rebuilt = []
+        sources = OrderedDict()
+        complete = True
+        for record in records:
+            record = dict(record)
+            if record.pop("capture_status", None) == "partial":
+                complete = False
+            source = record.get("source")
+            if source:
+                sources[source] = True
+            party_id = record.pop("counterparty_ref", None)
+            if party_id and party_id in parties:
+                party = parties[party_id]
+                record["counterparty"] = {
+                    "external_id": party.get("external_id"),
+                    "name": party.get("name"),
+                    "country": party.get("country"),
+                }
+            rebuilt.append(record)
+
+        documents.append({
+            "schema": SCHEMA,
+            "source": "+".join(sources) if sources else "unknown",
+            "generated_at": document.get("generated_at"),
+            "entity": {"code": entity_code},
+            "window": {
+                "from": None,
+                "to": None,
+                "basis": "ecosystem_sync",
+                "complete": complete,
+            },
+            "records": rebuilt,
+        })
+
+    return documents
+
+
+def load_documents(path):
+    """Read one path into a list of (document, label) pairs.
+
+    A commerce document yields one; an ecosystem-sync document yields one per
+    entity carrying commerce records, labelled `<path>#<ENTITY>` so a report
+    still names where it came from.
+    """
+    with open(path, "r", encoding="utf-8") as fh:
+        document = json.load(fh)
+
+    schema = document.get("schema")
+    if schema == ECOSYSTEM_SCHEMA:
+        return [
+            (doc, "{}#{}".format(path, doc["entity"]["code"]))
+            for doc in documents_from_ecosystem_sync(document, path)
+        ]
+
+    # Re-read through the validating loader so its error messages, which name
+    # the file, stay the ones a caller sees.
+    return [(load_commerce_document(path), path)]
+
+
+def discover_documents(repos_root):
+    """Find commerce documents across a directory of entity-repo checkouts.
+
+    Returns ``(found, skipped)``. Every candidate is opened and read,
+    because the canonical paths also hold raw provider exports, sync
+    manifests and QuickBooks report captures; those are neither commerce
+    record documents nor errors, so they are skipped and counted rather
+    than reported as failures.
+    """
+    root = Path(repos_root)
+    if not root.is_dir():
+        raise ValueError("{}: not a directory".format(repos_root))
+
+    found = []
+    skipped = []
+    for repo in sorted(p for p in root.iterdir() if p.is_dir()):
+        for pattern in ENTITY_REPO_GLOBS:
+            for candidate in sorted(repo.glob(pattern)):
+                try:
+                    with open(candidate, "r", encoding="utf-8") as fh:
+                        document = json.load(fh)
+                except (OSError, ValueError):
+                    continue
+                if not isinstance(document, dict):
+                    continue
+                schema = document.get("schema")
+                if schema == ECOSYSTEM_SCHEMA:
+                    found.append(str(candidate))
+                elif schema == SCHEMA:
+                    # A record document has records. Several QuickBooks
+                    # report captures in the corpus carry this schema but
+                    # hold a `report` or `items` block instead -- a balance
+                    # sheet, an AP aging detail, a product/service list.
+                    # They are not this script's input and not errors; a
+                    # document that *does* carry records but is malformed
+                    # still reaches the validator below and is reported.
+                    if isinstance(document.get("records"), list):
+                        found.append(str(candidate))
+                    else:
+                        skipped.append(str(candidate))
+    return found, skipped
 
 
 def build_accounts(entity_code, currency, scoped=False):
@@ -276,6 +450,7 @@ def convert(document, source_path="", per_currency_accounts=False):
     transactions = []
     rejected = []
     skipped_aggregates = 0
+    skipped_not_bookable = 0
     currencies = OrderedDict()
     #: Only the currencies of records that were actually booked. Accounts
     #: are built from these, so a rejected foreign-currency record does not
@@ -288,6 +463,9 @@ def convert(document, source_path="", per_currency_accounts=False):
 
         if record_type in AGGREGATE_RECORD_TYPES:
             skipped_aggregates += 1
+            continue
+        if record_type in NOT_BOOKABLE_RECORD_TYPES:
+            skipped_not_bookable += 1
             continue
         if record_type not in BOOKABLE_RECORD_TYPES:
             rejected.append({
@@ -415,6 +593,7 @@ def convert(document, source_path="", per_currency_accounts=False):
         "records_total": len(document.get("records", [])),
         "booked": len(transactions),
         "skipped_aggregates": skipped_aggregates,
+        "skipped_not_bookable": skipped_not_bookable,
         "rejected": rejected,
         "currencies": sorted(currencies),
         "booked_currencies": sorted(booked_currencies),
@@ -444,25 +623,156 @@ def convert(document, source_path="", per_currency_accounts=False):
     return accounts, transactions, report
 
 
-def convert_paths(paths, per_currency_accounts=False):
-    """Convert several commerce documents, merging their accounts."""
-    accounts_by_code = OrderedDict()
+def _splits_fingerprint(transaction):
+    """What two copies of one record must agree on to be the same record.
+
+    The test is the amount charged -- the debit to receivables -- and not the
+    whole decomposition, because two captures of one invoice routinely
+    decompose it differently while agreeing on every stated figure. RZL's
+    QuickBooks invoices are captured both ways in this corpus: the
+    2026-09-06 export states total, tax and balance only, and the 2026-09-07
+    one adds subtotal, shipping and discounts. All 1,000 overlapping
+    invoices agree on total, tax and balance; only the detail differs.
+
+    So a difference in decomposition is a difference in how well the capture
+    saw the invoice, which supersession settles. A difference in the amount
+    charged is a disagreement about what happened, which it must not.
+    """
+    return round(
+        sum(
+            float(split.get("amount", 0))
+            for split in transaction.get("splits", [])
+            if float(split.get("amount", 0)) > 0
+        ),
+        2,
+    )
+
+
+def _supersession_rank(document, label):
+    """Order two captures of the same record. Higher wins.
+
+    A complete capture beats a partial one -- a window that covers the
+    entity's history is a better authority than one that stopped short --
+    and among equals the later `generated_at` wins. Ordering by path would
+    make the answer depend on where someone happened to check the
+    repositories out.
+    """
+    window = document.get("window") or {}
+    return (
+        1 if window.get("complete") else 0,
+        document.get("generated_at") or "",
+        label,
+    )
+
+
+def _detail_rank(transaction):
+    """How finely a capture decomposed the record. More splits is more detail.
+
+    Used only to break a tie between copies that agree on the amount charged:
+    an invoice booked across revenue, shipping and tax is a better record of
+    the same sale than one booked to a single account, whatever their dates.
+    """
+    return len(transaction.get("splits", []))
+
+
+def resolve_duplicates(entries):
+    """Collapse records captured more than once, and flag those that disagree.
+
+    The corpus deliberately keeps dated captures side by side, so scanning it
+    finds the same record twice: RZL's Shopify history holds the 109-order
+    window of 2026-09-06 as well as the 9,449-order capture that superseded
+    it, and its QuickBooks invoices likewise. Feeding both produces duplicate
+    txids and an unclean plan.
+
+    Two copies that agree are one record captured twice, and the better
+    capture is kept. Two copies that *disagree* are a conflict, and neither
+    is booked: picking one would answer a question about the evidence
+    silently, which is the same rule the statement corpus follows when two
+    extracts of one statement disagree.
+
+    Returns ``(transactions, superseded, conflicts)``.
+    """
+    by_txid = OrderedDict()
+    for transaction, rank, label in entries:
+        by_txid.setdefault(transaction.get("txid"), []).append(
+            (transaction, rank, label)
+        )
+
     transactions = []
+    superseded = []
+    conflicts = []
+    for txid, copies in by_txid.items():
+        if len(copies) == 1:
+            transactions.append(copies[0][0])
+            continue
+
+        fingerprints = {_splits_fingerprint(copy[0]) for copy in copies}
+        if len(fingerprints) > 1:
+            conflicts.append({
+                "txid": txid,
+                "sources": sorted(copy[2] for copy in copies),
+            })
+            continue
+
+        winner = max(
+            copies, key=lambda copy: (_detail_rank(copy[0]), copy[1])
+        )
+        transactions.append(winner[0])
+        superseded.append({
+            "txid": txid,
+            "kept": winner[2],
+            "dropped": sorted(
+                copy[2] for copy in copies if copy[2] != winner[2]
+            ),
+        })
+
+    return transactions, superseded, conflicts
+
+
+def convert_paths(paths, keep_going=False, per_currency_accounts=False):
+    """Convert several commerce documents, merging their accounts.
+
+    With ``keep_going``, a document that cannot be read or validated is
+    collected and the rest still convert -- one malformed file in a 40-repo
+    corpus should not stop the other thirty-nine. The failures are returned
+    so the caller can report them and exit non-zero; they are never
+    swallowed.
+    """
+    accounts_by_code = OrderedDict()
+    entries = []
     reports = []
+    failures = []
 
     for path in paths:
-        document = load_commerce_document(path)
-        accounts, txns, report = convert(
-            document, source_path=path,
-            per_currency_accounts=per_currency_accounts,
-        )
-        report["path"] = path
-        for account in accounts:
-            accounts_by_code.setdefault(account["code"], account)
-        transactions.extend(txns)
-        reports.append(report)
+        try:
+            loaded = load_documents(path)
+        except (OSError, ValueError) as exc:
+            if not keep_going:
+                raise
+            failures.append(str(exc))
+            continue
 
-    return list(accounts_by_code.values()), transactions, reports
+        for document, label in loaded:
+            accounts, txns, report = convert(
+                document, source_path=label,
+                per_currency_accounts=per_currency_accounts,
+            )
+            report["path"] = label
+            for account in accounts:
+                accounts_by_code.setdefault(account["code"], account)
+            rank = _supersession_rank(document, label)
+            entries.extend((txn, rank, label) for txn in txns)
+            reports.append(report)
+
+    transactions, superseded, conflicts = resolve_duplicates(entries)
+
+    return (
+        list(accounts_by_code.values()),
+        transactions,
+        reports,
+        failures,
+        {"superseded": superseded, "conflicts": conflicts},
+    )
 
 
 def print_report(reports):
@@ -490,6 +800,10 @@ def print_report(reports):
         print("  skipped aggregates: {}  (period/product totals restate the "
               "orders; booking them would double-count)".format(
                   report["skipped_aggregates"]))
+        if report.get("skipped_not_bookable"):
+            print("  skipped quotes   : {}  (an estimate is not a sale; "
+                  "booking it credits revenue for a transaction that may "
+                  "never happen)".format(report["skipped_not_bookable"]))
         print("  rejected         : {}".format(len(report["rejected"])))
         for rejection in report["rejected"][:10]:
             print("      {}: {}".format(
@@ -510,8 +824,17 @@ def build_arg_parser():
                     "into a GnuCash sync feed."
     )
     parser.add_argument(
-        "documents", nargs="+",
-        help="One or more fincosys-commerce-sync/v1 JSON documents.",
+        "documents", nargs="*",
+        help="One or more fincosys-commerce-sync/v1 documents, or "
+             "fincosys-ecosystem-sync/v1 documents carrying a commerce "
+             "section (accospace's hypergraph export).",
+    )
+    parser.add_argument(
+        "--repos-root",
+        help="Directory of fincosys entity-repository checkouts to scan for "
+             "commerce documents, instead of (or as well as) naming them. "
+             "The corpus is 40-odd repositories and a capture named by hand "
+             "is a capture that can be left out silently.",
     )
     parser.add_argument(
         "--out",
@@ -529,16 +852,72 @@ def build_arg_parser():
 
 
 def main(argv=None):
-    args = build_arg_parser().parse_args(argv)
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
 
+    paths = list(args.documents)
+    discovering = bool(args.repos_root)
     try:
-        accounts, transactions, reports = convert_paths(
-            args.documents, per_currency_accounts=args.per_currency_accounts)
+        if discovering:
+            discovered, skipped = discover_documents(args.repos_root)
+            if not discovered:
+                sys.stderr.write(
+                    "error: no commerce documents under {}\n".format(
+                        args.repos_root)
+                )
+                return 1
+            print("Discovered {} commerce document(s) under {}".format(
+                len(discovered), args.repos_root))
+            if skipped:
+                print("Skipped {} document(s) carrying the schema with no "
+                      "records array (report captures, not record "
+                      "documents)".format(len(skipped)))
+            paths.extend(discovered)
+        if not paths:
+            parser.error("name at least one document, or pass --repos-root")
+
+        accounts, transactions, reports, failures, duplicates = convert_paths(
+            paths,
+            keep_going=discovering,
+            per_currency_accounts=args.per_currency_accounts,
+        )
     except (OSError, ValueError) as exc:
         sys.stderr.write("error: {}\n".format(exc))
         return 1
 
     print_report(reports)
+
+    superseded = duplicates["superseded"]
+    conflicts = duplicates["conflicts"]
+    if superseded:
+        print("\n{} record(s) captured more than once; the better capture "
+              "was kept".format(len(superseded)))
+        for entry in superseded[:5]:
+            print("    {}: kept {}".format(entry["txid"], entry["kept"]))
+        if len(superseded) > 5:
+            print("    ... and {} more".format(len(superseded) - 5))
+    if conflicts:
+        # Not booked, and not resolved here: two captures of one record whose
+        # figures disagree is a question about the evidence, and picking one
+        # would answer it silently.
+        sys.stderr.write(
+            "\n{} record(s) captured twice with DIFFERENT figures; none "
+            "booked:\n".format(len(conflicts))
+        )
+        for entry in conflicts[:10]:
+            sys.stderr.write("  {}: {}\n".format(
+                entry["txid"], ", ".join(entry["sources"])))
+        if len(conflicts) > 10:
+            sys.stderr.write("  ... and {} more\n".format(len(conflicts) - 10))
+
+    if failures:
+        # Reported, never swallowed: a document claiming this schema that
+        # cannot be read is a defect in whatever produced it.
+        sys.stderr.write(
+            "\n{} document(s) could not be read:\n".format(len(failures))
+        )
+        for failure in failures:
+            sys.stderr.write("  {}\n".format(failure))
 
     if args.out:
         feed = {
@@ -558,7 +937,7 @@ def main(argv=None):
         print("Plan it with: python3 sync_fincosys.py --feed {} --plan-only"
               .format(args.out))
 
-    return 0
+    return 1 if (failures or conflicts) else 0
 
 
 if __name__ == "__main__":
