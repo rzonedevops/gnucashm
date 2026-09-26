@@ -1,0 +1,112 @@
+name: No Git LFS
+
+# This repository stores evidence. Git LFS replaces a file's bytes with a
+# ~131-byte pointer stub and moves the real content to a separate store, so a
+# clone stops containing the documents and every checksum manifest silently
+# starts hashing stubs. The rule is absolute -- see the standing rule in
+# fincosys-core CLAUDE.md and docs/NO_GIT_LFS.md.
+#
+# Self-contained deliberately. fincosys-core is private, so its reusable
+# workflow cannot be called from another organisation at all, and the raw URL
+# it fetched its checker from returns 404 to an unauthenticated request. A
+# check that depends on nothing outside this repository is a check that runs.
+#
+# The pattern this looks for is assembled from fragments at runtime rather than
+# written as one literal, so this file does not match itself.
+#
+# Make this a REQUIRED status check on the default branch:
+#   Settings -> Branches -> Require status checks -> "no-lfs"
+# Better still, require it org-wide with a ruleset.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  no-lfs:
+    name: no-lfs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Do not smudge pointers into real files -- the point is to see the
+          # repository exactly as a plain clone delivers it.
+          lfs: false
+
+      - name: Refuse LFS pointers, filter rules, .lfsconfig and LFS workflows
+        run: |
+          python3 - <<'PY'
+          import os, re, sys
+
+          MARKER = b"git-" + b"lfs.github.com/spec"
+          MAX_POINTER_BYTES = 1024
+          SKIP_DIRS = {".git", "node_modules", "__pycache__", ".venv", "venv"}
+          VERBS = ("install", "track", "push", "fetch", "pull")
+          INVOCATION = re.compile(
+              r"git[- ]" + "lfs" + r"\s+(" + "|".join(VERBS) + r")"
+              r"|apt(-get)?\s+install[^\n]*git-" + "lfs"
+              r"|\blfs:\s*true\b",
+              re.IGNORECASE,
+          )
+          WORKFLOWS = os.path.join(".github", "workflows") + os.sep
+
+          # Pointers inherited before this check existed are listed in
+          # .lfs-baseline so the guard fails on anything NEW without blocking
+          # every change. It may shrink as pointers are resolved to real
+          # content; it must never grow.
+          baseline = set()
+          if os.path.exists(".lfs-baseline"):
+              with open(".lfs-baseline", encoding="utf-8") as fh:
+                  baseline = {ln.strip() for ln in fh
+                              if ln.strip() and not ln.startswith("#")}
+
+          def text_of(path):
+              try:
+                  with open(path, encoding="utf-8", errors="replace") as fh:
+                      return fh.read()
+              except OSError:
+                  return ""
+
+          findings = []
+          for dirpath, dirnames, filenames in os.walk("."):
+              dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS]
+              for name in filenames:
+                  path = os.path.join(dirpath, name)
+                  rel = os.path.relpath(path, ".")
+                  if name == ".lfsconfig":
+                      findings.append(("lfsconfig", rel))
+                      continue
+                  try:
+                      if os.path.getsize(path) <= MAX_POINTER_BYTES:
+                          with open(path, "rb") as fh:
+                              if MARKER in fh.read(MAX_POINTER_BYTES):
+                                  if rel not in baseline:
+                                      findings.append(("pointer", rel))
+                                  continue
+                  except OSError:
+                      pass
+                  if name == ".gitattributes" and "filter=lfs" in text_of(path):
+                      findings.append(("filter rule", rel))
+                  if rel.startswith(WORKFLOWS):
+                      hit = INVOCATION.search(text_of(path))
+                      if hit:
+                          findings.append(("workflow", rel + ": " + hit.group(0).strip()))
+
+          if findings:
+              print("REFUSED: Git LFS artefacts are present.")
+              print()
+              for kind, what in sorted(findings):
+                  print("  %-11s %s" % (kind, what))
+              print()
+              print("This repository stores evidence. A pointer is not the document, and a")
+              print("checksum over a pointer is not a checksum of the document. Commit the")
+              print("real bytes, or raise the file size as a question -- never as a pointer.")
+              sys.exit(1)
+
+          print("OK: no LFS pointers, no filter=lfs rules, no .lfsconfig,")
+          print("    no workflow installing or invoking the LFS tool.")
+          PY
