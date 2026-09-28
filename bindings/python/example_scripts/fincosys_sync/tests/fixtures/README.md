@@ -127,3 +127,47 @@ Regenerate by re-deriving the subset from the current capture in an
 `entity-regima-dr-h-uk` checkout. Customer display names and emails are
 present because they are part of the invoice record and the entity
 repositories are private; no addresses or payment details are carried.
+
+## `ecosystem_sync_accospace_commerce.json`
+
+A `fincosys-ecosystem-sync/v1` document **as `fincosys/accospace` actually
+produced it** — not a hand-written one. That distinction is the point of the
+fixture.
+
+Every other test on the ecosystem path builds its own document from
+`_ecosystem_document()`. Because of that, the path was broken for as long as
+it existed and no test noticed: accospace's `EcosystemSyncExporter` wrote
+`organizations`, `atoms` and `links` and **no `commerce` section at all**, so
+every ecosystem export carried zero sales. The suite stayed green throughout,
+because it was testing `commerce_import.py` against itself.
+
+Captured by loading the two real documents beside it —
+`commerce_shopify_rzl.json` and `commerce_quickbooks_rdh.json` — into an
+accospace hypergraph with `CommerceRecordLoader` and exporting it with
+`EcosystemSyncExporter`. It is a small slice of each (3 Shopify orders, 2 GBP
+QuickBooks invoices) plus one VAT-inclusive order, kept small enough to read.
+
+Three properties of it are load-bearing; a regenerated fixture that loses any
+of them stops testing what this one tests:
+
+- **The VAT-inclusive order.** `SHOPIFY_RZL_ORDER_00012` carries
+  `tax_basis: "inclusive"`. accospace's loader used to drop the field, so the
+  record came back looking exclusive, failed the `total == subtotal +
+  shipping + tax` identity by exactly its tax, and was rejected instead of
+  booked. The RegimA Zone store priced VAT-inclusive until 2018, so this is
+  the store's own earliest orders.
+- **The QuickBooks capture is partial** (`window.complete: false` in the
+  source), so each of its records carries `capture_status: "partial"` and the
+  rebuilt RDH document must come out `window.complete: false`. A producer
+  that drops the status rebuilds a known-partial capture as a complete
+  ledger.
+- **RZL's records are not in lexical order.** The 2017 inclusive order sorts
+  first by `record_id` and is last in the document. That is what lets the
+  fixture tell a producer that preserves the order it loaded from one that
+  sorts — and ordering is not cosmetic here, because `convert()` takes a
+  document's primary currency to be the first one its bookable records state
+  and rejects the rest.
+
+**Regenerate it with accospace, never by editing it.** Hand-editing turns it
+back into an assertion about ourselves, which is the failure mode it exists
+to prevent.

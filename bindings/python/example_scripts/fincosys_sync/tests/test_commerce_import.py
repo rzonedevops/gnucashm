@@ -1227,3 +1227,154 @@ def test_real_quickbooks_records_keep_each_currency_in_its_own_accounts():
             and r["record_type"] in ci.BOOKABLE_RECORD_TYPES
         )
         assert booked == pytest.approx(stated, abs=0.01), currency
+
+
+# ---------------------------------------------------------------------------
+# Against a document accospace actually produced
+# ---------------------------------------------------------------------------
+#
+# Every other test on this path builds its own ecosystem-sync document. That
+# is why the path was broken for as long as it was: the fixtures asserted a
+# shape that accospace's exporter did not write. Its EcosystemSyncExporter
+# emitted organizations, atoms and links and no `commerce` section at all, so
+# the ecosystem route carried no sales -- and the tests passed throughout,
+# because they were testing this module against itself.
+#
+# ACCOSPACE_FIXTURE_PATH is therefore a captured output, not a hand-written
+# one: fincosys/accospace loads two real captures (the same Shopify and
+# QuickBooks documents this suite's other fixtures come from) and exports the
+# result. Regenerate it with accospace's CommerceRecordLoader +
+# EcosystemSyncExporter rather than by editing it, or it stops being evidence
+# about the producer and becomes another assertion about ourselves.
+
+ACCOSPACE_FIXTURE_PATH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    "fixtures",
+    "ecosystem_sync_accospace_commerce.json",
+)
+
+
+def _accospace_document():
+    with open(ACCOSPACE_FIXTURE_PATH, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def test_accospace_export_declares_the_schema_this_module_reads():
+    document = _accospace_document()
+    assert document["schema"] == ci.ECOSYSTEM_SCHEMA
+
+
+def test_accospace_export_actually_carries_a_commerce_section():
+    """The regression this whole block exists for.
+
+    An export with no `commerce` section is not an error anywhere -- it
+    expands into zero documents and reports nothing wrong. It just silently
+    books no sales.
+    """
+    document = _accospace_document()
+
+    assert "commerce" in document, "accospace exported no commerce section"
+    records_by_entity = document["commerce"]["records_by_entity"]
+    assert records_by_entity, "accospace exported an empty commerce section"
+
+
+def test_accospace_export_expands_and_books_end_to_end():
+    documents = ci.documents_from_ecosystem_sync(_accospace_document())
+
+    booked = {}
+    for document in documents:
+        accounts, transactions, report = ci.convert(document)
+        assert report["rejected"] == []
+        booked[report["entity_code"]] = report["booked"]
+        assert len(accounts) == 4
+        for transaction in transactions:
+            total = sum(
+                round(float(split["amount"]), 2) for split in transaction["splits"]
+            )
+            assert abs(total) <= sf.BALANCE_TOLERANCE
+
+    assert booked == {"RDH": 2, "RZL": 4}
+
+
+def test_accospace_preserves_the_tax_basis_of_a_vat_inclusive_order():
+    """An inclusive record read as exclusive is wrong by the whole tax.
+
+    accospace's loader was dropping `tax_basis`, so a VAT-inclusive order --
+    the RegimA Zone store priced that way until 2018 -- came back out of the
+    hypergraph looking exclusive, failed the identity by exactly its tax, and
+    was rejected rather than booked.
+    """
+    documents = {
+        d["entity"]["code"]: d
+        for d in ci.documents_from_ecosystem_sync(_accospace_document())
+    }
+    records = {r["record_id"]: r for r in documents["RZL"]["records"]}
+    inclusive = records["SHOPIFY_RZL_ORDER_00012"]
+
+    assert inclusive["tax_basis"] == "inclusive"
+
+    _, _, report = ci.convert(documents["RZL"])
+    assert report["tax_bases"]["inclusive"] == 1
+    assert report["rejected"] == []
+
+
+def test_accospace_counterparty_references_all_resolve():
+    """A reference accospace emits and this module cannot resolve loses who
+    the transaction was with, silently -- the record still books.
+    """
+    document = _accospace_document()
+    carried = {p["id"] for p in document["commerce"]["counterparties"]}
+
+    referenced = set()
+    for records in document["commerce"]["records_by_entity"].values():
+        for record in records:
+            if record.get("counterparty_ref"):
+                referenced.add(record["counterparty_ref"])
+
+    assert referenced, "the fixture carries no references left to check"
+    assert referenced <= carried
+
+    for entity_document in ci.documents_from_ecosystem_sync(document):
+        for record in entity_document["records"]:
+            assert "counterparty_ref" not in record
+
+
+def test_accospace_partial_capture_reaches_the_rebuilt_document():
+    """The QuickBooks capture in the fixture is a partial one.
+
+    If accospace does not carry `capture_status` per record, a known-partial
+    capture is rebuilt here as a complete ledger.
+    """
+    document = _accospace_document()
+    rdh = document["commerce"]["records_by_entity"]["RDH"]
+    assert any(r.get("capture_status") == "partial" for r in rdh)
+
+    documents = {
+        d["entity"]["code"]: d
+        for d in ci.documents_from_ecosystem_sync(document)
+    }
+    assert documents["RDH"]["window"]["complete"] is False
+    assert documents["RZL"]["window"]["complete"] is True
+
+
+def test_accospace_record_order_survives_the_hypergraph():
+    """Order is not cosmetic on this path.
+
+    convert() takes the document's primary currency to be the first one its
+    bookable records state and rejects the rest, so a producer that reorders
+    records changes which currency reaches the ledger.
+    """
+    document = _accospace_document()
+    ids = [r["record_id"] for r in document["commerce"]["records_by_entity"]["RZL"]]
+
+    # The order the capture states, which is not its lexical order -- the
+    # VAT-inclusive 2017 order sorts first by id and is last in the document.
+    # That is what makes this fixture able to tell a producer that preserves
+    # order from one that sorts; without it the test asserts nothing.
+    assert ids == [
+        "SHOPIFY_RZL_ORDER_10318",
+        "SHOPIFY_RZL_ORDER_10319",
+        "SHOPIFY_RZL_ORDER_10320",
+        "SHOPIFY_RZL_ORDER_00012",
+    ]
+    assert ids != sorted(ids)

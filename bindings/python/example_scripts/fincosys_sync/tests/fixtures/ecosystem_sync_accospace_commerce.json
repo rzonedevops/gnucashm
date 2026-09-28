@@ -1,0 +1,276 @@
+{
+  "schema": "fincosys-ecosystem-sync/v1",
+  "source": "accospace",
+  "organizations": [
+    {
+      "code": "RZL",
+      "name": "Regima Zone Ltd",
+      "org_type": "Company",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "RDH",
+      "name": "RegimA @ Dr H Ltd",
+      "org_type": "Company",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "COMM_PARTY_SHOPIFY_7554686779459",
+      "name": "Kat Buckley",
+      "org_type": "",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "COMM_PARTY_SHOPIFY_6181102944323",
+      "name": "Brigita Gasiuniene",
+      "org_type": "",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "COMM_PARTY_SHOPIFY_649251422316",
+      "name": "Jodie Mykaels",
+      "org_type": "",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "COMM_PARTY_QUICKBOOKS_55",
+      "name": "Hayley Burrey",
+      "org_type": "",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    },
+    {
+      "code": "COMM_PARTY_QUICKBOOKS_169",
+      "name": "LUCINDA",
+      "org_type": "",
+      "parent_code": null,
+      "active": true,
+      "evidence_refs": [],
+      "legal_categories": [],
+      "accounts": []
+    }
+  ],
+  "atoms": [],
+  "links": [],
+  "commerce": {
+    "records_by_entity": {
+      "RDH": [
+        {
+          "record_id": "QBO_RDH_INVOICE_2221",
+          "record_type": "sales_invoice",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "81.38",
+            "discounts": "0",
+            "shipping": "0",
+            "tax": "16.28",
+            "total": "97.66",
+            "balance": "0",
+            "refunded": "0"
+          },
+          "external_id": "2221",
+          "document_number": "DRH4187",
+          "issued_at": "2014-12-03",
+          "due_at": "2015-01-02",
+          "financial_status": "PAID",
+          "tax_basis": "exclusive",
+          "source": "quickbooks",
+          "commerce_document": "b_quickbooks_rdh.json",
+          "window_from": "2014-12-03",
+          "window_to": "2026-08-31",
+          "capture_status": "partial",
+          "counterparty_ref": "COMM_PARTY_QUICKBOOKS_55"
+        },
+        {
+          "record_id": "QBO_RDH_INVOICE_5048",
+          "record_type": "sales_invoice",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "500.0",
+            "discounts": "0",
+            "shipping": "0",
+            "tax": "0.0",
+            "total": "500.0",
+            "balance": "0",
+            "refunded": "0"
+          },
+          "external_id": "5048",
+          "document_number": "RG1607PZ",
+          "issued_at": "2014-12-19",
+          "due_at": "2014-01-19",
+          "financial_status": "PAID",
+          "tax_basis": "exclusive",
+          "source": "quickbooks",
+          "commerce_document": "b_quickbooks_rdh.json",
+          "window_from": "2014-12-03",
+          "window_to": "2026-08-31",
+          "capture_status": "partial",
+          "counterparty_ref": "COMM_PARTY_QUICKBOOKS_169"
+        }
+      ],
+      "RZL": [
+        {
+          "record_id": "SHOPIFY_RZL_ORDER_10318",
+          "record_type": "sales_order",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "329.5",
+            "discounts": "44.0",
+            "shipping": "17.05",
+            "shipping_gross": "17.05",
+            "shipping_discounts": "0.00",
+            "tax": "65.9",
+            "total": "412.45",
+            "refunded": "0.0",
+            "net_payment": "412.45"
+          },
+          "external_id": "13317005050230",
+          "document_number": "#10318",
+          "issued_at": "2026-08-01T11:36:15Z",
+          "processed_at": "2026-08-01T11:36:14Z",
+          "financial_status": "PAID",
+          "fulfillment_status": "FULFILLED",
+          "source": "shopify",
+          "commerce_document": "a_shopify_rzl.json",
+          "window_from": "2026-08-01",
+          "window_to": "2026-09-04",
+          "capture_status": "complete",
+          "counterparty_ref": "COMM_PARTY_SHOPIFY_7554686779459"
+        },
+        {
+          "record_id": "SHOPIFY_RZL_ORDER_10319",
+          "record_type": "sales_order",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "136.0",
+            "discounts": "0.0",
+            "shipping": "6.13",
+            "shipping_gross": "6.13",
+            "shipping_discounts": "0.00",
+            "tax": "27.2",
+            "total": "169.33",
+            "refunded": "0.0",
+            "net_payment": "169.33"
+          },
+          "external_id": "13322787750262",
+          "document_number": "#10319",
+          "issued_at": "2026-08-03T08:30:07Z",
+          "processed_at": "2026-08-03T08:30:06Z",
+          "financial_status": "PAID",
+          "fulfillment_status": "FULFILLED",
+          "source": "shopify",
+          "commerce_document": "a_shopify_rzl.json",
+          "window_from": "2026-08-01",
+          "window_to": "2026-09-04",
+          "capture_status": "complete",
+          "counterparty_ref": "COMM_PARTY_SHOPIFY_6181102944323"
+        },
+        {
+          "record_id": "SHOPIFY_RZL_ORDER_10320",
+          "record_type": "sales_order",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "192.5",
+            "discounts": "0.0",
+            "shipping": "6.13",
+            "shipping_gross": "6.13",
+            "shipping_discounts": "0.00",
+            "tax": "38.5",
+            "total": "237.13",
+            "refunded": "0.0",
+            "net_payment": "237.13"
+          },
+          "external_id": "13323118313846",
+          "document_number": "#10320",
+          "issued_at": "2026-08-03T10:13:49Z",
+          "processed_at": "2026-08-03T10:13:49Z",
+          "financial_status": "PAID",
+          "fulfillment_status": "FULFILLED",
+          "source": "shopify",
+          "commerce_document": "a_shopify_rzl.json",
+          "window_from": "2026-08-01",
+          "window_to": "2026-09-04",
+          "capture_status": "complete",
+          "counterparty_ref": "COMM_PARTY_SHOPIFY_649251422316"
+        },
+        {
+          "record_id": "SHOPIFY_RZL_ORDER_00012",
+          "record_type": "sales_order",
+          "currency": "GBP",
+          "amounts": {
+            "subtotal": "144.00",
+            "shipping": "6.00",
+            "tax": "25.00",
+            "total": "150.00"
+          },
+          "document_number": "#1012",
+          "issued_at": "2017-11-14T09:21:00Z",
+          "tax_basis": "inclusive",
+          "shipping_basis": "shipping_line",
+          "source": "shopify",
+          "commerce_document": "a_shopify_rzl.json",
+          "window_from": "2026-08-01",
+          "window_to": "2026-09-04",
+          "capture_status": "complete",
+          "counterparty_ref": "COMM_PARTY_SHOPIFY_6181102944323"
+        }
+      ]
+    },
+    "counterparties": [
+      {
+        "id": "COMM_PARTY_QUICKBOOKS_169",
+        "external_id": "169",
+        "name": "LUCINDA",
+        "country": null
+      },
+      {
+        "id": "COMM_PARTY_QUICKBOOKS_55",
+        "external_id": "55",
+        "name": "Hayley Burrey",
+        "country": null
+      },
+      {
+        "id": "COMM_PARTY_SHOPIFY_6181102944323",
+        "external_id": "6181102944323",
+        "name": "Brigita Gasiuniene",
+        "country": "GB"
+      },
+      {
+        "id": "COMM_PARTY_SHOPIFY_649251422316",
+        "external_id": "649251422316",
+        "name": "Jodie Mykaels",
+        "country": "GB"
+      },
+      {
+        "id": "COMM_PARTY_SHOPIFY_7554686779459",
+        "external_id": "7554686779459",
+        "name": "Kat Buckley",
+        "country": "GB"
+      }
+    ]
+  },
+  "generated_at": "2026-09-28T07:23:13Z"
+}
