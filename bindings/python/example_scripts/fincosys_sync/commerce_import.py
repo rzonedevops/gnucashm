@@ -340,10 +340,33 @@ def discover_documents(repos_root):
                     # report captures in the corpus carry this schema but
                     # hold a `report` or `items` block instead -- a balance
                     # sheet, an AP aging detail, a product/service list.
-                    # They are not this script's input and not errors; a
-                    # document that *does* carry records but is malformed
-                    # still reaches the validator below and is reported.
-                    if isinstance(document.get("records"), list):
+                    # They are not this script's input and not errors.
+                    #
+                    # A `report`/`items` block decides, even when the
+                    # document *also* carries a `records` array, because one
+                    # in the corpus carries both:
+                    # entity-regima-dr-h-uk's `2026-09-08_ap_aging_detail`
+                    # declares `report: "ap_aging_detail"` and puts its 339
+                    # aging rows under `records` -- rows with a `row_id`,
+                    # `aging_bucket` and `days_past_due` and no `record_id`,
+                    # `record_type` or `currency`. Read as a record document
+                    # it is simply malformed, and it stopped a whole
+                    # corpus-wide run over one file.
+                    #
+                    # It is not fixed at the source on purpose: that capture
+                    # is sealed by SHA-256 in the repository's own manifest,
+                    # and editing the artifact to rewrite its recorded hash
+                    # would remove exactly the tamper-evidence the manifest
+                    # exists to provide (see that repository's
+                    # `integrations/sync-logs/2026-09-22_qbo_verification.md`).
+                    # So the consumer recognises it instead. The rule is
+                    # narrow enough to be safe: across the corpus exactly
+                    # one document carries a `report` or `items` key
+                    # alongside records, and no genuine record document
+                    # carries either.
+                    if document.get("report") or document.get("items"):
+                        skipped.append(str(candidate))
+                    elif isinstance(document.get("records"), list):
                         found.append(str(candidate))
                     else:
                         skipped.append(str(candidate))
