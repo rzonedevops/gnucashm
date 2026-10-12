@@ -126,6 +126,41 @@ def load_feed(feed_path):
     return accounts, transactions
 
 
+def load_feed_entities(feed_path):
+    """Load the optional ``entities`` block of a sync feed.
+
+    The feed's accounts and transactions carry only a bare
+    ``entity_code``.  Without the entity metadata an entity's legal name
+    and type are not recoverable from the feed at all, so the plan falls
+    back to the code -- and ``--apply`` then writes that code into the
+    GnuCash book as the entity account's description.  The fallback
+    ``--data-dir`` loader reads the same metadata from
+    MASTER_ENTITIES.json, so the two paths disagreed on identical data.
+
+    Returns the same ``{code: {legal_name, entity_type}}`` shape
+    ``load_fallback`` returns, with the same defaults, so downstream code
+    cannot tell which loader produced it.  A feed with no ``entities``
+    block yields ``{}`` and behaves exactly as before.
+
+    This is a separate function rather than a third return value of
+    :func:`load_feed` so that the many existing callers of the
+    two-tuple keep working unchanged.
+    """
+    with open(feed_path, "r", encoding="utf-8") as fh:
+        feed = json.load(fh)
+
+    entities_meta = OrderedDict()
+    for e in feed.get("entities", []) or []:
+        code = e.get("code")
+        if not code:
+            continue
+        entities_meta[code] = {
+            "legal_name": e.get("legal_name") or code,
+            "entity_type": e.get("entity_type") or "UNKNOWN",
+        }
+    return entities_meta
+
+
 # ---------------------------------------------------------------------------
 # Loading: fallback, built directly from fincosys/data/*.json
 # ---------------------------------------------------------------------------
@@ -383,7 +418,12 @@ def load_plan_inputs(feed_path, data_dir):
     entities_meta, source_label)."""
     if feed_path:
         accounts, transactions = load_feed(feed_path)
-        return accounts, transactions, {}, "feed:{}".format(feed_path)
+        return (
+            accounts,
+            transactions,
+            load_feed_entities(feed_path),
+            "feed:{}".format(feed_path),
+        )
     if data_dir:
         accounts, transactions, entities_meta = load_fallback(data_dir)
         return (

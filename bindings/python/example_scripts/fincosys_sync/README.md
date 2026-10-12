@@ -74,6 +74,9 @@ downstream of `load_plan_inputs()`.
 ```json
 {
   "schema_version": "1.0",
+  "entities": [
+    {"code": "...", "legal_name": "...", "entity_type": "CC|PTY|Individual|..."}
+  ],
   "accounts": [
     {"code": "...", "name": "...", "parent_code": "... or null",
      "account_type": "ASSET|LIABILITY|BANK|EXPENSE|INCOME|EQUITY",
@@ -89,6 +92,22 @@ downstream of `load_plan_inputs()`.
   ]
 }
 ```
+
+`entities` is optional and may be omitted. It carries the metadata the
+accounts and transactions cannot: they reference an entity only by a bare
+`entity_code`, so without this block an entity's legal name and type are
+not recoverable from the feed, and the plan falls back to the code --
+`--apply` then writes that code into the book as the entity account's
+description. The `--data-dir` fallback loader reads the same metadata from
+`MASTER_ENTITIES.json`, so on identical data the two paths used to
+disagree:
+
+| path | legal_name | entity_type |
+|---|---|---|
+| `--data-dir` | `Regima Skin Treatments CC` | `CC` |
+| `--feed` (without `entities`) | `RST` | `UNKNOWN` |
+
+A feed that omits the block still loads, with the old behaviour.
 
 ## Prerequisites
 
