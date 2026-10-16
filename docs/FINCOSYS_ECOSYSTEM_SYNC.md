@@ -461,3 +461,140 @@ and both are named. Across the whole corpus exactly one record does:
 rounding and a 76p payment in between -- immaterial, and still not resolved
 here, because picking one would answer a question about the evidence
 silently.
+
+## Commerce records reach the ecosystem sync (this change)
+
+Until now `scripts/sync_fincosys_ecosystem.py` produced ecosystem-sync
+documents that carried **no QuickBooks or Shopify records at all**, however
+many the entity repositories held.
+
+The cause was a parameter nobody passed. accospace's `gnucash_ecosystem`
+preset has accepted `commerce_record_paths` since the commerce schema
+landed, and `include_commerce` is derived from it
+(`include_commerce=bool(commerce_record_paths)`). This side called
+`gnucash_ecosystem_config(data_dir=...)` and nothing else, so the flag was
+always off. Both halves of the integration were built and documented — the
+loader on accospace's side, `commerce_import.py` on this one — and the
+producer in between never asked for them.
+
+Two new flags close it:
+
+```bash
+# name documents, or a directory of them
+python scripts/sync_fincosys_ecosystem.py --commerce-records ../entity-rzl/accounting
+
+# or scan a directory of entity-repository checkouts
+python scripts/sync_fincosys_ecosystem.py --entity-repos-root ~/fincosys-repos
+```
+
+Measured against the 43 checked-out repositories: **18,043 commerce nodes
+from 18 record documents** (17,928 records plus 115 counterparty nodes),
+against 0 before. The run reports the count, so
+a sync that silently carried none again would be visible.
+
+`.github/workflows/sync-fincosys-ecosystem.yml` gained an `entity_repos`
+input that checks those repositories out and passes `--entity-repos-root`.
+It defaults to the eight repositories known to hold a record document rather
+than the whole corpus — checking out forty-odd repositories to read eight
+files is not a reasonable default — and each clone is optional, because
+access is granted per repository and a missing grant must not fail the sync.
+
+### Ordering the documents is not cosmetic
+
+`CommerceLoader` adds a record once (`if node_id not in hypergraph.nodes`)
+and walks its configured paths in **sorted** order, so the first document to
+carry a record wins and the winner is decided by filename.
+
+That is the wrong authority. `entity-rzl` holds both a 1,000-row QuickBooks
+invoice page and the 13,051-row export that superseded it, and
+`2026-09-06_qbo_invoices.json` sorts *before* `2026-09-07_qbo_invoices.json`
+— so every record the two share would have been taken from the partial
+capture and pinned at the `partial_capture` confidence tier, in a build that
+also held the complete one.
+
+`select_commerce_documents()` therefore orders the paths by the rule the
+booking side already uses to resolve a duplicate — a complete capture beats
+a partial one, and among equals the later `generated_at` wins — which turns
+the loader's first-wins into best-capture-wins without changing the loader.
+Ordering by path would make the answer depend on where someone happened to
+check the repositories out.
+
+Discovery is `commerce_import.discover_documents`, reused rather than
+rewritten, so "what counts as a commerce document" has one definition for
+both the hypergraph path and the GnuCash-booking path.
+
+### Two silent failures are now reported
+
+`entity.code` is the schema's join key: the loader attaches each record to
+the entity node the ecosystem-sync side already created from fincosys's
+master data. Two things can go wrong with it and neither said anything.
+
+**A code no entity node carries orphans every record in the document.**
+`CommerceLoader._link` returns without adding the edge when a node it needs
+is absent — deliberately, because inventing an entity would fabricate one —
+so the record nodes are created and attach to nothing.
+
+This is not hypothetical. `MASTER_ENTITIES.json` gives the entity at realm
+`1366568670` the code **`RDH`**, listing `DRH` among its `qbo_aliases`. Two
+documents in `entity-regima-dr-h-uk` declare the alias as `entity.code`.
+Measured on a real build:
+
+| | nodes | with an edge to their entity |
+|---|---:|---:|
+| `COMM_QBO_RDH_INVOICE_*` | 267 | **267** |
+| `COMM_QBO_DRH_INVOICE_*` | 267 | **0** |
+
+**One entity under two codes is counted twice.** Record ids embed the code,
+so `QBO_RDH_INVOICE_12311` and `QBO_DRH_INVOICE_12311` are two different
+record ids for one invoice. Neither the loader's node-id de-duplication nor
+`commerce_import.resolve_duplicates` can see them as the same record, and
+both are carried — which is why a corpus-wide plan reports `DRH 267` and
+`RDH 267` as separate entities. 58 of the 267 also **disagree on the total**,
+so this is an unresolved conflict that the de-duplication machinery is blind
+to, not merely a duplicate.
+
+`audit_entity_codes()` reports both. It does not adjudicate: which code is
+canonical is a question for fincosys's master data, and where two captures
+of one invoice disagree on the amount charged, choosing one would answer a
+question about the evidence silently.
+
+The second test keys on **the entity's own identity** — `entity.repository`,
+or failing that the provider realm — and not on the record id alone. The
+distinction is the whole difference between a finding and a false alarm: a
+provider's document numbering is scoped to the provider account, so
+`QBO_RZI_INVOICE_100` and `QBO_RZL_INVOICE_100` are two unrelated invoices
+in two different QuickBooks companies. Keyed on the record id alone the audit
+reported **903** collisions across this corpus, of which exactly one was
+real. The realm needs both spellings, too: the corpus writes
+`provider.realm_id` and `provider.realm` for the same field, and keying on
+one of them splits an entity's documents into two anchors — which reads as
+no collision at all, the failure the pass exists to catch.
+
+`known_entity_codes()` returns `None` rather than an empty set when the
+master data cannot be read, because "no codes are canonical" would report
+every document in the corpus as unknown and bury the one real finding.
+
+### A `report` block now wins over a `records` array
+
+`entity-regima-dr-h-uk`'s `2026-09-08_ap_aging_detail.json` declares
+`report: "ap_aging_detail"` **and** puts its 339 aging rows under `records`
+— rows carrying `row_id`, `aging_bucket` and `days_past_due`, and no
+`record_id`, `record_type` or `currency`. Read as a record document it is
+simply malformed, and it made a corpus-wide `--repos-root` run exit
+non-zero over one file.
+
+It is not fixed at the source, on purpose: that capture is sealed by SHA-256
+in its repository's own manifest, and editing the artifact to rewrite the
+recorded hash would remove exactly the tamper-evidence the manifest exists
+to provide (see that repository's
+`integrations/sync-logs/2026-09-22_qbo_verification.md`, which records the
+same decision). So `discover_documents` recognises it instead: a top-level
+`report` or `items` block decides, even when `records` is also present.
+
+The rule is narrow enough to be safe, and that was checked rather than
+assumed — across the whole corpus exactly one document carries a `report` or
+`items` key alongside records, and **no** genuine record document carries
+either. With it, the corpus-wide booking run exits 0 and plans clean: 52
+accounts, 16,393 transactions, 999 superseded captures collapsed, and the
+one genuine figure conflict (`QBO_RZL_INVOICE_52168`) named and left
+unbooked.

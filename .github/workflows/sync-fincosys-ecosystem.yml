@@ -17,6 +17,13 @@ on:
         description: "Space-separated fincosys entity codes to restrict to (blank = all)"
         type: string
         default: ""
+      entity_repos:
+        description: "Entity repositories to scan for QuickBooks/Shopify commerce records (space-separated owner/repo; blank = skip commerce)"
+        type: string
+        default: >-
+          fincosys/entity-regima-dr-h-uk fincosys/entity-rzl
+          fincosys/entity-reu fincosys/entity-rzi fincosys/entity-uni
+          fincosys/entity-rsa fincosys/entity-rwd cogpy/entity-drhw
 
 permissions:
   contents: write
@@ -72,6 +79,34 @@ jobs:
           path: revstream1
         continue-on-error: true # only needed for case-evidence enrichment
 
+      # Commerce records (QuickBooks/Shopify, schema
+      # fincosys-commerce-sync/v1) live in the entity repositories rather
+      # than under fincosys's data/, so they need their own checkouts. The
+      # default list is the repositories currently known to hold a record
+      # document; scanning all forty-odd would check out the whole corpus to
+      # read eight files. Each is optional -- the scan skips a repository
+      # that is not there, and a run with none of them simply carries no
+      # commerce records, which is what every run did before this input
+      # existed.
+      - name: Checkout entity repositories holding commerce records
+        if: ${{ inputs.entity_repos != '' }}
+        run: |
+          set -u
+          mkdir -p entity-repos
+          for slug in ${{ inputs.entity_repos }}; do
+            name="${slug##*/}"
+            if git clone --depth 1 \
+                 "https://x-access-token:${ECOSYSTEM_SYNC_CHECKOUT_TOKEN}@github.com/${slug}.git" \
+                 "entity-repos/${name}" 2>/dev/null; then
+              echo "checked out ${slug}"
+            else
+              # Not fatal: these repositories are private and access is
+              # granted per repository, so a missing grant must not fail the
+              # whole sync. The run reports what it scanned.
+              echo "::warning::could not check out ${slug}; its commerce records will be absent from this sync"
+            fi
+          done
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -89,6 +124,9 @@ jobs:
             --revstream1-data-dir ../revstream1/data_models
             --verbose
           )
+          if [ -n "${{ inputs.entity_repos }}" ] && [ -d ../entity-repos ]; then
+            ARGS+=(--entity-repos-root ../entity-repos)
+          fi
           if [ -n "${{ inputs.entity_filter }}" ]; then
             ARGS+=(--entity-filter ${{ inputs.entity_filter }})
           fi
