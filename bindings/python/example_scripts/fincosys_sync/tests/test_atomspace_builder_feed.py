@@ -82,3 +82,27 @@ def test_build_plan_from_real_exporter_output_is_clean():
         assert abs(sum(s["amount"] for s in splits)) <= sf.BALANCE_TOLERANCE
 
     assert set(plan["entities"].keys()) == {"RST", "PF"}
+
+
+def test_real_exporter_output_carries_entity_identity():
+    """The exporter's entities block reaches the plan, not just its codes.
+
+    Without it the --feed path named each entity by its bare code while
+    --data-dir got the legal name from MASTER_ENTITIES.json, and --apply
+    wrote the code into the book.  This pins the producer's real output,
+    so the block disappearing on either side of the repo boundary fails
+    here.
+    """
+    accounts, transactions, entities_meta, _ = sf.load_plan_inputs(
+        FIXTURE_PATH, None
+    )
+    plan = sf.build_plan(accounts, transactions, entities_meta)
+
+    names = {
+        code: (meta["legal_name"], meta["entity_type"])
+        for code, meta in plan["entities"].items()
+    }
+    assert names == {
+        "RST": ("Regima Skin Treatments CC", "CC"),
+        "PF": ("Peter A Faucitt", "Individual"),
+    }
