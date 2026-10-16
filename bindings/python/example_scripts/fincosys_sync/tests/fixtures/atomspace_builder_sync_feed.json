@@ -5,6 +5,18 @@
     "repo": "fincosys",
     "generator": "fincosys-atomspace-builder"
   },
+  "entities": [
+    {
+      "code": "RST",
+      "legal_name": "Regima Skin Treatments CC",
+      "entity_type": "CC"
+    },
+    {
+      "code": "PF",
+      "legal_name": "Peter A Faucitt",
+      "entity_type": "Individual"
+    }
+  ],
   "accounts": [
     {
       "code": "RST",
