@@ -171,7 +171,7 @@ def select_commerce_documents(record_paths, entity_repos_root, commerce_import=N
     return [candidate for _, candidate in ranked], sorted(skipped)
 
 
-def audit_entity_codes(paths, known_codes=None):
+def audit_entity_codes(paths, known_codes=None, aliases=None):
     """Report the two ways a commerce document's entity code loses records.
 
     `entity.code` is the schema's join key: the loader attaches each record
@@ -200,13 +200,24 @@ def audit_entity_codes(paths, known_codes=None):
     same QBO realm, or failing that the same repository -- and that is what
     is counted here.
 
-    Returns ``{"unknown_codes": {...}, "aliased_entities": [...]}``. This
-    reports; it does not adjudicate. Which code is canonical is a question
-    for fincosys's master data, and where two captures of one invoice
-    disagree on the amount charged, choosing one would answer a question
-    about the evidence silently.
+    Returns ``{"unknown_codes": {...}, "aliased_codes": {...},
+    "aliased_entities": [...]}``.
+
+    With ``aliases`` -- the map fincosys's master data states -- a code it
+    names is reported as an alias and not as an unknown code. The two are
+    different findings and the fix for them is different: an unknown code is
+    a document nobody can place, while an alias is one the loader places on
+    the canonical entity, having been taught the map. Before the map was
+    passed, every aliased document read as unplaceable.
+
+    This reports; it does not adjudicate. Which code is canonical is a
+    question for fincosys's master data, and where two captures of one
+    invoice disagree on the amount charged, choosing one would answer a
+    question about the evidence silently.
     """
+    aliases = aliases or {}
     unknown = {}
+    aliased = {}
     anchors = {}
     for path in paths:
         try:
@@ -219,7 +230,11 @@ def audit_entity_codes(paths, known_codes=None):
         records = document.get("records")
         if not isinstance(records, list):
             continue
-        if known_codes is not None and code not in known_codes:
+        if code in aliases:
+            aliased.setdefault(code, {
+                "canonical": aliases[code], "documents": []
+            })["documents"].append(path)
+        elif known_codes is not None and code not in known_codes:
             unknown.setdefault(code, []).append(path)
         if not code:
             continue
@@ -253,30 +268,50 @@ def audit_entity_codes(paths, known_codes=None):
         slot = anchors.setdefault(anchor, {})
         slot.setdefault(code, set()).update(suffixes)
 
-    aliased = []
+    aliased_entities = []
     for anchor, by_code in sorted(anchors.items()):
         if len(by_code) < 2:
             continue
         codes = sorted(by_code)
         shared = set.intersection(*(by_code[c] for c in codes))
-        aliased.append({
+        aliased_entities.append({
             "anchor": anchor,
             "codes": codes,
             "documents_carried_twice": len(shared),
             "records_per_code": {c: len(by_code[c]) for c in codes},
         })
-    return {"unknown_codes": unknown, "aliased_entities": aliased}
+    return {
+        "unknown_codes": unknown,
+        "aliased_codes": aliased,
+        "aliased_entities": aliased_entities,
+    }
 
 
-def known_entity_codes(fincosys_data_dir):
-    """Canonical fincosys entity codes, with their aliases, or None.
+def known_entity_codes(fincosys_data_dir, commerce_import=None):
+    """Canonical fincosys entity codes *and* their aliases, or None.
 
     None means the master data could not be read, which is different from
     "no codes": the caller must not then report every document's code as
-    unknown. Aliases are included because `MASTER_ENTITIES.json` records
-    them (`qbo_aliases`), and a document using one is a reportable defect
-    rather than an unrecognised entity -- the distinction the audit draws.
+    unknown.
+
+    **The aliases used not to be included, and the docstring said they
+    were.** It read "aliases are included because MASTER_ENTITIES.json
+    records them (qbo_aliases), and a document using one is a reportable
+    defect rather than an unrecognised entity" -- and then collected `code`
+    only. So `DRH` was reported as a code fincosys has never heard of, when
+    the master data names it as RDH's QuickBooks alias three fields away.
+    The two are different findings: an unknown code is a document nobody can
+    place, an alias is a document the loader can place and now does.
     """
+    aliases, _ = entity_code_aliases(fincosys_data_dir, commerce_import)
+    codes = _canonical_codes(fincosys_data_dir)
+    if codes is None:
+        return None
+    return (codes | set(aliases or {})) or None
+
+
+def _canonical_codes(fincosys_data_dir):
+    """The `code` field of every entity in the master data, or None."""
     master = Path(fincosys_data_dir) / "MASTER_ENTITIES.json"
     try:
         with open(master, "r", encoding="utf-8") as handle:
@@ -298,6 +333,26 @@ def known_entity_codes(fincosys_data_dir):
         if code:
             codes.add(code)
     return codes or None
+
+
+def entity_code_aliases(fincosys_data_dir, commerce_import=None):
+    """Return ``({alias: canonical code}, refusals)``, or ``({}, [])``.
+
+    Read through `commerce_import.entity_code_aliases` rather than restated
+    here, for the same reason `select_commerce_documents` reuses
+    `discover_documents`: the hypergraph path and the GnuCash-booking path
+    must not disagree about which codes are aliases of which entity.
+
+    A refusal is an alias this does *not* apply -- one that is itself a
+    canonical code, or one two entities both claim -- because merging two
+    entities on the strength of one naming the other is not a recoverable
+    mistake.
+    """
+    commerce_import = commerce_import or _load_commerce_import()
+    try:
+        return commerce_import.entity_code_aliases(str(fincosys_data_dir))
+    except (OSError, ValueError):
+        return {}, []
 
 
 def _resolve_atomspace_builder_dir(atomspace_builder_dir):
@@ -501,9 +556,28 @@ def main(argv=None) -> int:
                 len(commerce_skipped),
             )
 
+        aliases, alias_refusals = entity_code_aliases(args.fincosys_data_dir)
+        for refusal in alias_refusals:
+            # Refused, not applied: two entities with confusable codes must
+            # not be merged because one names the other.
+            logger.warning("commerce: %s", refusal)
         audit = audit_entity_codes(
-            commerce_paths, known_entity_codes(args.fincosys_data_dir)
+            commerce_paths,
+            known_entity_codes(args.fincosys_data_dir),
+            aliases,
         )
+        for code, entry in sorted(audit["aliased_codes"].items()):
+            # Resolved, not a defect -- but still worth printing, because
+            # the records land on an entity the document does not name, and
+            # a reader comparing a per-entity count against the documents
+            # needs to know why.
+            logger.info(
+                "commerce: entity.code %r is an alias of %s in fincosys's "
+                "master data; the loader attaches the records of %d "
+                "document(s) to %s: %s",
+                code, entry["canonical"], len(entry["documents"]),
+                entry["canonical"], ", ".join(sorted(entry["documents"])),
+            )
         for code, where in sorted(audit["unknown_codes"].items(), key=lambda kv: str(kv[0])):
             logger.warning(
                 "commerce: entity.code %r is not a canonical fincosys entity "
@@ -516,10 +590,12 @@ def main(argv=None) -> int:
             logger.warning(
                 "commerce: one entity (%s) is claimed by %d entity codes "
                 "(%s), and %d of its provider documents are carried under "
-                "more than one. Record ids embed the code, so neither this "
-                "loader nor the booking side can see those as one record. "
-                "Which code is canonical is a question for fincosys's master "
-                "data, not for this script.",
+                "more than one. Record ids embed the code, so the two "
+                "captures are two record nodes even now that both attach to "
+                "the canonical entity; the loader marks the pair "
+                "alias_duplicate_of and says whether they agree on the "
+                "amount charged. Which code is canonical is a question for "
+                "fincosys's master data, not for this script.",
                 entry["anchor"], len(entry["codes"]), ", ".join(entry["codes"]),
                 entry["documents_carried_twice"],
             )

@@ -261,3 +261,66 @@ def test_unreadable_master_data_suppresses_the_unknown_code_report(driver, tmp_p
     audit = driver.audit_entity_codes([str(doc)], None)
 
     assert audit["unknown_codes"] == {}
+
+
+# -- entity-code aliases -------------------------------------------------
+
+def _master_entities(tmp_path, entities):
+    path = tmp_path / "MASTER_ENTITIES.json"
+    path.write_text(json.dumps({"entities": entities}))
+    return path
+
+
+def test_known_codes_include_the_aliases_the_master_data_records(driver, tmp_path):
+    """The docstring promised this and the code collected `code` only.
+
+    So `DRH` was reported as a code fincosys has never heard of, when the
+    master data names it as RDH's QuickBooks alias three fields away.
+    """
+    _master_entities(tmp_path, [
+        {"code": "RDH", "qbo_aliases": ["DRH"]},
+        {"code": "RST"},
+    ])
+
+    assert driver.known_entity_codes(str(tmp_path)) == {"RDH", "RST", "DRH"}
+
+
+def test_the_alias_map_comes_from_the_booking_side(driver, tmp_path):
+    # Read through commerce_import so the hypergraph path and the
+    # GnuCash-booking path cannot disagree about which code is an alias.
+    _master_entities(tmp_path, [{"code": "RDH", "qbo_aliases": ["DRH"]}])
+
+    aliases, refusals = driver.entity_code_aliases(str(tmp_path))
+
+    assert aliases == {"DRH": "RDH"}
+    assert refusals == []
+
+
+def test_unreadable_master_data_yields_no_aliases_and_no_codes(driver, tmp_path):
+    missing = str(tmp_path / "nowhere")
+
+    assert driver.entity_code_aliases(missing) == ({}, [])
+    assert driver.known_entity_codes(missing) is None
+
+
+def test_an_alias_is_reported_as_an_alias_not_as_an_unknown_code(driver, tmp_path):
+    doc = _document(tmp_path, "d.json", code="DRH",
+                    record_ids=["QBO_DRH_INVOICE_1"])
+
+    audit = driver.audit_entity_codes(
+        [str(doc)], {"RDH", "DRH"}, {"DRH": "RDH"}
+    )
+
+    assert audit["unknown_codes"] == {}
+    assert audit["aliased_codes"]["DRH"]["canonical"] == "RDH"
+    assert audit["aliased_codes"]["DRH"]["documents"] == [str(doc)]
+
+
+def test_a_code_in_no_map_is_still_an_unknown_code(driver, tmp_path):
+    doc = _document(tmp_path, "d.json", code="NOPE",
+                    record_ids=["QBO_NOPE_INVOICE_1"])
+
+    audit = driver.audit_entity_codes([str(doc)], {"RDH"}, {"DRH": "RDH"})
+
+    assert list(audit["unknown_codes"]) == ["NOPE"]
+    assert audit["aliased_codes"] == {}
