@@ -30,6 +30,31 @@
 # books per entity and an entity's records must not be split across two
 # reports.
 #
+# One entity, one set of accounts -- even under two codes
+# -------------------------------------------------------
+# `entity.code` decides which accounts a record books to, and one entity
+# appears in this corpus under more than one code: fincosys's
+# MASTER_ENTITIES.json gives the entity at QBO realm 1366568670 the code
+# RDH and lists DRH among its `qbo_aliases`, while two documents in
+# entity-regima-dr-h-uk declare the alias.
+#
+# Read literally that is two entities. A corpus-wide run reported `DRH 267`
+# and `RDH 267` as separate entities, built two sets of COMM-* accounts, and
+# booked the same 267 invoices into both -- the record ids differ only in
+# the code segment, so nothing in resolve_duplicates could see them as one
+# record. Revenue, receivables and VAT were each double-counted.
+#
+# --master-entities supplies the alias map, and then the canonical code is
+# what the accounts and the txid are built from. The two captures of one
+# invoice collide on txid, which hands them to the machinery that already
+# knows what to do with a record captured twice: the agreeing copies
+# collapse to the better capture, and the ones that disagree on the amount
+# charged are reported and left unbooked. On this corpus that is 209
+# collapsed and 58 named.
+#
+# Without the flag nothing is resolved and the run says so, because booking
+# an entity twice silently is the failure this exists to stop.
+#
 # Why this is a separate loader from sync_fincosys.py's --feed path
 # ------------------------------------------------------------------
 # The bank-statement corpus that --feed carries is single-sided: a statement
@@ -167,6 +192,94 @@ ACCOUNT_SPECS = (
     ("TAX", "Tax Payable", "LIABILITY",
      "Sales tax / VAT charged on commerce documents"),
 )
+
+
+def entity_code_aliases(master_entities):
+    """Return ``({alias: canonical code}, refusals)`` from fincosys master data.
+
+    ``master_entities`` is a path to ``MASTER_ENTITIES.json`` or to a
+    directory holding it. Both the general ``aliases`` field and the
+    provider-specific ``qbo_aliases`` are read, because the corpus uses both
+    and a document declares whichever the provider account is named after.
+
+    Two refusals, each returned rather than applied, because both would
+    merge entities and a near-name merge is not a recoverable mistake:
+
+    * an alias that is itself a canonical code (``DRH`` and ``DRHW`` have
+      been conflated in this corpus before);
+    * an alias two entities both claim.
+
+    An entity listing its own code as an alias -- the corpus does -- is a
+    no-op, not a refusal.
+    """
+    path = master_entities
+    if os.path.isdir(path):
+        path = os.path.join(path, "MASTER_ENTITIES.json")
+    with open(path, "r", encoding="utf-8") as fh:
+        data = json.load(fh)
+
+    entities = data if isinstance(data, list) else data.get("entities", data)
+    if isinstance(entities, dict):
+        entities = list(entities.values())
+    if not isinstance(entities, list):
+        raise ValueError(
+            "{}: no entities array; cannot read entity aliases".format(path)
+        )
+
+    codes = set()
+    for entity in entities:
+        if isinstance(entity, dict):
+            code = entity.get("code") or entity.get("entity_code")
+            if code:
+                codes.add(code)
+
+    aliases = OrderedDict()
+    refusals = []
+    for entity in entities:
+        if not isinstance(entity, dict):
+            continue
+        code = entity.get("code") or entity.get("entity_code")
+        if not code:
+            continue
+        for field in ("aliases", "qbo_aliases"):
+            for alias in entity.get(field) or ():
+                if not isinstance(alias, str) or alias == code:
+                    continue
+                if alias in codes:
+                    refusals.append(
+                        "{} lists {} as an alias, but {} is an entity of its "
+                        "own; not resolving it".format(code, alias, alias)
+                    )
+                    continue
+                previous = aliases.setdefault(alias, code)
+                if previous != code:
+                    refusals.append(
+                        "alias {} is claimed by both {} and {}; keeping "
+                        "{}".format(alias, previous, code, previous)
+                    )
+    return aliases, refusals
+
+
+def canonical_record_id(record_id, declared, canonical):
+    """Rewrite the entity-code segment of a record id to the canonical code.
+
+    Record ids are built ``<SOURCE>_<CODE>_<TYPE>_<number>``, so one invoice
+    captured under two spellings of its entity's code has two ids, and the
+    txid built from it has to be the canonical one or the two copies never
+    meet. Only the code segment is replaced, and only the first occurrence:
+    a document number that happens to contain the code is not a second
+    entity reference.
+
+    The record's own id is kept in the transaction's metadata, because that
+    is what ties a booked transaction back to a document sealed by sha256 in
+    its repository's manifest.
+    """
+    if not record_id or declared == canonical:
+        return record_id
+    marker = "_{}_".format(declared)
+    if marker not in record_id:
+        return record_id
+    return record_id.replace(marker, "_{}_".format(canonical), 1)
 
 
 def account_code(entity_code, suffix, currency=None):
@@ -453,7 +566,8 @@ def _splits_for(entity_code, amounts, tax_basis=DEFAULT_TAX_BASIS,
     return splits, total, components, revenue
 
 
-def convert(document, source_path="", per_currency_accounts=False):
+def convert(document, source_path="", per_currency_accounts=False,
+            entity_aliases=None):
     """Convert one commerce document into (accounts, transactions, report).
 
     The returned shapes match sync_fincosys.py's ``build_plan`` inputs, so
@@ -464,8 +578,16 @@ def convert(document, source_path="", per_currency_accounts=False):
     currency by booking them into currency-scoped accounts. Without it such
     records are rejected rather than booked into an account of the wrong
     currency -- see the header comment.
+
+    ``entity_aliases`` maps a declared entity code to the canonical one. A
+    document declaring an alias then books to the same accounts, and under
+    the same txids, as the entity's other documents -- which is what lets
+    two captures of one invoice be recognised as one record instead of
+    booked twice. The declared code is kept on the report and on every
+    transaction's metadata.
     """
-    entity_code = document["entity"]["code"]
+    declared_code = document["entity"]["code"]
+    entity_code = (entity_aliases or {}).get(declared_code, declared_code)
     source = document.get("source", "unknown")
     window = document.get("window") or {}
     complete = bool(window.get("complete", False))
@@ -576,8 +698,12 @@ def convert(document, source_path="", per_currency_accounts=False):
         transactions.append({
             # Namespaced so a commerce document and a bank-statement feed
             # can never collide on txid, and so re-importing the same
-            # document is a no-op (see "Idempotency" in the README).
-            "txid": "COMMERCE:{}".format(record_id),
+            # document is a no-op (see "Idempotency" in the README). Built
+            # from the canonical code, so one invoice captured under an
+            # alias as well is one txid and not two bookings.
+            "txid": "COMMERCE:{}".format(
+                canonical_record_id(record_id, declared_code, entity_code)
+            ),
             "date": (record.get("issued_at") or "")[:10],
             "description": "{} {}".format(
                 source, record.get("document_number") or record_id
@@ -592,6 +718,11 @@ def convert(document, source_path="", per_currency_accounts=False):
                 # no longer say which identity produced them: an inclusive
                 # record's revenue split is its subtotal less the tax.
                 "tax_basis": tax_basis,
+                # The id its own document gave it, which the txid may
+                # not be: that is what ties this transaction back to a file
+                # sealed by sha256 in its repository's manifest.
+                "record_id": record_id,
+                "declared_entity_code": declared_code,
                 "external_id": record.get("external_id"),
                 "document_number": record.get("document_number"),
                 "financial_status": record.get("financial_status"),
@@ -611,6 +742,7 @@ def convert(document, source_path="", per_currency_accounts=False):
 
     report = {
         "entity_code": entity_code,
+        "declared_entity_code": declared_code,
         "source": source,
         "capture_status": "complete" if complete else "partial",
         "records_total": len(document.get("records", [])),
@@ -752,7 +884,8 @@ def resolve_duplicates(entries):
     return transactions, superseded, conflicts
 
 
-def convert_paths(paths, keep_going=False, per_currency_accounts=False):
+def convert_paths(paths, keep_going=False, per_currency_accounts=False,
+                  entity_aliases=None):
     """Convert several commerce documents, merging their accounts.
 
     With ``keep_going``, a document that cannot be read or validated is
@@ -779,6 +912,7 @@ def convert_paths(paths, keep_going=False, per_currency_accounts=False):
             accounts, txns, report = convert(
                 document, source_path=label,
                 per_currency_accounts=per_currency_accounts,
+                entity_aliases=entity_aliases,
             )
             report["path"] = label
             for account in accounts:
@@ -803,7 +937,12 @@ def print_report(reports):
     print("=" * 52)
     for report in reports:
         print("\n{}".format(report.get("path", "")))
-        print("  entity           : {}".format(report["entity_code"]))
+        if report.get("declared_entity_code") not in (None, report["entity_code"]):
+            print("  entity           : {} (document declares {}, an alias)"
+                  .format(report["entity_code"],
+                          report["declared_entity_code"]))
+        else:
+            print("  entity           : {}".format(report["entity_code"]))
         print("  source           : {} ({} capture)".format(
             report["source"], report["capture_status"]))
         window = report["window"]
@@ -865,6 +1004,14 @@ def build_arg_parser():
              "to this path. Without it, only the report is printed.",
     )
     parser.add_argument(
+        "--master-entities",
+        help="fincosys MASTER_ENTITIES.json (or the directory holding it), "
+             "read for the entity-code aliases. Without it a document "
+             "declaring an alias books as an entity of its own, which "
+             "double-counts an entity captured under two codes: the run "
+             "says so rather than resolving nothing silently.",
+    )
+    parser.add_argument(
         "--per-currency-accounts", action="store_true",
         help="Book records outside the document's primary currency into "
              "currency-scoped accounts (COMM-<entity>-<CCY>-AR) instead of "
@@ -880,6 +1027,21 @@ def main(argv=None):
 
     paths = list(args.documents)
     discovering = bool(args.repos_root)
+
+    entity_aliases = None
+    if args.master_entities:
+        try:
+            entity_aliases, refusals = entity_code_aliases(args.master_entities)
+        except (OSError, ValueError) as exc:
+            sys.stderr.write("error: {}\n".format(exc))
+            return 1
+        print("Read {} entity-code alias(es) from {}".format(
+            len(entity_aliases), args.master_entities))
+        for refusal in refusals:
+            # Refused, not applied: merging two entities on the strength of
+            # one naming the other is not a recoverable mistake.
+            sys.stderr.write("  refused: {}\n".format(refusal))
+
     try:
         if discovering:
             discovered, skipped = discover_documents(args.repos_root)
@@ -903,12 +1065,33 @@ def main(argv=None):
             paths,
             keep_going=discovering,
             per_currency_accounts=args.per_currency_accounts,
+            entity_aliases=entity_aliases,
         )
     except (OSError, ValueError) as exc:
         sys.stderr.write("error: {}\n".format(exc))
         return 1
 
     print_report(reports)
+
+    aliased = [
+        report for report in reports
+        if report.get("declared_entity_code")
+        not in (None, report["entity_code"])
+    ]
+    if aliased:
+        print("\n{} document(s) declare an entity alias and were booked "
+              "under the canonical code".format(len(aliased)))
+        for report in aliased:
+            print("    {}: {} -> {}".format(
+                report.get("path", ""), report["declared_entity_code"],
+                report["entity_code"]))
+    elif entity_aliases is None:
+        # The one thing worse than not resolving an alias is not resolving
+        # it quietly: an entity captured under two codes then books twice,
+        # into two sets of accounts, and the plan looks clean.
+        print("\nNo entity-code aliases were resolved (--master-entities "
+              "not given). A document declaring an alias of its entity's "
+              "code books as an entity of its own.")
 
     superseded = duplicates["superseded"]
     conflicts = duplicates["conflicts"]

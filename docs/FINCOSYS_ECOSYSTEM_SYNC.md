@@ -549,9 +549,17 @@ so `QBO_RDH_INVOICE_12311` and `QBO_DRH_INVOICE_12311` are two different
 record ids for one invoice. Neither the loader's node-id de-duplication nor
 `commerce_import.resolve_duplicates` can see them as the same record, and
 both are carried — which is why a corpus-wide plan reports `DRH 267` and
-`RDH 267` as separate entities. 58 of the 267 also **disagree on the total**,
-so this is an unresolved conflict that the de-duplication machinery is blind
-to, not merely a duplicate.
+`RDH 267` as separate entities.
+
+> **Corrected 2026-10-19.** This paragraph used to end "58 of the 267 also
+> **disagree on the total**, so this is an unresolved conflict that the
+> de-duplication machinery is blind to". That is withdrawn: measured against
+> the documents, **0 of the 267 pairs disagree on the amount charged.** 58
+> write the same figure differently (`15.20` against `15.2`) and 4 differ on
+> the *balance* outstanding, because the two captures are six days apart and
+> the invoice was paid in between. Neither is a disagreement about what was
+> charged. The duplication was real; the conflict was an artefact of
+> comparing the figures as text.
 
 `audit_entity_codes()` reports both. It does not adjudicate: which code is
 canonical is a question for fincosys's master data, and where two captures
@@ -573,6 +581,75 @@ no collision at all, the failure the pass exists to catch.
 `known_entity_codes()` returns `None` rather than an empty set when the
 master data cannot be read, because "no codes are canonical" would report
 every document in the corpus as unknown and bury the one real finding.
+
+## The alias is resolved, not just reported (2026-10-19)
+
+Reporting the above was the right first move and it left the records where
+they were: 267 of them attached to nothing, in a corpus whose master data
+says exactly which entity they belong to. Three things changed.
+
+**`known_entity_codes()` now does what its docstring always said.** It read
+"aliases are included because `MASTER_ENTITIES.json` records them
+(`qbo_aliases`), and a document using one is a reportable defect rather than
+an unrecognised entity" — and then collected `code` only. So `DRH` was
+reported as a code fincosys has never heard of, three fields away from the
+entry naming it as RDH's QuickBooks alias. An unknown code and an alias are
+different findings with different fixes, and `audit_entity_codes()` now
+returns them separately (`unknown_codes`, `aliased_codes`).
+
+**accospace's loader resolves the declared code**, from the aliases the
+entity nodes themselves carry (see `fincosys/accospace`,
+`docs/COMMERCE_SYNC_SCHEMA.md`). Reading them off the graph rather than the
+master-data file again binds the resolution to the entities the build
+actually loaded. Measured on the 13 record documents the checked-out corpus
+holds: **267 of 267** aliased nodes now carry an edge to their entity, and
+**no commerce record in the corpus attaches to no entity** (was 267).
+
+**`commerce_import.py --master-entities` resolves it on the booking side**,
+which is a different defect with the same cause. The account codes and the
+txid are built from `entity.code`, so a corpus-wide run built two sets of
+`COMM-*` accounts and booked the same invoices into both — revenue,
+receivables and VAT each double-counted. With the map, the canonical code
+builds both, so the two captures collide on txid and hand themselves to the
+machinery that already knows what to do with a record captured twice:
+
+| | without `--master-entities` | with it |
+|---|---:|---:|
+| entities booked | 4 (`DRH`, `DRHW`, `RDH`, `RZL`) | **3** |
+| accounts | 16 | **12** |
+| transactions | 14,042 | **13,785** |
+| collapsed as one record captured twice | 999 | **1,256** |
+| conflicts, not booked | 1 | **1** |
+
+The 257 transactions that went away are the 267 aliased invoices less the 10
+EUR ones that path rejects rather than booking into a GBP account. The single
+conflict is unchanged and is the known penny-and-payment disagreement on
+`QBO_RZL_INVOICE_52168` — so resolving the alias did not create a conflict or
+hide one.
+
+Three things none of this does:
+
+- **It does not rewrite a record id.** The id ties a record back to a file
+  sealed by sha256 in its repository's manifest. The booked transaction
+  carries `record_id` and `declared_entity_code` in its metadata, and the
+  hypergraph node carries `canonical_record_id` beside its own id.
+- **It does not resolve an alias that is itself a canonical code**, or one
+  two entities both claim. `DRH` and `DRHW` have been conflated in this
+  corpus before; a near-name merge is not a recoverable mistake, so both
+  cases are refused and reported. The live example is `REZQBO`, which lists
+  `REZ` — an entity of its own — as an alias.
+- **It does not resolve anything silently when it cannot.** Without
+  `--master-entities` the booking run prints that no aliases were resolved
+  and what that means, because an entity booked twice in a clean-looking
+  plan is the failure this exists to stop.
+
+**One migration consequence, stated rather than discovered.** A book already
+applied from a plan built *without* the map holds the aliased invoices twice,
+under both `COMMERCE:QBO_DRH_*` and `COMMERCE:QBO_RDH_*` txids, in two sets
+of `COMM-*` accounts. The alias txids are no longer produced, so re-applying
+with the map adds nothing and removes nothing: those transactions and the
+four `COMM-DRH-*` accounts stay until someone deletes them. Idempotency
+protects a re-import; it cannot retract a booking already made.
 
 ### A `report` block now wins over a `records` array
 

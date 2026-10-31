@@ -384,6 +384,60 @@ makes the flag safe to turn on: a book already imported from a
 single-currency document sees the same account codes and the same txids, so
 re-importing stays a no-op rather than duplicating every account.
 
+### One entity, one set of accounts — even under two codes
+
+`entity.code` decides which accounts a record books to, and this corpus holds
+one entity under two codes: fincosys's `MASTER_ENTITIES.json` gives the entity
+at QBO realm `1366568670` the code `RDH` and lists `DRH` among its
+`qbo_aliases`, while two documents in `entity-regima-dr-h-uk` declare the
+alias.
+
+Read literally that is two entities, and a corpus-wide run read it that way:
+two sets of `COMM-*` accounts, and the same 267 invoices booked into both,
+because the record ids differ only in the code segment and nothing could see
+them as one record. Revenue, receivables and VAT were each double-counted.
+
+`--master-entities` supplies the map, and the canonical code is then what the
+accounts and the txid are built from:
+
+```bash
+python3 commerce_import.py --repos-root ~/fincosys-repos \
+    --master-entities ../fincosys/data \
+    --out commerce_feed.json
+```
+
+| | without the flag | with it |
+|---|---:|---:|
+| entities booked | 4 (`DRH`, `DRHW`, `RDH`, `RZL`) | **3** |
+| accounts | 16 | **12** |
+| transactions | 14,042 | **13,785** |
+| collapsed as one record captured twice | 999 | **1,256** |
+| conflicts, not booked | 1 | **1** |
+
+The two captures of one invoice now collide on txid, which hands them to the
+machinery that already resolves a record captured twice: the better capture
+is kept, and copies that disagree on the amount charged are reported and left
+unbooked. The 257 transactions that go away are the 267 aliased invoices less
+the 10 EUR ones the currency rule above rejects; the single conflict is
+unchanged, so resolving the alias neither created a conflict nor hid one.
+
+Each booked transaction keeps `record_id` and `declared_entity_code` in its
+metadata, because the txid may no longer be the id its document gave it and
+that id is what ties the transaction back to a document sealed by sha256 in
+its repository's manifest.
+
+Two aliases are refused rather than applied — one that is itself a canonical
+code (`DRH`/`DRHW` have been conflated in this corpus before) and one two
+entities both claim — and the refusal is printed. Without the flag, the run
+prints that no aliases were resolved and what that means: an entity booked
+twice inside a clean-looking plan is the failure this exists to stop.
+
+**It cannot retract a booking already made.** A book applied from a plan built
+without the map holds those invoices twice, under both txids, in both sets of
+accounts. Re-applying with the map adds nothing and removes nothing; the
+stale transactions and the four `COMM-DRH-*` accounts stay until someone
+deletes them.
+
 `tests/test_commerce_import.py` covers the above and ends with four
 cross-repo contract tests over real captured records. The Shopify ones
 (`tests/fixtures/commerce_shopify_rzl.json`) run `convert()` into

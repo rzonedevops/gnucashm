@@ -1378,3 +1378,224 @@ def test_accospace_record_order_survives_the_hypergraph():
         "SHOPIFY_RZL_ORDER_00012",
     ]
     assert ids != sorted(ids)
+
+
+# -- entity-code aliases ----------------------------------------------------
+#
+# `entity.code` decides which accounts a record books to, and this corpus
+# holds one entity under two codes. Read literally that is two entities: a
+# corpus-wide run built two sets of COMM-* accounts and booked the same 267
+# invoices into both, because the record ids differ only in the code segment
+# and nothing could see them as one record.
+
+
+def _master_entities(tmp_path, entities, name="MASTER_ENTITIES.json"):
+    path = tmp_path / name
+    path.write_text(json.dumps({"entities": entities}))
+    return path
+
+
+def _invoice(code, number="12311", total="480.00"):
+    return {
+        "record_id": "QBO_{}_INVOICE_{}".format(code, number),
+        "record_type": "sales_invoice",
+        "document_number": "RG2608PZ",
+        "issued_at": "2026-08-31",
+        "currency": "GBP",
+        "amounts": {
+            "subtotal": total,
+            "shipping": "0",
+            "tax": "0",
+            "total": total,
+        },
+    }
+
+
+def _qbo_document(code, records=None, generated_at="2026-09-08T00:00:00Z"):
+    return {
+        "schema": "fincosys-commerce-sync/v1",
+        "source": "quickbooks",
+        "generated_at": generated_at,
+        "entity": {
+            "code": code,
+            "legal_name": "Regima @ Dr H Ltd",
+            "repository": "fincosys/entity-regima-dr-h-uk",
+        },
+        "window": {"from": "2014-12-03", "to": "2026-08-31", "complete": True},
+        "records": [_invoice(code)] if records is None else records,
+    }
+
+
+def test_both_alias_fields_are_read(tmp_path):
+    _master_entities(tmp_path, [
+        {"code": "RDH", "qbo_aliases": ["DRH"]},
+        {"code": "JF", "aliases": ["JQF"]},
+    ])
+
+    aliases, refusals = ci.entity_code_aliases(str(tmp_path))
+
+    assert aliases == {"DRH": "RDH", "JQF": "JF"}
+    assert refusals == []
+
+
+def test_a_file_path_and_a_directory_both_work(tmp_path):
+    path = _master_entities(tmp_path, [{"code": "RDH", "qbo_aliases": ["DRH"]}])
+
+    assert ci.entity_code_aliases(str(path))[0] == {"DRH": "RDH"}
+    assert ci.entity_code_aliases(str(tmp_path))[0] == {"DRH": "RDH"}
+
+
+def test_an_alias_that_is_itself_an_entity_is_refused(tmp_path):
+    # DRH and DRHW have been conflated in this corpus before. A near-name
+    # merge is not a recoverable mistake, so it is reported, not applied.
+    _master_entities(tmp_path, [
+        {"code": "DRHW", "qbo_aliases": ["DRH"]},
+        {"code": "DRH", "qbo_aliases": []},
+    ])
+
+    aliases, refusals = ci.entity_code_aliases(str(tmp_path))
+
+    assert aliases == {}
+    assert len(refusals) == 1
+    assert "entity of its own" in refusals[0]
+
+
+def test_an_alias_two_entities_claim_is_refused(tmp_path):
+    _master_entities(tmp_path, [
+        {"code": "RDH", "qbo_aliases": ["DRH"]},
+        {"code": "DRHW", "qbo_aliases": ["DRH"]},
+    ])
+
+    aliases, refusals = ci.entity_code_aliases(str(tmp_path))
+
+    assert aliases == {"DRH": "RDH"}
+    assert any("claimed by both" in r for r in refusals)
+
+
+def test_an_entity_listing_its_own_code_is_not_a_refusal(tmp_path):
+    # The corpus does this (REU lists REU).
+    _master_entities(tmp_path, [{"code": "REU", "qbo_aliases": ["REU"]}])
+
+    assert ci.entity_code_aliases(str(tmp_path)) == ({}, [])
+
+
+def test_the_code_segment_is_what_canonicalizes():
+    assert ci.canonical_record_id("QBO_DRH_INVOICE_1", "DRH", "RDH") == (
+        "QBO_RDH_INVOICE_1"
+    )
+    # First occurrence only: a document number carrying the code is not a
+    # second entity reference.
+    assert ci.canonical_record_id("QBO_DRH_INVOICE_DRH_1", "DRH", "RDH") == (
+        "QBO_RDH_INVOICE_DRH_1"
+    )
+    assert ci.canonical_record_id("QBO_RDH_INVOICE_1", "RDH", "RDH") == (
+        "QBO_RDH_INVOICE_1"
+    )
+    assert ci.canonical_record_id("ODD", "DRH", "RDH") == "ODD"
+
+
+def test_an_aliased_document_books_to_the_canonical_accounts():
+    accounts, transactions, report = ci.convert(
+        _qbo_document("DRH"), entity_aliases={"DRH": "RDH"}
+    )
+
+    assert sorted(a["code"] for a in accounts) == [
+        "COMM-RDH-AR", "COMM-RDH-REVENUE", "COMM-RDH-SHIPPING", "COMM-RDH-TAX",
+    ]
+    assert transactions[0]["entity_code"] == "RDH"
+    assert transactions[0]["txid"] == "COMMERCE:QBO_RDH_INVOICE_12311"
+    assert report["entity_code"] == "RDH"
+    assert report["declared_entity_code"] == "DRH"
+
+
+def test_an_aliased_transaction_keeps_the_record_id_its_document_gave_it():
+    _, transactions, _ = ci.convert(
+        _qbo_document("DRH"), entity_aliases={"DRH": "RDH"}
+    )
+
+    metadata = transactions[0]["metadata"]
+    assert metadata["record_id"] == "QBO_DRH_INVOICE_12311"
+    assert metadata["declared_entity_code"] == "DRH"
+
+
+def test_without_the_map_an_alias_books_as_an_entity_of_its_own():
+    # The behaviour this change exists to fix, pinned so it cannot come
+    # back unnoticed: the same invoice under two codes is two bookings.
+    accounts, transactions, report = ci.convert(_qbo_document("DRH"))
+
+    assert [a["code"] for a in accounts][0] == "COMM-DRH-AR"
+    assert transactions[0]["txid"] == "COMMERCE:QBO_DRH_INVOICE_12311"
+    assert report["entity_code"] == "DRH"
+
+
+def test_one_invoice_under_two_codes_is_booked_once(tmp_path):
+    canonical = tmp_path / "rdh.json"
+    canonical.write_text(json.dumps(_qbo_document("RDH")))
+    aliased = tmp_path / "drh.json"
+    aliased.write_text(json.dumps(_qbo_document("DRH")))
+
+    accounts, transactions, _, _, duplicates = ci.convert_paths(
+        [str(canonical), str(aliased)], entity_aliases={"DRH": "RDH"}
+    )
+
+    assert len(transactions) == 1
+    assert transactions[0]["txid"] == "COMMERCE:QBO_RDH_INVOICE_12311"
+    assert len(duplicates["superseded"]) == 1
+    assert duplicates["conflicts"] == []
+    assert len(accounts) == 4
+
+
+def test_the_same_invoice_booked_twice_without_the_map(tmp_path):
+    canonical = tmp_path / "rdh.json"
+    canonical.write_text(json.dumps(_qbo_document("RDH")))
+    aliased = tmp_path / "drh.json"
+    aliased.write_text(json.dumps(_qbo_document("DRH")))
+
+    accounts, transactions, _, _, duplicates = ci.convert_paths(
+        [str(canonical), str(aliased)]
+    )
+
+    # Two txids, two sets of accounts, the same sale counted twice -- and
+    # the duplicate machinery sees nothing to collapse.
+    assert len(transactions) == 2
+    assert duplicates["superseded"] == []
+    assert len(accounts) == 8
+
+
+def test_two_captures_of_one_invoice_that_disagree_are_not_booked(tmp_path):
+    canonical = tmp_path / "rdh.json"
+    canonical.write_text(json.dumps(
+        _qbo_document("RDH", records=[_invoice("RDH", total="480.00")])
+    ))
+    aliased = tmp_path / "drh.json"
+    aliased.write_text(json.dumps(
+        _qbo_document("DRH", records=[_invoice("DRH", total="492.50")])
+    ))
+
+    _, transactions, _, _, duplicates = ci.convert_paths(
+        [str(canonical), str(aliased)], entity_aliases={"DRH": "RDH"}
+    )
+
+    assert transactions == []
+    assert len(duplicates["conflicts"]) == 1
+    assert duplicates["conflicts"][0]["txid"] == "COMMERCE:QBO_RDH_INVOICE_12311"
+
+
+def test_the_same_total_written_differently_is_not_a_conflict(tmp_path):
+    # The two QuickBooks captures of this entity write the same figure as
+    # "15.20" and "15.2" on 58 of 267 pairs.
+    canonical = tmp_path / "rdh.json"
+    canonical.write_text(json.dumps(
+        _qbo_document("RDH", records=[_invoice("RDH", total="15.2")])
+    ))
+    aliased = tmp_path / "drh.json"
+    aliased.write_text(json.dumps(
+        _qbo_document("DRH", records=[_invoice("DRH", total="15.20")])
+    ))
+
+    _, transactions, _, _, duplicates = ci.convert_paths(
+        [str(canonical), str(aliased)], entity_aliases={"DRH": "RDH"}
+    )
+
+    assert len(transactions) == 1
+    assert duplicates["conflicts"] == []
