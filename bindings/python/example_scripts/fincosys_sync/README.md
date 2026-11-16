@@ -447,3 +447,25 @@ the sum of the documents' own totals. The QuickBooks ones
 do the same and additionally assert that each currency's receivable equals
 that currency's own stated totals — a cross-currency leak would still balance
 per transaction, so only the per-currency comparison catches it.
+
+## QuickBooks general ledgers (Meridian captures)
+
+`meridian_import.py` is a third input path. Where `commerce_import.py`
+books documents, it books the ledger: each QuickBooks company's whole
+general ledger, as fincosys places it in the entity repositories
+(`accounting/qbo/meridian/<captured>/`), becomes one GnuCash account per
+QuickBooks account and one transaction per QuickBooks transaction.
+
+```bash
+python3 meridian_import.py --repos-root ~/fincosys-repos \
+    --master-entities ../fincosys-core/data/MASTER_ENTITIES.json \
+    --out gl_feed.json
+python3 sync_fincosys.py --feed gl_feed.json --plan-only
+```
+
+It verifies each capture against its manifest's SHA-256, books only
+balanced transactions, ties every bank account to the capture's separate
+bank-ledger report, and books one capture per company. Do not apply it and
+the commerce feed for the same entity to one book: the ledger already holds
+those invoices. Details and measurements: `docs/FINCOSYS_ECOSYSTEM_SYNC.md`,
+"QuickBooks general ledgers reach GnuCash".

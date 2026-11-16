@@ -675,3 +675,91 @@ either. With it, the corpus-wide booking run exits 0 and plans clean: 52
 accounts, 16,393 transactions, 999 superseded captures collapsed, and the
 one genuine figure conflict (`QBO_RZL_INVOICE_52168`) named and left
 unbooked.
+
+## QuickBooks general ledgers reach GnuCash (2026-11-16)
+
+`commerce_import.py` books QuickBooks *invoices* into four summary accounts
+per entity. Since 2026-10-27 fincosys has also placed each QuickBooks
+company's **whole general ledger** in the entity repositories, as Meridian
+captures (`accounting/qbo/meridian/<captured>/`, schema
+`fincosys.qbo_meridian_capture.v1`), and nothing here read them.
+`meridian_import.py` does: every QuickBooks account becomes a GnuCash
+account, every QuickBooks transaction one GnuCash transaction whose splits
+are its postings, in the feed shape `sync_fincosys.py --feed` already plans.
+
+```bash
+python3 meridian_import.py --repos-root ~/fincosys-repos \
+    --master-entities ../fincosys-core/data/MASTER_ENTITIES.json \
+    --account-types RST=../fincosys-core/data/qbo/coa_schema/live_RST_2026-10-29-applied.tsv \
+    --account-types SLG=../fincosys-core/data/qbo/coa_schema/live_SLG_2026-10-29-applied.tsv \
+    --out gl_feed.json
+python3 sync_fincosys.py --feed gl_feed.json --plan-only
+```
+
+Measured on the checkouts of 2026-11-16 (17 captures of six companies; the
+other 16 QuickBooks companies' canonical repositories were not checked out):
+
+| entity | capture | postings | accounts | transactions | bank accounts tied |
+|---|---|---:|---:|---:|---:|
+| RST | 2026-11-11b | 57,897 | 158 | 16,241 | 17 of 17 |
+| RDH | 2026-10-27 | 29,015 | 154 | 9,759 | 24 of 24 |
+| SLG | 2026-11-11 | 8,437 | 38 | 2,607 | 8 of 8 |
+| DRHW | 2026-10-27 | 5,382 | 25 | 910 | 4 of 4 |
+| REG | 2026-11-11 | 2,080 | 27 | 279 | 12 of 12 |
+| REZQBO (ZoE) | 2026-10-27 | 80 | 10 | 39 | 5 of 5 |
+
+**The plan is clean on both planners: 412 accounts, 29,835 transactions,
+every one balanced, 0 duplicate txids, 0 unknown accounts.**
+
+What is checked before anything is booked, each with a test:
+
+- **The capture is what its manifest says.** The decompressed CSV's SHA-256
+  and posting count must equal the manifest's; a capture that does not is
+  refused.
+- **A transaction is the postings sharing `(txn_type, txn_type_id)`.**
+  QuickBooks numbers ids per type, so Deposit 1 and Journal Entry 1 are two
+  transactions. Each must net to zero in the home currency (all 29,835 do);
+  one that does not is named and left out. Each capture must net to zero, or
+  the report says it may be cut short.
+- **Every bank account ties to a second report.** The capture's bank ledger
+  is a separate GeneralLedger report fetched for bank-type accounts only.
+  Each bank account's net in the feed equals its net there, to the cent, on
+  all 70 bank accounts above.
+- **One company, one capture.** A company is placed in its canonical
+  repository and its mirrors (RST in `entity-rst` and
+  `entity-regima-skin-treatments`). The newest capture wins (9 older ones
+  reported superseded); byte-identical copies book once (2); copies of one
+  capture that differ are a conflict and the company is not booked (none).
+
+**Account types** are not in the GL report. Each account records which source
+decided it (`type_basis`): an account list (the capture repository's own
+`Account.csv` / `accounts.json`, or a list named with `--account-types`;
+341 accounts), the bank ledger (19), QuickBooks' system names (2), the
+Pastel class of a Sage code (1), the programme's clearing and
+"Payments with" accounts by name (39, typed as assets: their QuickBooks type
+is held nowhere), QuickBooks template names (6), and "Not Specified", the
+section QuickBooks gives zero-amount postings with no account (2). **2 are
+unresolved**: ZoE's `2900`/`2990` agglomeration threads, booked as assets
+and counted. RST's own `Account.csv` of 2026-09-10 types only 8 of its 158
+accounts, because the rest were created by the chart-schema apply of
+2026-10-29; that is why fincosys-core's `coa_schema/live_*-applied.tsv` is
+the list to pass for RST and SLG.
+
+Three things it does not do:
+
+- **Foreign currency.** QuickBooks reports postings in the home currency; the
+  foreign currency and rate (RDH holds USD and ZAR postings) go into the split
+  memo and the transaction metadata. The book is a home-currency book.
+- **Rewrite a transaction QuickBooks changed after it was booked.** The txid
+  is the QuickBooks identity (`QBO-GL:<entity>:<realm>:<type>:<id>`), so
+  re-applying is idempotent and an edited transaction is skipped, not
+  updated. Each carries `content_sha256` over its postings so a later run can
+  name which booked transactions have changed.
+- **Merge with the commerce feed.** The ledger already holds every QuickBooks
+  invoice `commerce_import.py` books. Applying both feeds for one entity to
+  one book double-counts its sales; the report names the entities where that
+  would happen (DRHW and RDH on this corpus). Use separate books.
+
+Not yet done: accospace reads no Meridian capture, so the hypergraph export
+carries the commerce records and not the ledgers. That is the next step on
+accospace's side (a ledger loader beside `loaders/commerce.py`).
